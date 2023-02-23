@@ -37,7 +37,7 @@ set about_command "python -m xchembku_cli.main --about"
 set-alias "xchembku_about" $about_command
 
 # Function to start all the services.
-set-alias "xchembku_start" "python -m xchembku_cli.main start_services dls_servbase_dataface dataface collector gui"
+set-alias "xchembku_start" "python -m xchembku_cli.main start_services all"
 
 # Function to submit a workflow.
 set-alias "xchembku_submit" "python -m xchembku_cli.main submit"

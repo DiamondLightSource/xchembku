@@ -15,32 +15,9 @@ logging_settings:
 
 # The external access bits.
 external_access_bits:
-    dls_servbase_database_filename: &DLS_BILLY_DATABASE_FILENAME /scratch/${USER}/xchembku/databases/dls_servbase_dataface.sqlite
     database_filename: &DATABASE_FILENAME /scratch/${USER}/xchembku/databases/runtime/xchembku.sqlite
-    dls_servbase_dataface_server: &DLS_BILLY_DATAFACE_SERVER http://*:27820
-    dls_servbase_dataface_client: &DLS_BILLY_DATAFACE_CLIENT http://localhost:27820
     dataface_server: &XCHEMBKU_DATAFACE_SERVER http://*:27821
     dataface_client: &XCHEMBKU_DATAFACE_CLIENT http://localhost:27821
-    collector_server: &COLLECTOR_SERVER http://*:27827
-    collector_client: &COLLECTOR_CLIENT http://localhost:27827
-    xchembku_gui_server: &XCHEMBKU_GUI_SERVER http://*:27822
-    xchembku_gui_client: &XCHEMBKU_GUI_CLIENT http://127.0.0.1:27822
-
-# The dls_servbase_dataface client/server composite.
-dls_servbase_dataface_specification: &DLS_BILLY_DATAFACE_SPECIFICATION
-    type: "dls_servbase_lib.datafaces.aiohttp"
-    type_specific_tbd:
-        # The remote dataface server access.
-        aiohttp_specification:
-            server: *DLS_BILLY_DATAFACE_SERVER
-            client: *DLS_BILLY_DATAFACE_CLIENT
-        # The local implementation of the dataface.
-        actual_dataface_specification:
-            type: "dls_servbase_lib.datafaces.aiosqlite"
-            database:
-                type: "dls_servbase_lib.databases.aiosqlite"
-                filename: *DLS_BILLY_DATABASE_FILENAME
-                log_level: "WARNING"
 
 # The xchembku_dataface client/server composite.
 xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
@@ -57,18 +34,3 @@ xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
                 type: "xchembku_lib.xchembku_databases.aiosqlite"
                 filename: *DATABASE_FILENAME
                 log_level: "WARNING"
-
-# The xchembku_collector which scans for incoming images.
-xchembku_collector_specification:
-    type: "dls_xchembku_lib.xchembku_collectors.aiohttp"
-    type_specific_tbd:
-        aiohttp_specification:
-            server: *COLLECTOR_SERVER
-            client: *COLLECTOR_CLIENT
-        actual_collector_specification:
-            type: dls_xchembku_lib.xchembku_collectors.scrape_to_database
-            type_specific_tbd:
-                directories:
-                    - "/27/xchembku/tests/images"
-                    - "/dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe/SubwellImages"
-                recursive: True

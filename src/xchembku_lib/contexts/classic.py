@@ -26,7 +26,6 @@ class Classic(Base):
     def __init__(self, specification):
         Base.__init__(self, thing_type, specification)
 
-        self.__dls_servbase_dataface = None
         self.__dataface = None
 
     # ----------------------------------------------------------------------------------------
@@ -55,7 +54,6 @@ class Classic(Base):
         dead = []
         alive = []
 
-        await self.__dead_or_alive(self.__dls_servbase_dataface, dead, alive)
         await self.__dead_or_alive(self.__dataface, dead, alive)
 
         return dead, alive
@@ -86,30 +84,6 @@ class Classic(Base):
         logger.debug(f"entering {callsign(self)} context")
 
         try:
-
-            try:
-                specification = self.specification().get(
-                    "dls_servbase_dataface_specification"
-                )
-                if specification is not None:
-                    logger.debug(
-                        f"at entering position {callsign(self)} DLS_BILLY DATAFACE"
-                    )
-                    self.__dls_servbase_dataface = DlsServbaseDatafaceContext(
-                        specification
-                    )
-                    await self.__dls_servbase_dataface.aenter()
-                else:
-                    logger.debug(
-                        f"no specification in {callsign(self)} for DLS_BILLY DATAFACE"
-                    )
-            except Exception as exception:
-                raise RuntimeError(
-                    explain(
-                        exception,
-                        f"creating {callsign(self)} dls_servbase_dataface context",
-                    )
-                )
 
             try:
                 specification = self.specification().get(
@@ -154,19 +128,5 @@ class Classic(Base):
                     exc_info=exception,
                 )
             self.__dataface = None
-
-        if self.__dls_servbase_dataface is not None:
-            logger.debug(f"at exiting position {callsign(self)} DLS_BILLY DATAFACE")
-            try:
-                await self.__dls_servbase_dataface.aexit()
-            except Exception as exception:
-                logger.error(
-                    explain(
-                        exception,
-                        f"exiting {callsign(self.__dls_servbase_dataface)} context",
-                    ),
-                    exc_info=exception,
-                )
-            self.__datafa__dls_servbase_datafacece = None
 
         logger.debug(f"exited {callsign(self)} context")

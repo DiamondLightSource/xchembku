@@ -18,10 +18,7 @@ logger = logging.getLogger()
 
 # Specifications of services we can start, and their short names for parse args.
 services = {
-    "dls_servbase_dataface_specification": "dls_servbase_dataface",
     "xchembku_dataface_specification": "dataface",
-    "xchembku_collector_specification": "collector",
-    "xchembku_gui_specification": "gui",
 }
 
 
