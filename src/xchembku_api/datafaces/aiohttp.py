@@ -57,6 +57,12 @@ class Aiohttp:
         return await self.__send_protocolj("update_crystal_well", record, why=why)
 
     # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells(self, filters, why=None):
+        """"""
+
+        return await self.__send_protocolj("fetch_crystal_wells", filters, why=why)
+
+    # ----------------------------------------------------------------------------------------
     async def report_health(self):
         """"""
         return await self.__send_protocolj("report_health")

@@ -112,7 +112,9 @@ class Aiosqlite(Thing):
 
         table_name = Tablenames.CRYSTAL_WELLS
 
-        filename = require("image record", record, CrystalWellFieldnames.FILENAME)
+        filename = require(
+            "crystal well record", record, CrystalWellFieldnames.FILENAME
+        )
         record = copy.deepcopy(record)
         record.pop(CrystalWellFieldnames.FILENAME)
 
@@ -121,6 +123,24 @@ class Aiosqlite(Thing):
             record,
             f"({CrystalWellFieldnames.FILENAME} REGEXP ?)",
             subs=[f"{filename}$"],
+            why=why,
+        )
+
+        return result
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells(self, filters, why=None):
+        """
+        Caller provides the filters for selecting which crystal wells.
+        Returns records from the database.
+        """
+
+        table_name = Tablenames.CRYSTAL_WELLS
+
+        if why is None:
+            why = "API fetch_crystal_wells"
+        result = await self.query(
+            f"SELECT * FROM {table_name}",
             why=why,
         )
 
