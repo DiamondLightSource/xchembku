@@ -1,0 +1,89 @@
+type: xchembku_lib.xchembku_contexts.classic
+
+logging_settings:
+    console:
+        enabled: True
+        verbose: True
+    logfile:
+        enabled: True
+        directory: xchembku
+    graypy:
+        enabled: False
+        host: 172.23.7.128
+        port: 12201
+        protocol: UDP
+
+# The external access bits.
+external_access_bits:
+    dls_servbase_database_filename: &DLS_BILLY_DATABASE_FILENAME /scratch/${USER}/xchembku/databases/dls_servbase_dataface.sqlite
+    database_filename: &DATABASE_FILENAME /scratch/${USER}/xchembku/databases/runtime/xchembku.sqlite
+    dls_servbase_dataface_server: &DLS_BILLY_DATAFACE_SERVER http://*:27620
+    dls_servbase_dataface_client: &DLS_BILLY_DATAFACE_CLIENT http://localhost:27620
+    dataface_server: &XCHEMBKU_DATAFACE_SERVER http://*:27621
+    dataface_client: &XCHEMBKU_DATAFACE_CLIENT http://localhost:27621
+    collector_server: &COLLECTOR_SERVER http://*:27627
+    collector_client: &COLLECTOR_CLIENT http://localhost:27627
+    xchembku_gui_server: &XCHEMBKU_GUI_SERVER http://*:27622
+    xchembku_gui_client: &XCHEMBKU_GUI_CLIENT http://127.0.0.1:27622
+
+# The dls_servbase_dataface client/server composite.
+dls_servbase_dataface_specification: &DLS_BILLY_DATAFACE_SPECIFICATION
+    type: "dls_servbase_lib.datafaces.aiohttp"
+    type_specific_tbd:
+        # The remote dataface server access.
+        aiohttp_specification:
+            server: *DLS_BILLY_DATAFACE_SERVER
+            client: *DLS_BILLY_DATAFACE_CLIENT
+        # The local implementation of the dataface.
+        actual_dataface_specification:
+            type: "dls_servbase_lib.datafaces.aiosqlite"
+            database:
+                type: "dls_servbase_lib.databases.aiosqlite"
+                filename: *DLS_BILLY_DATABASE_FILENAME
+                log_level: "WARNING"
+
+# The xchembku_dataface client/server composite.
+xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
+    type: "xchembku_lib.xchembku_datafaces.aiohttp"
+    type_specific_tbd:
+        # The remote xchembku_dataface server access.
+        aiohttp_specification:
+            server: *XCHEMBKU_DATAFACE_SERVER
+            client: *XCHEMBKU_DATAFACE_CLIENT
+        # The local implementation of the xchembku_dataface.
+        actual_xchembku_dataface_specification:
+            type: "xchembku_lib.xchembku_datafaces.aiosqlite"
+            database:
+                type: "xchembku_lib.xchembku_databases.aiosqlite"
+                filename: *DATABASE_FILENAME
+                log_level: "WARNING"
+
+# The xchembku_collector which scans for incoming images.
+xchembku_collector_specification:
+    type: "dls_xchembku_lib.xchembku_collectors.aiohttp"
+    type_specific_tbd:
+        aiohttp_specification:
+            server: *COLLECTOR_SERVER
+            client: *COLLECTOR_CLIENT
+        actual_collector_specification:
+            type: dls_xchembku_lib.xchembku_collectors.scrape_to_database
+            type_specific_tbd:
+                directories:
+                    - "/27/xchembku/tests/images"
+                    - "/dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe/SubwellImages"
+                recursive: True
+
+# The xchembku_gui specification.
+xchembku_gui_specification:
+    type: "xchembku_lib.xchembku_guis.aiohttp"
+    type_specific_tbd:
+        # The remote xchembku_gui server access.
+        aiohttp_specification:
+            server: *XCHEMBKU_GUI_SERVER
+            client: *XCHEMBKU_GUI_CLIENT
+            cookie_specification:
+                type: "dls_servbase_lib.cookies.dataface"
+                type_specific_tbd:
+                    dataface_specification: *DLS_BILLY_DATAFACE_SPECIFICATION
+    # The dataface which the gui talks to.
+    xchembku_dataface_specification: *XCHEMBKU_DATAFACE_SPECIFICATION

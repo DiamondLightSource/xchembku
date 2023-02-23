@@ -1,0 +1,21 @@
+# Primary information needed for devops.
+primary:
+    repository_name: xchembku
+    package_name: xchembku_lib
+    one_line_description: "XChem GUI for manually targeting drop points for the Echo dispenser."
+    author:
+        name: David Erb
+        email: david.erb@diamond.ac.uk
+    project_urls:
+        GitLab: https://gitlab.diamond.ac.uk/xchem
+    project_scripts:
+        xchembku: "xchembku_lib.__main__:main"
+        xchembku.cli: "xchembku_cli.main:main"
+    dependencies:
+        - type: pypi
+          list:
+              - dls_servbase
+              - dls_mainiac
+              - dls_utilpack
+              - pillow
+              - numpy

@@ -1,0 +1,57 @@
+#%Module -*- tcl -*-
+
+proc ModulesHelp { } {
+  puts stderr "\tSets up the environment for xchembku commands."
+}
+
+module-whatis "sets up the environment for xchembku commands"
+
+set mach $tcl_platform(machine)
+set arch 64
+
+if { [module-info mode load]} {
+  # load the default directories
+  if { ! [is-loaded global/directories] } {
+    module load global/directories
+  }
+}
+
+set anaconda_version 4.6.14
+set pymajorversion 3.9
+
+set PYTHON_HOME $env(softwaredir)/python/anaconda/$anaconda_version/$arch/envs/python$pymajorversion
+set PYTHON_BASE_HOME $env(softwaredir)/python/anaconda/$anaconda_version/$arch
+
+setenv PYTHON_HOME $PYTHON_HOME
+setenv PYTHON_BASE_HOME $PYTHON_BASE_HOME
+
+# The xchembku conda environment we want to use.
+set xchembku_version 1.4.1
+
+if { [module-info mode remove] && ![module-info mode switch3] } {
+    puts stdout "conda deactivate;"
+} 
+
+# Function to display versions.
+set about_command "python -m xchembku_cli.main --about"
+set-alias "xchembku_about" $about_command
+
+# Function to start all the services.
+set-alias "xchembku_start" "python -m xchembku_cli.main start_services dls_servbase_dataface dataface collector gui"
+
+# Function to submit a workflow.
+set-alias "xchembku_submit" "python -m xchembku_cli.main submit"
+
+# Function to tail the log file.
+set-alias "xchembku_logtail" "tail -f /tmp/logs/xchembku/logformatter.log"
+
+# instructions based on https://github.com/conda/conda/blob/master/CHANGELOG.md#440-2017-12-20
+set source_command "source $PYTHON_BASE_HOME/etc/profile.d/conda.sh"
+set conda_command "conda activate /dls_sw/apps/xchem/conda/envs/xchembku/$xchembku_version"
+
+if { [module-info mode load] || [module-info mode switch2] } {
+    puts stdout "$source_command;"
+    puts stdout "$conda_command;"
+    puts stderr "Xchembku is loaded.  Components are..."
+    puts stdout "$about_command;"
+} 
