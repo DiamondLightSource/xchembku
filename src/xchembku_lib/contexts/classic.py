@@ -7,8 +7,6 @@ from dls_utilpack.callsign import callsign
 # Utilities.
 from dls_utilpack.explain import explain
 
-from xchembku_lib.collectors.context import Context as CollectorContext
-
 # Base class which maps flask requests to methods.
 from xchembku_lib.contexts.base import Base
 from xchembku_lib.datafaces.context import Context as DatafaceContext
@@ -30,7 +28,6 @@ class Classic(Base):
 
         self.__dls_servbase_dataface = None
         self.__dataface = None
-        self.__collector = None
 
     # ----------------------------------------------------------------------------------------
     async def __dead_or_alive(self, context, dead, alive):
@@ -60,7 +57,6 @@ class Classic(Base):
 
         await self.__dead_or_alive(self.__dls_servbase_dataface, dead, alive)
         await self.__dead_or_alive(self.__dataface, dead, alive)
-        await self.__dead_or_alive(self.__collector, dead, alive)
 
         return dead, alive
 
@@ -130,19 +126,6 @@ class Classic(Base):
                     explain(exception, f"creating {callsign(self)} dataface context")
                 )
 
-            try:
-                specification = self.specification().get(
-                    "xchembku_collector_specification"
-                )
-                if specification is not None:
-                    logger.debug(f"at entering position {callsign(self)} COLLECTOR")
-                    self.__collector = CollectorContext(specification)
-                    await self.__collector.aenter()
-            except Exception as exception:
-                raise RuntimeError(
-                    explain(exception, f"creating {callsign(self)} collector context")
-                )
-
         except Exception as exception:
             await self.aexit()
             raise RuntimeError(explain(exception, f"entering {callsign(self)} context"))
@@ -160,17 +143,6 @@ class Classic(Base):
         """ """
 
         logger.debug(f"exiting {callsign(self)} context")
-
-        if self.__collector is not None:
-            logger.debug(f"at exiting position {callsign(self)} COLLECTOR")
-            try:
-                await self.__collector.aexit()
-            except Exception as exception:
-                logger.error(
-                    explain(exception, f"exiting {callsign(self.__collector)} context"),
-                    exc_info=exception,
-                )
-            self.__collector = None
 
         if self.__dataface is not None:
             logger.debug(f"at exiting position {callsign(self)} DATAFACE")
