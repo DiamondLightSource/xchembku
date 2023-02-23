@@ -150,7 +150,7 @@ html_theme_options = dict(
     logo=dict(
         text=project,
     ),
-    gitlab_url="https://gitlab.diamond.ac.uk/xchem/xchembku",
+    gitlab_url="https://github.com/diamondlightsource/xchembku/xchembku",
     icon_links=[],
     navbar_end=["theme-switcher", "icon-links"],
 )
@@ -187,7 +187,7 @@ def ultimateReplace(app, docname, source):
 ultimate_replacements = {
     "$" + "{repository_name}": "xchembku",
     "$" + "{package_name}": "xchembku_lib",
-    "$" + "{git_url}": "https://gitlab.diamond.ac.uk/xchem",
+    "$" + "{git_url}": "https://github.com/diamondlightsource/xchembku",
     "$" + "{python_version_at_least}": "3.9",
 }
 
@@ -197,4 +197,4 @@ def setup(app):
     app.connect("source-read", ultimateReplace)
 
 
-# dae_devops_fingerprint a36edd2efd77879431d3a57247ae14b1
+# dae_devops_fingerprint e37b41308750589576eeeb1ce58f126e

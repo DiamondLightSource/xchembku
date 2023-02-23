@@ -32,7 +32,7 @@ You can now use ``pip`` to install the library and its dependencies::
 If you require a feature that is not currently released you can also install
 from git::
 
-    $ python3 -m pip install git+https://gitlab.diamond.ac.uk/xchem/xchembku.git
+    $ python3 -m pip install git+https://github.com/diamondlightsource/xchembku/xchembku.git
 
 The library should now be installed and the commandline interface on your path.
 You can check the version that has been installed by typing::
@@ -40,4 +40,4 @@ You can check the version that has been installed by typing::
     $ xchembku --version
     $ xchembku --version-json
 
-.. # dae_devops_fingerprint 273dbfd0b00707d45cf39213b4f15ea6
+.. # dae_devops_fingerprint 2d13700967f6e58ff8ab801a6991c4ad

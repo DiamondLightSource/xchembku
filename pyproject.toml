@@ -15,8 +15,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-description = "XChem GUI for manually targeting drop points for the Echo dispenser."
-dependencies = ["dls_servbase", "dls_mainiac", "dls_utilpack", "pillow", "numpy"]
+description = "XChem Business Knowledge Unit. Service, Client, API, persistent store."
+dependencies = ["dls_servbase", "dls_mainiac", "dls_utilpack"]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.rst"
@@ -54,7 +54,7 @@ xchembku = "xchembku_lib.__main__:main"
 "xchembku.cli" = "xchembku_cli.main:main"
 
 [project.urls]
-GitLab = "https://gitlab.diamond.ac.uk/xchem/xchembku"
+GitLab = "https://github.com/diamondlightsource/xchembku/xchembku"
 
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "david.erb@diamond.ac.uk"
@@ -102,4 +102,4 @@ source = ["src", "**/site-packages/"]
 [tool.tox]
 legacy_tox_ini = "[tox]\nskipsdist=True\n\n[testenv:{pre-commit,mypy,pytest,docs}]\n# Don't create a virtualenv for the command, requires tox-direct plugin\ndirect = True\npassenv = *\nallowlist_externals = \n    pytest \n    pre-commit\n    mypy\n    sphinx-build\n    sphinx-autobuild\ncommands =\n    pytest: pytest {posargs}\n    mypy: mypy src tests {posargs}\n    pre-commit: pre-commit run --all-files {posargs}\n    docs: sphinx-{posargs:build -EW --keep-going} -T docs build/html\n"
 
-# dae_devops_fingerprint ba5fc97ca7790cefb081470af7d3dfc1
+# dae_devops_fingerprint 85bc7819cab64410747d2862b8b362cf

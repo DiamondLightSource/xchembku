@@ -9,7 +9,7 @@ If you plan to make change to the code in this repository, you can use the steps
 
 Clone the repository::
 
-    $ git clone https://gitlab.diamond.ac.uk/xchem/xchembku.git
+    $ git clone https://github.com/diamondlightsource/xchembku/xchembku.git
 
 It is recommended that you install into a virtual environment so this
 installation will not interfere with any existing Python software.
@@ -36,4 +36,4 @@ If you plan to modify the docs, you will need to::
     
 
 
-.. # dae_devops_fingerprint 0777aca38dc175d28052c6e11fd26700
+.. # dae_devops_fingerprint 2ebf170fbef6d49e7725feaefcd5caa5
