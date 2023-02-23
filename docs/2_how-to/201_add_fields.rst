@@ -3,13 +3,13 @@ Add fields to the database
 
 This section describes the actions you must take to add new a new field to the database.
 
-Let's say you want to add a new field called ``myfield`` to the ``rockmaker_images`` table.
+Let's say you want to add a new field called ``myfield`` to the ``crystal_wells`` table.
 
 1. first, follow all the steps from the first tutorial to get the services and gui up and running
 
 #. edit ``src/xchembku_api/databases/constants.py``
 
-    Add a new field, following the pattern in the ``ImageFieldnames`` class.
+    Add a new field, following the pattern in the ``CrystalWellFieldnames`` class.
 
 #. edit ``src/xchembku_lib/databases/table_definitions.py``
 

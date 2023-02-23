@@ -4,11 +4,11 @@ from dls_normsql.constants import CommonFieldnames
 
 # ----------------------------------------------------------------------------------------
 class Tablenames:
-    ROCKMAKER_IMAGES = "rockmaker_images"
+    CRYSTAL_WELLS = "crystal_wells"
 
 
 # ----------------------------------------------------------------------------------------
-class ImageFieldnames:
+class CrystalWellFieldnames:
     AUTOID = CommonFieldnames.AUTOID
     CREATED_ON = CommonFieldnames.CREATED_ON
     FILENAME = "filename"

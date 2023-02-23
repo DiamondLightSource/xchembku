@@ -10,4 +10,4 @@ They are what your project needs in order to show a beginner that they can achie
     :caption: Tutorials
 
     1_tutorials/101_run_conda
-    1_tutorials/102_update_image
+    1_tutorials/102_update_crystal_well

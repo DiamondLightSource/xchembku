@@ -1,15 +1,14 @@
 import logging
 
-from xchembku_api.databases.constants import ImageFieldnames, Tablenames
+# Base class for the tester.
+from tests.base_context_tester import BaseContextTester
+from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 
 # Context creator.
 from xchembku_lib.contexts.contexts import Contexts
-
-# Base class for the tester.
-from tests.base_context_tester import BaseContextTester
 
 logger = logging.getLogger(__name__)
 
@@ -42,36 +41,36 @@ class DatafaceImageTester(BaseContextTester):
 
             # Write one record.
             await dataface.insert(
-                Tablenames.ROCKMAKER_IMAGES,
+                Tablenames.CRYSTAL_WELLS,
                 [
                     {
-                        ImageFieldnames.FILENAME: "x",
-                        ImageFieldnames.TARGET_POSITION_X: "1",
-                        ImageFieldnames.TARGET_POSITION_Y: "2",
+                        CrystalWellFieldnames.FILENAME: "x",
+                        CrystalWellFieldnames.TARGET_POSITION_X: "1",
+                        CrystalWellFieldnames.TARGET_POSITION_Y: "2",
                     }
                 ],
             )
 
-            all_sql = f"SELECT * FROM {Tablenames.ROCKMAKER_IMAGES}"
+            all_sql = f"SELECT * FROM {Tablenames.CRYSTAL_WELLS}"
             records = await dataface.query(all_sql)
 
             assert len(records) == 1
-            assert records[0][ImageFieldnames.FILENAME] == "x"
-            assert records[0][ImageFieldnames.TARGET_POSITION_X] == 1
-            assert records[0][ImageFieldnames.TARGET_POSITION_Y] == 2
+            assert records[0][CrystalWellFieldnames.FILENAME] == "x"
+            assert records[0][CrystalWellFieldnames.TARGET_POSITION_X] == 1
+            assert records[0][CrystalWellFieldnames.TARGET_POSITION_Y] == 2
 
             # ----------------------------------------------------------------
             # Now try an update.
             record = {
-                ImageFieldnames.WELL_CENTER_X: 123,
-                ImageFieldnames.WELL_CENTER_Y: 456,
+                CrystalWellFieldnames.WELL_CENTER_X: 123,
+                CrystalWellFieldnames.WELL_CENTER_Y: 456,
             }
 
             subs = [1]
             result = await dataface.update(
-                Tablenames.ROCKMAKER_IMAGES,
+                Tablenames.CRYSTAL_WELLS,
                 record,
-                f"{ImageFieldnames.AUTOID} = ?",
+                f"{CrystalWellFieldnames.AUTOID} = ?",
                 subs=subs,
                 why="test update",
             )
@@ -80,5 +79,5 @@ class DatafaceImageTester(BaseContextTester):
             records = await dataface.query(all_sql)
 
             assert len(records) == 1
-            assert records[0][ImageFieldnames.WELL_CENTER_X] == 123
-            assert records[0][ImageFieldnames.WELL_CENTER_Y] == 456
+            assert records[0][CrystalWellFieldnames.WELL_CENTER_X] == 123
+            assert records[0][CrystalWellFieldnames.WELL_CENTER_Y] == 456

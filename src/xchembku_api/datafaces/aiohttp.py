@@ -51,10 +51,10 @@ class Aiohttp:
         )
 
     # ----------------------------------------------------------------------------------------
-    async def update_image(self, record, why=None):
+    async def update_crystal_well(self, record, why=None):
         """"""
 
-        return await self.__send_protocolj("update_image", record, why=why)
+        return await self.__send_protocolj("update_crystal_well", record, why=why)
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):

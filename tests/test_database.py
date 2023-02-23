@@ -4,7 +4,7 @@ import multiprocessing
 
 import pytest
 
-from xchembku_api.databases.constants import ImageFieldnames, Tablenames
+from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
 from xchembku_lib.databases.databases import Databases
 
 logger = logging.getLogger(__name__)
@@ -79,16 +79,16 @@ class DatabaseTesterImage(_BaseTester):
 
         # Write one record.
         await database.insert(
-            Tablenames.ROCKMAKER_IMAGES,
+            Tablenames.CRYSTAL_WELLS,
             [
                 {
-                    ImageFieldnames.FILENAME: "x",
-                    ImageFieldnames.TARGET_POSITION_X: "1",
-                    ImageFieldnames.TARGET_POSITION_Y: "2",
+                    CrystalWellFieldnames.FILENAME: "x",
+                    CrystalWellFieldnames.TARGET_POSITION_X: "1",
+                    CrystalWellFieldnames.TARGET_POSITION_Y: "2",
                 }
             ],
         )
-        all_sql = f"SELECT * FROM {Tablenames.ROCKMAKER_IMAGES}"
+        all_sql = f"SELECT * FROM {Tablenames.CRYSTAL_WELLS}"
         records = await database.query(all_sql)
         assert len(records) == 1
 
@@ -100,13 +100,13 @@ class DatabaseTesterImage(_BaseTester):
             ["f4", 4],
         ]
         await database.execute(
-            f"INSERT INTO {Tablenames.ROCKMAKER_IMAGES}"
-            f" ({ImageFieldnames.FILENAME}, {ImageFieldnames.TARGET_POSITION_X})"
+            f"INSERT INTO {Tablenames.CRYSTAL_WELLS}"
+            f" ({CrystalWellFieldnames.FILENAME}, {CrystalWellFieldnames.TARGET_POSITION_X})"
             " VALUES (?, ?)",
             insertable_records,
         )
 
-        all_sql = f"SELECT * FROM {Tablenames.ROCKMAKER_IMAGES}"
+        all_sql = f"SELECT * FROM {Tablenames.CRYSTAL_WELLS}"
         records = await database.query(all_sql)
         assert len(records) == 5
 

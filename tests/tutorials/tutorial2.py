@@ -3,7 +3,7 @@
 import asyncio
 import json
 
-from xchembku_api.databases.constants import ImageFieldnames
+from xchembku_api.databases.constants import CrystalWellFieldnames
 from xchembku_api.datafaces.constants import Types
 from xchembku_api.datafaces.context import Context
 
@@ -19,10 +19,13 @@ client_specification = {
 async def tutorial():
     async with Context(client_specification) as client_interface:
         # This is the request which is sent to update the image.
-        request = {"filename": ".*1.jpg", ImageFieldnames.CRYSTAL_PROBABILITY: 0.9}
+        request = {
+            "filename": ".*1.jpg",
+            CrystalWellFieldnames.CRYSTAL_PROBABILITY: 0.9,
+        }
 
         # Send the request to the server and get the response.
-        response = await client_interface.update_image(request)
+        response = await client_interface.update_crystal_well(request)
 
         # Show the response, which is None if success, otherwise a dict with errors in it.
         print(json.dumps(response, indent=4))

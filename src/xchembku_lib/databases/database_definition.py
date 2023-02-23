@@ -26,19 +26,19 @@ class DatabaseDefinition:
         pass
 
         # from xchembku_api.databases.constants import Tablenames
-        # from xchembku_api.databases.constants import ImageFieldnames
+        # from xchembku_api.databases.constants import CrystalWellFieldnames
         # if revision == 2:
         #     await self.execute(
-        #         f"ALTER TABLE {Tablenames.ROCKMAKER_IMAGES} ADD COLUMN {ImageFieldnames.NEWFIELD} TEXT",
-        #         why=f"revision 2: add {Tablenames.ROCKMAKER_IMAGES} {ImageFieldnames.NEWFIELD} column",
+        #         f"ALTER TABLE {Tablenames.CRYSTAL_WELLS} ADD COLUMN {CrystalWellFieldnames.NEWFIELD} TEXT",
+        #         why=f"revision 2: add {Tablenames.CRYSTAL_WELLS} {CrystalWellFieldnames.NEWFIELD} column",
         #     )
         #     await self.execute(
         #         "CREATE INDEX %s_%s ON %s(%s)"
         #         % (
-        #             Tablenames.ROCKMAKER_IMAGES,
-        #             ImageFieldnames.NEWFIELD,
-        #             Tablenames.ROCKMAKER_IMAGES,
-        #             ImageFieldnames.NEWFIELD,
+        #             Tablenames.CRYSTAL_WELLS,
+        #             CrystalWellFieldnames.NEWFIELD,
+        #             Tablenames.CRYSTAL_WELLS,
+        #             CrystalWellFieldnames.NEWFIELD,
         #         )
         #     )
 

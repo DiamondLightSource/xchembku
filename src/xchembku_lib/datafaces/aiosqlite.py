@@ -3,7 +3,7 @@ import logging
 
 from dls_utilpack.require import require
 
-from xchembku_api.databases.constants import ImageFieldnames, Tablenames
+from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
 
 # Base class for generic things.
 from xchembku_api.thing import Thing
@@ -104,22 +104,22 @@ class Aiosqlite(Thing):
         }
 
     # ----------------------------------------------------------------------------------------
-    async def update_image(self, record, why=None):
+    async def update_crystal_well(self, record, why=None):
         """
         Caller provides the image record with the fields to be updated.
         The filename field is used to uniquely select the database record.
         """
 
-        table_name = Tablenames.ROCKMAKER_IMAGES
+        table_name = Tablenames.CRYSTAL_WELLS
 
-        filename = require("image record", record, ImageFieldnames.FILENAME)
+        filename = require("image record", record, CrystalWellFieldnames.FILENAME)
         record = copy.deepcopy(record)
-        record.pop(ImageFieldnames.FILENAME)
+        record.pop(CrystalWellFieldnames.FILENAME)
 
         result = await self.update(
             table_name,
             record,
-            f"({ImageFieldnames.FILENAME} REGEXP ?)",
+            f"({CrystalWellFieldnames.FILENAME} REGEXP ?)",
             subs=[f"{filename}$"],
             why=why,
         )

@@ -17,7 +17,7 @@ This is an operation typically carried out when new information is discovered ab
         import asyncio
         from xchembku_api.datafaces.context import Context
         from xchembku_api.datafaces.constants import Types
-        from xchembku_api.databases.constants import ImageFieldnames
+        from xchembku_api.databases.constants import CrystalWellFieldnames
 
         # Specify the client type and remote endpoint.
         client_specification = {
@@ -33,10 +33,10 @@ This is an operation typically carried out when new information is discovered ab
                 # This is the request which is sent to update the image.
                 request = {
                     "filename": ".*/example_images/1.jpg", 
-                    ImageFieldnames.CRYSTAL_PROBABILITY: 0.9}
+                    CrystalWellFieldnames.CRYSTAL_PROBABILITY: 0.9}
 
                 # Send the request to the server and get the response.
-                response = await client_interface.update_image(request)
+                response = await client_interface.update_crystal_well(request)
 
                 # Show the response, which is None if success, otherwise a dict with errors in it.
                 print(json.dumps(response, indent=4))

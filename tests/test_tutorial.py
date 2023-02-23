@@ -2,16 +2,15 @@ import json
 import logging
 import subprocess
 
-from xchembku_api.databases.constants import ImageFieldnames, Tablenames
+# Base class for the tester.
+from tests.base_context_tester import BaseContextTester
+from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 
 # Context creator.
 from xchembku_lib.contexts.contexts import Contexts
-
-# Base class for the tester.
-from tests.base_context_tester import BaseContextTester
 
 logger = logging.getLogger(__name__)
 
@@ -44,17 +43,17 @@ class TutorialTester(BaseContextTester):
 
             # Write one record.
             await dataface.insert(
-                Tablenames.ROCKMAKER_IMAGES,
+                Tablenames.CRYSTAL_WELLS,
                 [
                     {
-                        ImageFieldnames.FILENAME: "1.jpg",
-                        ImageFieldnames.TARGET_POSITION_X: 1,
-                        ImageFieldnames.TARGET_POSITION_Y: 2,
+                        CrystalWellFieldnames.FILENAME: "1.jpg",
+                        CrystalWellFieldnames.TARGET_POSITION_X: 1,
+                        CrystalWellFieldnames.TARGET_POSITION_Y: 2,
                     },
                     {
-                        ImageFieldnames.FILENAME: "2.jpg",
-                        ImageFieldnames.TARGET_POSITION_X: 3,
-                        ImageFieldnames.TARGET_POSITION_Y: 4,
+                        CrystalWellFieldnames.FILENAME: "2.jpg",
+                        CrystalWellFieldnames.TARGET_POSITION_X: 3,
+                        CrystalWellFieldnames.TARGET_POSITION_Y: 4,
                     },
                 ],
             )
@@ -77,10 +76,10 @@ class TutorialTester(BaseContextTester):
                 assert False, "stdout is not json"
 
             # Check the tutorial ran.
-            all_sql = f"SELECT * FROM {Tablenames.ROCKMAKER_IMAGES}"
+            all_sql = f"SELECT * FROM {Tablenames.CRYSTAL_WELLS}"
             records = await dataface.query(all_sql)
 
             assert len(records) == 2
-            assert records[0][ImageFieldnames.FILENAME] == "1.jpg"
-            assert records[0][ImageFieldnames.TARGET_POSITION_X] == 1
-            assert records[0][ImageFieldnames.TARGET_POSITION_Y] == 2
+            assert records[0][CrystalWellFieldnames.FILENAME] == "1.jpg"
+            assert records[0][CrystalWellFieldnames.TARGET_POSITION_X] == 1
+            assert records[0][CrystalWellFieldnames.TARGET_POSITION_Y] == 2
