@@ -11,9 +11,6 @@ from xchembku_cli.subcommands.base import Base
 # Context creator.
 from xchembku_lib.contexts.contexts import Contexts
 
-# Special reference to the gui so we give the url to the user on the info.
-from xchembku_lib.datafaces.datafaces import xchembku_datafaces_get_default
-
 logger = logging.getLogger()
 
 # Specifications of services we can start, and their short names for parse args.
@@ -71,11 +68,6 @@ class StartServices(Base):
 
         # Open the context (servers and clients).
         async with context:
-            if "gui" in selected_service_names:
-                logger.info(
-                    f"starting gui {callsign(xchembku_datafaces_get_default())}/index.html"
-                )
-
             try:
                 # Stay up until all processes are dead.
                 # TODO: Use asyncio wait or sentinel for all started processes to be dead.
