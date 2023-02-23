@@ -23,11 +23,11 @@ logging_settings:
 
 # The external access bits.
 external_access_bits:
-    dls_servbase_dataface_server: &DLS_BILLY_DATAFACE_SERVER http://*:27620
-    dls_servbase_dataface_client: &DLS_BILLY_DATAFACE_CLIENT http://localhost:27620
-    dataface_port: &DATAFACE_PORT 27621
-    xchembku_gui_server: &XCHEMBKU_GUI_SERVER http://*:27622
-    xchembku_gui_client: &XCHEMBKU_GUI_CLIENT http://127.0.0.1:27622
+    dls_servbase_dataface_server: &DLS_BILLY_DATAFACE_SERVER http://*:27820
+    dls_servbase_dataface_client: &DLS_BILLY_DATAFACE_CLIENT http://localhost:27820
+    dataface_port: &DATAFACE_PORT 27821
+    xchembku_gui_server: &XCHEMBKU_GUI_SERVER http://*:27822
+    xchembku_gui_client: &XCHEMBKU_GUI_CLIENT http://127.0.0.1:27822
 
 # The dls_servbase_dataface client/server composite.
 dls_servbase_dataface_specification: &DLS_BILLY_DATAFACE_SPECIFICATION
@@ -63,23 +63,5 @@ xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
                 type: "xchembku_lib.xchembku_databases.aiosqlite"
                 filename: "${output_directory}/xchembku_dataface.sqlite"
                 log_level: "WARNING"
-    context:
-        start_as: process
-
-# The xchembku_gui specification.
-xchembku_gui_specification:
-    type: "xchembku_lib.xchembku_guis.aiohttp"
-    type_specific_tbd:
-        # The remote xchembku_gui server access.
-        aiohttp_specification:
-            server: *XCHEMBKU_GUI_SERVER
-            client: *XCHEMBKU_GUI_CLIENT
-            search_paths: ["examples/html"]
-            cookie_specification:
-                type: "dls_servbase_lib.cookies.dataface"
-                type_specific_tbd:
-                    dataface_specification: *DLS_BILLY_DATAFACE_SPECIFICATION
-    # The dataface which the gui talks to.
-    xchembku_dataface_specification: *XCHEMBKU_DATAFACE_SPECIFICATION
     context:
         start_as: process

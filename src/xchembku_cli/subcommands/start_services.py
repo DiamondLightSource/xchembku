@@ -12,7 +12,7 @@ from xchembku_cli.subcommands.base import Base
 from xchembku_lib.contexts.contexts import Contexts
 
 # Special reference to the gui so we give the url to the user on the info.
-from xchembku_lib.guis.guis import xchembku_guis_get_default
+from xchembku_lib.datafaces.datafaces import xchembku_datafaces_get_default
 
 logger = logging.getLogger()
 
@@ -76,7 +76,7 @@ class StartServices(Base):
         async with context:
             if "gui" in selected_service_names:
                 logger.info(
-                    f"starting gui {callsign(xchembku_guis_get_default())}/index.html"
+                    f"starting gui {callsign(xchembku_datafaces_get_default())}/index.html"
                 )
 
             try:

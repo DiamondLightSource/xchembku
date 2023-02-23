@@ -17,14 +17,14 @@ logging_settings:
 external_access_bits:
     dls_servbase_database_filename: &DLS_BILLY_DATABASE_FILENAME /scratch/${USER}/xchembku/databases/dls_servbase_dataface.sqlite
     database_filename: &DATABASE_FILENAME /scratch/${USER}/xchembku/databases/runtime/xchembku.sqlite
-    dls_servbase_dataface_server: &DLS_BILLY_DATAFACE_SERVER http://*:27620
-    dls_servbase_dataface_client: &DLS_BILLY_DATAFACE_CLIENT http://localhost:27620
-    dataface_server: &XCHEMBKU_DATAFACE_SERVER http://*:27621
-    dataface_client: &XCHEMBKU_DATAFACE_CLIENT http://localhost:27621
-    collector_server: &COLLECTOR_SERVER http://*:27627
-    collector_client: &COLLECTOR_CLIENT http://localhost:27627
-    xchembku_gui_server: &XCHEMBKU_GUI_SERVER http://*:27622
-    xchembku_gui_client: &XCHEMBKU_GUI_CLIENT http://127.0.0.1:27622
+    dls_servbase_dataface_server: &DLS_BILLY_DATAFACE_SERVER http://*:27820
+    dls_servbase_dataface_client: &DLS_BILLY_DATAFACE_CLIENT http://localhost:27820
+    dataface_server: &XCHEMBKU_DATAFACE_SERVER http://*:27821
+    dataface_client: &XCHEMBKU_DATAFACE_CLIENT http://localhost:27821
+    collector_server: &COLLECTOR_SERVER http://*:27827
+    collector_client: &COLLECTOR_CLIENT http://localhost:27827
+    xchembku_gui_server: &XCHEMBKU_GUI_SERVER http://*:27822
+    xchembku_gui_client: &XCHEMBKU_GUI_CLIENT http://127.0.0.1:27822
 
 # The dls_servbase_dataface client/server composite.
 dls_servbase_dataface_specification: &DLS_BILLY_DATAFACE_SPECIFICATION
@@ -72,18 +72,3 @@ xchembku_collector_specification:
                     - "/27/xchembku/tests/images"
                     - "/dls/science/groups/i04-1/software/luigi_pipeline/imager_pipe/SubwellImages"
                 recursive: True
-
-# The xchembku_gui specification.
-xchembku_gui_specification:
-    type: "xchembku_lib.xchembku_guis.aiohttp"
-    type_specific_tbd:
-        # The remote xchembku_gui server access.
-        aiohttp_specification:
-            server: *XCHEMBKU_GUI_SERVER
-            client: *XCHEMBKU_GUI_CLIENT
-            cookie_specification:
-                type: "dls_servbase_lib.cookies.dataface"
-                type_specific_tbd:
-                    dataface_specification: *DLS_BILLY_DATAFACE_SPECIFICATION
-    # The dataface which the gui talks to.
-    xchembku_dataface_specification: *XCHEMBKU_DATAFACE_SPECIFICATION

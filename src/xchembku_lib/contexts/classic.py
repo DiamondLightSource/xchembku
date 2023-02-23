@@ -12,7 +12,6 @@ from xchembku_lib.collectors.context import Context as CollectorContext
 # Base class which maps flask requests to methods.
 from xchembku_lib.contexts.base import Base
 from xchembku_lib.datafaces.context import Context as DatafaceContext
-from xchembku_lib.guis.context import Context as GuiContext
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,6 @@ class Classic(Base):
         self.__dls_servbase_dataface = None
         self.__dataface = None
         self.__collector = None
-        self.__gui = None
 
     # ----------------------------------------------------------------------------------------
     async def __dead_or_alive(self, context, dead, alive):
@@ -63,7 +61,6 @@ class Classic(Base):
         await self.__dead_or_alive(self.__dls_servbase_dataface, dead, alive)
         await self.__dead_or_alive(self.__dataface, dead, alive)
         await self.__dead_or_alive(self.__collector, dead, alive)
-        await self.__dead_or_alive(self.__gui, dead, alive)
 
         return dead, alive
 
@@ -146,19 +143,6 @@ class Classic(Base):
                     explain(exception, f"creating {callsign(self)} collector context")
                 )
 
-            try:
-                specification = self.specification().get(
-                    "xchembku_gui_specification"
-                )
-                if specification is not None:
-                    logger.debug(f"at entering position {callsign(self)} GUI")
-                    self.__gui = GuiContext(specification)
-                    await self.__gui.aenter()
-            except Exception as exception:
-                raise RuntimeError(
-                    explain(exception, f"creating {callsign(self)} gui context")
-                )
-
         except Exception as exception:
             await self.aexit()
             raise RuntimeError(explain(exception, f"entering {callsign(self)} context"))
@@ -176,17 +160,6 @@ class Classic(Base):
         """ """
 
         logger.debug(f"exiting {callsign(self)} context")
-
-        if self.__gui is not None:
-            logger.debug(f"at exiting position {callsign(self)} GUI")
-            try:
-                await self.__gui.aexit()
-            except Exception as exception:
-                logger.error(
-                    explain(exception, f"exiting {callsign(self.__gui)} context"),
-                    exc_info=exception,
-                )
-            self.__gui = None
 
         if self.__collector is not None:
             logger.debug(f"at exiting position {callsign(self)} COLLECTOR")
