@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 # To get started with Dependabot version updates, you'll need to specify which
@@ -19,4 +19,4 @@ updates:
     schedule:
       interval: "weekly"
 
-# dae_devops_fingerprint 14ad6fa3f346d875adcb9466300bdd7d
+# dae_devops_fingerprint 35a240f5b9435f88aebb3cc5d4d8f23f

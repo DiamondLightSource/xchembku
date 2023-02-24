@@ -4,10 +4,7 @@ import logging
 from xchembku_api.context_base import ContextBase
 
 # Things created in the context.
-from xchembku_api.datafaces.datafaces import (
-    Datafaces,
-    xchembku_datafaces_set_default,
-)
+from xchembku_api.datafaces.datafaces import Datafaces, xchembku_datafaces_set_default
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,6 @@
 import logging
 
 # Contexts.
-from dls_servbase_lib.datafaces.context import Context as DlsServbaseDatafaceContext
 from dls_utilpack.callsign import callsign
 
 # Utilities.

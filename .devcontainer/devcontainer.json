@@ -1,5 +1,5 @@
 // ********** Please don't edit this file!
-// ********** It has been generated automatically by dae_devops version 0.5.1.
+// ********** It has been generated automatically by dae_devops version 0.5.2.
 // ********** For repository_name xchembku
 
 // For format details, see https://containers.dev/implementors/json_reference/
@@ -57,4 +57,4 @@
     "postCreateCommand": "pip install -e .[dev]"
 }
 
-// dae_devops_fingerprint d35fb564a3058445fd4c4958e20c2052
+// dae_devops_fingerprint da0893109849a1c2b1e58165a9acf775

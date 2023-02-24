@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 me=${BASH_SOURCE}
@@ -13,4 +13,4 @@ function __install {
 }
 
 
-# dae_devops_fingerprint afcb4bfc6594dce12189c5df4171afac
+# dae_devops_fingerprint e0ae8f2ac0e475defc383c2fc1c4507a

@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 # This file is for use as a devcontainer and a runtime container
@@ -40,4 +40,4 @@ ENV PATH=/venv/bin:$PATH
 ENTRYPOINT ["xchembku"]
 CMD ["--version"]
 
-# dae_devops_fingerprint 6523379245c65d34f97a24e805cbeefb
+# dae_devops_fingerprint 680468bdc2c14f847ee259257ae283d9

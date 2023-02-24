@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 name: Docs Cleanup CI
@@ -46,4 +46,4 @@ jobs:
           git commit -am "Removing redundant docs version $DOCS_VERSION"
           git push
 
-# dae_devops_fingerprint bca9c2af3af38c52416b4563392d5741
+# dae_devops_fingerprint 265968f295372c9fce9a5dcd7a5d61c2

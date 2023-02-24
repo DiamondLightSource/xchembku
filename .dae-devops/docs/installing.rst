@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.1.
+.. # ********** It has been generated automatically by dae_devops version 0.5.2.
 .. # ********** For repository_name xchembku
 
 Installing
@@ -40,4 +40,4 @@ You can check the version that has been installed by typing::
     $ xchembku --version
     $ xchembku --version-json
 
-.. # dae_devops_fingerprint 2d13700967f6e58ff8ab801a6991c4ad
+.. # dae_devops_fingerprint e0afdddf0067db56b8f017a8b41f6d5e

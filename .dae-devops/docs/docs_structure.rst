@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.1.
+.. # ********** It has been generated automatically by dae_devops version 0.5.2.
 .. # ********** For repository_name xchembku
 
 About the documentation
@@ -21,4 +21,4 @@ improve most documentation - often immensely.
 
 `More information on this topic. <https://documentation.divio.com>`_
 
-.. # dae_devops_fingerprint f7a41a3f8cef31f5d507747405e118c7
+.. # dae_devops_fingerprint 3991a961381331fb710f03dd96c3db0d

@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.1.
+.. # ********** It has been generated automatically by dae_devops version 0.5.2.
 .. # ********** For repository_name xchembku
 
 Testing
@@ -35,4 +35,4 @@ This allows peeking in there to see what's been written by the test.
     
 
 
-.. # dae_devops_fingerprint 1321c977458dd9c096f643c190b585ca
+.. # dae_devops_fingerprint 0280ed9bb4b4f7b5eeb335a405be618b

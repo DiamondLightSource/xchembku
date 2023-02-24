@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 name: Docs CI
@@ -56,4 +56,4 @@ jobs:
           publish_dir: .github/pages
           keep_files: true
 
-# dae_devops_fingerprint bea81feec5d69d0d8bf22af967fa9e68
+# dae_devops_fingerprint 90ddc5e712aa6cbe77be2950f77400f8

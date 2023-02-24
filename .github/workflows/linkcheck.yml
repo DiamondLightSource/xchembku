@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 name: Link Check
@@ -27,4 +27,4 @@ jobs:
       - name: Check links
         run: tox -e docs build -- -b linkcheck
 
-# dae_devops_fingerprint e5064903e82a363eee1e5aa3774f3e79
+# dae_devops_fingerprint a6fb2885c8e8a2fd68b602f0deeccba1

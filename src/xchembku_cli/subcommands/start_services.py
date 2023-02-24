@@ -3,8 +3,6 @@ import asyncio
 # Use standard logging in this module.
 import logging
 
-from dls_utilpack.callsign import callsign
-
 # Base class for cli subcommands.
 from xchembku_cli.subcommands.base import Base
 

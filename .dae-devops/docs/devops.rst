@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.1.
+.. # ********** It has been generated automatically by dae_devops version 0.5.2.
 .. # ********** For repository_name xchembku
 
 Devops
@@ -43,4 +43,4 @@ Publishing::
     
 
 
-.. # dae_devops_fingerprint 076be73dea1625dcc794c3c79dceaa36
+.. # dae_devops_fingerprint 5046f56ff14b58d97e9d1ae6c461f519

@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 name: Code CI
@@ -212,4 +212,4 @@ jobs:
         with:
           password: ${{ secrets.PYPI_TOKEN }}
 
-# dae_devops_fingerprint 244fd155ba1e014f2b929c0933b3a087
+# dae_devops_fingerprint bb3f1f5853bc4dae6aee2b49904ee5f0

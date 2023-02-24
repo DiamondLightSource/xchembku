@@ -16,4 +16,5 @@ primary:
           list:
               - dls_servbase
               - dls_mainiac
+              - dls_multiconf
               - dls_utilpack

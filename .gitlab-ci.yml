@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.1.
+# ********** It has been generated automatically by dae_devops version 0.5.2.
 # ********** For repository_name xchembku
 
 variables:
@@ -87,4 +87,4 @@ package_pip:
 #     # The validate_docs artifacts are in the build/html folder.
 #     - make -f .dae-devops/Makefile publish_docs
 
-# dae_devops_fingerprint d717b80dcfb3c7bcb10347154cf6b1a6
+# dae_devops_fingerprint 598c15acbaf37390bde200720e3166a3
