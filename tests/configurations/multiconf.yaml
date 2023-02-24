@@ -1,0 +1,45 @@
+type: xchembku_lib.xchembku_contexts.classic
+
+visit:
+    beamline: b29
+    year: 2022
+    visit: cy29757-3
+    directory: /dls/b29/data/2022/cy29757-3
+    # Format to make actual data_filename using data_label as token.
+    data_path_pattern: "/dls/b29/data/2022/cy29757-3/Merlin/{data_label}_data.mib"
+
+logging_settings:
+    console:
+        enabled: True
+        verbose: True
+    logfile:
+        enabled: True
+        directory: ${output_directory}/logfile.log
+    graypy:
+        enabled: False
+        host: 172.23.7.128
+        port: 12201
+        protocol: UDP
+
+# The external access bits.
+external_access_bits:
+    dataface_port: &DATAFACE_PORT 27821
+
+# The xchembku_dataface client/server composite.
+xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
+    type: "xchembku_lib.xchembku_datafaces.aiohttp"
+    type_specific_tbd:
+        # The remote xchembku_dataface server access.
+        aiohttp_specification:
+            server_host: "*"
+            client_host: "127.0.0.1"
+            port: *DATAFACE_PORT
+        # The local implementation of the xchembku_dataface.
+        actual_xchembku_dataface_specification:
+            type: "xchembku_lib.xchembku_datafaces.aiosqlite"
+            database:
+                type: "xchembku_lib.xchembku_databases.aiosqlite"
+                filename: "${output_directory}/xchembku_dataface.sqlite"
+                log_level: "WARNING"
+    context:
+        start_as: process
