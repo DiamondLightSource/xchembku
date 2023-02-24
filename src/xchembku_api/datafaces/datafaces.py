@@ -65,6 +65,11 @@ class Datafaces(Things):
 
             return Aiohttp
 
+        if class_type == Types.AIOSQLITE:
+            from xchembku_lib.datafaces.aiosqlite import Aiosqlite
+
+            return Aiosqlite
+
         raise NotFound(
             "unable to get xchembku_dataface class for type %s" % (class_type)
         )

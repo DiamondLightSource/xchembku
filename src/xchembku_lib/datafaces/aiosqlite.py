@@ -155,3 +155,9 @@ class Aiosqlite(Thing):
         report["alive"] = True
 
         return report
+
+    # ----------------------------------------------------------------------------------------
+    async def close_client_session(self):
+        """"""
+
+        await self.disconnect()

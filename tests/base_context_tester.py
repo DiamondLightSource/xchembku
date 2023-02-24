@@ -4,12 +4,10 @@ import multiprocessing
 import os
 
 import pytest
+from dls_multiconf_lib.constants import ThingTypes as MulticonfThingTypes
 
 # Configurator.
-from xchembku_lib.configurators.configurators import (
-    Configurators,
-    xchembku_configurators_set_default,
-)
+from dls_multiconf_lib.multiconfs import Multiconfs, multiconfs_set_default
 
 logger = logging.getLogger(__name__)
 
@@ -52,29 +50,27 @@ class BaseContextTester:
             pytest.fail(failure_message)
 
     # ----------------------------------------------------------------------------------------
-    def get_configurator(self):
+    def get_multiconf(self):
 
-        xchembku_configurator = Configurators().build_object(
+        xchembku_multiconf = Multiconfs().build_object(
             {
-                "type": "xchembku_lib.xchembku_configurators.yaml",
+                "type": MulticonfThingTypes.YAML,
                 "type_specific_tbd": {"filename": self.__configuration_file},
             }
         )
 
         # For convenience, always do these replacement.
-        xchembku_configurator.substitute(
-            {"output_directory": self.__output_directory}
-        )
+        xchembku_multiconf.substitute({"output_directory": self.__output_directory})
 
-        # Add various things from the environment into the configurator.
-        xchembku_configurator.substitute(
+        # Add various things from the environment into the multiconf.
+        xchembku_multiconf.substitute(
             {
                 "CWD": os.getcwd(),
                 "PYTHONPATH": os.environ.get("PYTHONPATH", "PYTHONPATH"),
             }
         )
 
-        # Set the global value of our configurator which might be used in other modules.
-        xchembku_configurators_set_default(xchembku_configurator)
+        # Set the global value of our multiconf which might be used in other modules.
+        multiconfs_set_default(xchembku_multiconf)
 
-        return xchembku_configurator
+        return xchembku_multiconf

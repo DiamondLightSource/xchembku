@@ -2,6 +2,10 @@
 from dls_normsql.constants import CommonFieldnames
 
 
+class Types:
+    AIOSQLITE = "xchembku_lib.xchembku_databases.aiosqlite"
+
+
 # ----------------------------------------------------------------------------------------
 class Tablenames:
     CRYSTAL_WELLS = "crystal_wells"

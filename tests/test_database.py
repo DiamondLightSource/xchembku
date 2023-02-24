@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestDatabaseImage:
+class TestDatabase:
     def test(self, constants, logging_setup, output_directory):
         """
         Tests the sqlite implementation of Database.

@@ -42,12 +42,12 @@ class StartServices(Base):
         """"""
 
         # Load the configuration.
-        xchembku_configurator = self.get_configurator()
+        xchembku_multiconf = self.get_multiconf()
 
-        # Let the configurator know about any mpqueue logging.
-        # xchembku_configurator.set_logging_mpqueue(self.__mainiac.mpqueue)
+        # Let the multiconf know about any mpqueue logging.
+        # xchembku_multiconf.set_logging_mpqueue(self.__mainiac.mpqueue)
 
-        context_configuration = await xchembku_configurator.load()
+        context_configuration = await xchembku_multiconf.load()
 
         if "all" in self._args.service_names:
             selected_service_names = []

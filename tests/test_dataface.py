@@ -14,16 +14,16 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestDatafaceImage:
-    def test_dataface_laptop(self, constants, logging_setup, output_directory):
+class TestDataface:
+    def test_dataface_multiconf(self, constants, logging_setup, output_directory):
         """ """
 
-        configuration_file = "tests/configurations/laptop.yaml"
-        DatafaceImageTester().main(constants, configuration_file, output_directory)
+        configuration_file = "tests/configurations/multiconf.yaml"
+        DatafaceTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class DatafaceImageTester(BaseContextTester):
+class DatafaceTester(BaseContextTester):
     """
     Class to test the dataface.
     """
@@ -31,9 +31,9 @@ class DatafaceImageTester(BaseContextTester):
     async def _main_coroutine(self, constants, output_directory):
         """ """
 
-        xchembku_configurator = self.get_configurator()
+        xchembku_multiconf = self.get_multiconf()
 
-        context_configuration = await xchembku_configurator.load()
+        context_configuration = await xchembku_multiconf.load()
         xchembku_context = Contexts().build_object(context_configuration)
 
         async with xchembku_context:

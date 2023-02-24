@@ -9,3 +9,4 @@ class Commands:
 
 class Types:
     AIOHTTP = "xchembku_lib.xchembku_datafaces.aiohttp"
+    AIOSQLITE = "xchembku_lib.xchembku_datafaces.aiosqlite"

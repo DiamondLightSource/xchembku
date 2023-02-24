@@ -2,14 +2,11 @@ import logging
 import os
 import tempfile
 
+# Configurator.
+from dls_multiconf_lib.multiconfs import Multiconfs, multiconfs_set_default
+
 # Utilities.
 from dls_utilpack.visit import get_visit_year
-
-# Configurator.
-from xchembku_lib.configurators.configurators import (
-    Configurators,
-    xchembku_configurators_set_default,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -25,15 +22,15 @@ class Base:
         self.__temporary_directory = None
 
     # ----------------------------------------------------------------------------------------
-    def get_configurator(self):
+    def get_multiconf(self):
 
-        xchembku_configurator = Configurators().build_object_from_environment()
+        xchembku_multiconf = Multiconfs().build_object_from_environment()
 
         # For convenience, make a temporary directory for this test.
         self.__temporary_directory = tempfile.TemporaryDirectory()
 
-        # Make the temporary directory available to the configurator.
-        xchembku_configurator.substitute(
+        # Make the temporary directory available to the multiconf.
+        xchembku_multiconf.substitute(
             {"temporary_directory": self.__temporary_directory.name}
         )
 
@@ -54,9 +51,9 @@ class Base:
             substitutions["VISIT"] = self._args.visit
             substitutions["YEAR"] = year
 
-        xchembku_configurator.substitute(substitutions)
+        xchembku_multiconf.substitute(substitutions)
 
-        # Set this as the default configurator so it is available everywhere.
-        xchembku_configurators_set_default(xchembku_configurator)
+        # Set this as the default multiconf so it is available everywhere.
+        multiconfs_set_default(xchembku_multiconf)
 
-        return xchembku_configurator
+        return xchembku_multiconf
