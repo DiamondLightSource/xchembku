@@ -20,7 +20,7 @@ external_access_bits:
     dataface_client: &XCHEMBKU_DATAFACE_CLIENT http://localhost:27821
 
 # The xchembku_dataface client/server composite.
-xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
+xchembku_dataface_specification:
     type: "xchembku_lib.xchembku_datafaces.aiohttp"
     type_specific_tbd:
         # The remote xchembku_dataface server access.
@@ -34,3 +34,5 @@ xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
                 type: "xchembku_lib.xchembku_databases.normsql"
                 filename: *DATABASE_FILENAME
                 log_level: "WARNING"
+    context:
+        start_as: process
