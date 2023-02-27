@@ -23,7 +23,7 @@ class TestDatabase:
         }
 
         # Test direct SQL access to the database.
-        DatabaseTesterImage().main(
+        DatabaseTester().main(
             constants,
             database_specification,
             output_directory,
@@ -61,7 +61,7 @@ class _BaseTester:
 
 
 # ----------------------------------------------------------------------------------------
-class DatabaseTesterImage(_BaseTester):
+class DatabaseTester(_BaseTester):
     """
     Test direct SQL access to the database.
     """

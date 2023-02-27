@@ -1,0 +1,9 @@
+type: xchembku_lib.xchembku_contexts.classic
+
+# The xchembku_dataface direct access.
+xchembku_dataface_specification:
+    type: "xchembku_lib.xchembku_datafaces.aiosqlite"
+    database:
+        type: "xchembku_lib.xchembku_databases.aiosqlite"
+        filename: "${output_directory}/xchembku_dataface.sqlite"
+        log_level: "WARNING"

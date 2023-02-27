@@ -14,11 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestDataface:
+class TestDatafaceDirect:
     def test_dataface_multiconf(self, constants, logging_setup, output_directory):
         """ """
 
-        configuration_file = "tests/configurations/multiconf.yaml"
+        configuration_file = "tests/configurations/direct.yaml"
+        DatafaceTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestDatafaceService:
+    def test_dataface_multiconf(self, constants, logging_setup, output_directory):
+        """ """
+
+        configuration_file = "tests/configurations/service.yaml"
         DatafaceTester().main(constants, configuration_file, output_directory)
 
 
@@ -40,8 +49,7 @@ class DatafaceTester(BaseContextTester):
             dataface = xchembku_datafaces_get_default()
 
             # Write one record.
-            await dataface.insert(
-                Tablenames.CRYSTAL_WELLS,
+            await dataface.create_crystal_wells(
                 [
                     {
                         CrystalWellFieldnames.FILENAME: "x",
@@ -51,8 +59,8 @@ class DatafaceTester(BaseContextTester):
                 ],
             )
 
-            all_sql = f"SELECT * FROM {Tablenames.CRYSTAL_WELLS}"
-            records = await dataface.query(all_sql)
+            filters = []
+            records = await dataface.fetch_crystal_wells(filters)
 
             assert len(records) == 1
             assert records[0][CrystalWellFieldnames.FILENAME] == "x"
@@ -62,22 +70,19 @@ class DatafaceTester(BaseContextTester):
             # ----------------------------------------------------------------
             # Now try an update.
             record = {
+                CrystalWellFieldnames.AUTOID: records[0][CrystalWellFieldnames.AUTOID],
                 CrystalWellFieldnames.WELL_CENTER_X: 123,
                 CrystalWellFieldnames.WELL_CENTER_Y: 456,
             }
 
-            subs = [1]
-            result = await dataface.update(
-                Tablenames.CRYSTAL_WELLS,
-                record,
-                f"{CrystalWellFieldnames.AUTOID} = ?",
-                subs=subs,
+            result = await dataface.update_crystal_wells(
+                [record],
                 why="test update",
             )
 
             assert result["count"] == 1
-            records = await dataface.query(all_sql)
 
+            records = await dataface.fetch_crystal_wells(filters)
             assert len(records) == 1
             assert records[0][CrystalWellFieldnames.WELL_CENTER_X] == 123
             assert records[0][CrystalWellFieldnames.WELL_CENTER_Y] == 456

@@ -104,27 +104,32 @@ class Aiosqlite(Thing):
         }
 
     # ----------------------------------------------------------------------------------------
-    async def update_crystal_well(self, record, why=None):
+    async def create_crystal_wells(self, records, why=None):
         """
-        Caller provides the image record with the fields to be updated.
-        The filename field is used to uniquely select the database record.
+        Caller provides the records containing fields to be created.
+        The filename field should be unique in all records.
         """
 
         table_name = Tablenames.CRYSTAL_WELLS
 
-        filename = require(
-            "crystal well record", record, CrystalWellFieldnames.FILENAME
-        )
-        record = copy.deepcopy(record)
-        record.pop(CrystalWellFieldnames.FILENAME)
+        return await self.insert(table_name, records, why=why)
 
-        result = await self.update(
-            table_name,
-            record,
-            f"({CrystalWellFieldnames.FILENAME} REGEXP ?)",
-            subs=[f"{filename}$"],
-            why=why,
-        )
+    # ----------------------------------------------------------------------------------------
+    async def update_crystal_wells(self, records, why=None):
+        """
+        Caller provides the crystal well record with the fields to be updated.
+        """
+
+        table_name = Tablenames.CRYSTAL_WELLS
+
+        for record in records:
+            result = await self.update(
+                table_name,
+                record,
+                f"({CrystalWellFieldnames.AUTOID} = ?)",
+                subs=[record[CrystalWellFieldnames.AUTOID]],
+                why=why,
+            )
 
         return result
 

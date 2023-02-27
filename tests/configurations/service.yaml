@@ -25,6 +25,14 @@ logging_settings:
 external_access_bits:
     dataface_port: &DATAFACE_PORT 27821
 
+# The xchembku_dataface direct access.
+xchembku_dataface_specification_direct: &XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
+    type: "xchembku_lib.xchembku_datafaces.aiosqlite"
+    database:
+        type: "xchembku_lib.xchembku_databases.aiosqlite"
+        filename: "${output_directory}/xchembku_dataface.sqlite"
+        log_level: "WARNING"
+
 # The xchembku_dataface client/server composite.
 xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
     type: "xchembku_lib.xchembku_datafaces.aiohttp"
@@ -35,11 +43,6 @@ xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
             client_host: "127.0.0.1"
             port: *DATAFACE_PORT
         # The local implementation of the xchembku_dataface.
-        actual_xchembku_dataface_specification:
-            type: "xchembku_lib.xchembku_datafaces.aiosqlite"
-            database:
-                type: "xchembku_lib.xchembku_databases.aiosqlite"
-                filename: "${output_directory}/xchembku_dataface.sqlite"
-                log_level: "WARNING"
+        actual_xchembku_dataface_specification: *XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
     context:
         start_as: process
