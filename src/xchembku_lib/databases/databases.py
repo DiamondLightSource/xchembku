@@ -1,6 +1,9 @@
 # Use standard logging in this module.
 import logging
 
+# Types.
+from xchembku_api.databases.constants import Types
+
 # Exceptions.
 from xchembku_api.exceptions import NotFound
 
@@ -40,9 +43,9 @@ class Databases(Things):
         Given the class type as string, return a class object.
         """
 
-        if class_type == "xchembku_lib.xchembku_databases.aiosqlite":
-            from xchembku_lib.databases.aiosqlite import Aiosqlite
+        if class_type == Types.NORMSQL:
+            from xchembku_lib.databases.normsql import Normsql
 
-            return Aiosqlite
+            return Normsql
 
         raise NotFound("unable to get database class for type %s" % (class_type))

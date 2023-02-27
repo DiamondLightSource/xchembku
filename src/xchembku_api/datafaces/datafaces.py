@@ -65,10 +65,10 @@ class Datafaces(Things):
 
             return Aiohttp
 
-        if class_type == Types.AIOSQLITE:
-            from xchembku_lib.datafaces.aiosqlite import Aiosqlite
+        if class_type == Types.DIRECT:
+            from xchembku_lib.datafaces.direct import Direct
 
-            return Aiosqlite
+            return Direct
 
         raise NotFound(
             "unable to get xchembku_dataface class for type %s" % (class_type)

@@ -13,10 +13,10 @@ from xchembku_lib.databases.databases import Databases
 
 logger = logging.getLogger(__name__)
 
-thing_type = "xchembku_lib.xchembku_datafaces.aiosqlite"
+thing_type = "xchembku_lib.xchembku_datafaces.direct"
 
 
-class Aiosqlite(Thing):
+class Direct(Thing):
     """ """
 
     # ----------------------------------------------------------------------------------------

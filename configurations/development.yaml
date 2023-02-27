@@ -29,8 +29,8 @@ xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
             client: *XCHEMBKU_DATAFACE_CLIENT
         # The local implementation of the xchembku_dataface.
         actual_xchembku_dataface_specification:
-            type: "xchembku_lib.xchembku_datafaces.aiosqlite"
+            type: "xchembku_lib.xchembku_datafaces.direct"
             database:
-                type: "xchembku_lib.xchembku_databases.aiosqlite"
+                type: "xchembku_lib.xchembku_databases.normsql"
                 filename: *DATABASE_FILENAME
                 log_level: "WARNING"

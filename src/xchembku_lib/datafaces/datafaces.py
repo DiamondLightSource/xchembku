@@ -1,6 +1,9 @@
 # Use standard logging in this module.
 import logging
 
+# Types.
+from xchembku_api.datafaces.constants import Types
+
 # Exceptions.
 from xchembku_api.exceptions import NotFound
 
@@ -42,15 +45,15 @@ class Datafaces(Things):
     def lookup_class(self, class_type):
         """"""
 
-        if class_type == "xchembku_lib.xchembku_datafaces.aiohttp":
+        if class_type == Types.AIOHTTP:
             from xchembku_lib.datafaces.aiohttp import Aiohttp
 
             return Aiohttp
 
-        elif class_type == "xchembku_lib.xchembku_datafaces.aiosqlite":
-            from xchembku_lib.datafaces.aiosqlite import Aiosqlite
+        elif class_type == Types.DIRECT:
+            from xchembku_lib.datafaces.direct import Direct
 
-            return Aiosqlite
+            return Direct
 
         raise NotFound(
             "unable to get xchembku_dataface class for type %s" % (class_type)

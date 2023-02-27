@@ -49,7 +49,7 @@ def logging_setup():
     logging.getLogger("xchembku_lib.base_aiohttp").setLevel("INFO")
 
     # All xchembku database sql commands.
-    # logging.getLogger("xchembku_lib.xchembku_databases.aiosqlite").setLevel("INFO")
+    # logging.getLogger("xchembku_lib.xchembku_databases.normsql").setLevel("INFO")
 
     logging.getLogger("xchembku_lib.xchembku_contexts.classic").setLevel("INFO")
     logging.getLogger("xchembku_lib.xchembku_datafaces.context").setLevel("INFO")

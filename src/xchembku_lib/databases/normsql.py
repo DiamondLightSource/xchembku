@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class Aiosqlite(DatabaseDefinition, NormsqlAiosqlite):
+class Normsql(DatabaseDefinition, NormsqlAiosqlite):
     """
     Class with coroutines for creating and querying a sqlite database.
     We use dls-normsql to do the heavy lifting.
@@ -35,7 +35,7 @@ class Aiosqlite(DatabaseDefinition, NormsqlAiosqlite):
         This is needed if a process inherits an instance, but needs its own connection.
         """
 
-        return Aiosqlite(self.__filename)
+        return Normsql(self.__filename)
 
     # ----------------------------------------------------------------------------------------
     async def add_table_definitions(self):

@@ -18,7 +18,7 @@ class TestDatabase:
         """
 
         database_specification = {
-            "type": "xchembku_lib.xchembku_databases.aiosqlite",
+            "type": "xchembku_lib.xchembku_databases.normsql",
             "filename": "%s/xchembku_scheduler.sqlite" % (output_directory),
         }
 
