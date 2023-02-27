@@ -1,8 +1,8 @@
 import logging
 
 # Base class for the tester.
-from tests.base_context_tester import BaseContextTester
-from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
+from tests.base import Base
+from xchembku_api.databases.constants import CrystalWellFieldnames
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
@@ -32,7 +32,7 @@ class TestDatafaceService:
 
 
 # ----------------------------------------------------------------------------------------
-class DatafaceTester(BaseContextTester):
+class DatafaceTester(Base):
     """
     Class to test the dataface.
     """

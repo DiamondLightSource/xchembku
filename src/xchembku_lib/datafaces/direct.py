@@ -1,7 +1,4 @@
-import copy
 import logging
-
-from dls_utilpack.require import require
 
 from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
 
