@@ -51,7 +51,7 @@ class DatafaceTester(Base):
             dataface = xchembku_datafaces_get_default()
 
             # Write one record.
-            await dataface.create_crystal_wells(
+            await dataface.originate_crystal_wells(
                 [
                     {
                         CrystalWellFieldnames.FILENAME: "x",
@@ -62,7 +62,7 @@ class DatafaceTester(Base):
             )
 
             filters = []
-            records = await dataface.fetch_crystal_wells(filters)
+            records = await dataface.fetch_crystal_wells_filenames()
 
             assert len(records) == 1
             assert records[0][CrystalWellFieldnames.FILENAME] == "x"
@@ -84,7 +84,7 @@ class DatafaceTester(Base):
 
             assert result["count"] == 1
 
-            records = await dataface.fetch_crystal_wells(filters)
+            records = await dataface.fetch_crystal_wells_filenames()
             assert len(records) == 1
             assert records[0][CrystalWellFieldnames.WELL_CENTER_X] == 123
             assert records[0][CrystalWellFieldnames.WELL_CENTER_Y] == 456

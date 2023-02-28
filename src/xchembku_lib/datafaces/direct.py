@@ -101,7 +101,7 @@ class Direct(Thing):
         }
 
     # ----------------------------------------------------------------------------------------
-    async def create_crystal_wells(self, records, why=None):
+    async def originate_crystal_wells(self, records):
         """
         Caller provides the records containing fields to be created.
         The filename field should be unique in all records.
@@ -109,7 +109,7 @@ class Direct(Thing):
 
         table_name = Tablenames.CRYSTAL_WELLS
 
-        return await self.insert(table_name, records, why=why)
+        return await self.insert(table_name, records, why="originate_crystal_wells")
 
     # ----------------------------------------------------------------------------------------
     async def update_crystal_wells(self, records, why=None):
@@ -131,7 +131,7 @@ class Direct(Thing):
         return result
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells(self, filters, why=None):
+    async def fetch_crystal_wells_filenames(self, why=None):
         """
         Caller provides the filters for selecting which crystal wells.
         Returns records from the database.
@@ -140,7 +140,7 @@ class Direct(Thing):
         table_name = Tablenames.CRYSTAL_WELLS
 
         if why is None:
-            why = "API fetch_crystal_wells"
+            why = "API fetch_crystal_wells_filenames"
         result = await self.query(
             f"SELECT * FROM {table_name}",
             why=why,
