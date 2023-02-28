@@ -61,7 +61,6 @@ class DatafaceTester(Base):
                 ],
             )
 
-            filters = []
             records = await dataface.fetch_crystal_wells_filenames()
 
             assert len(records) == 1

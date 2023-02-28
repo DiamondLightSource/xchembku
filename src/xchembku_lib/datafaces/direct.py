@@ -48,6 +48,8 @@ class Direct(Thing):
 
         self.__database = self.__database.reinstance()
 
+        return self
+
     # ----------------------------------------------------------------------------------------
     async def backup(self):
         """"""

@@ -3,8 +3,6 @@ import asyncio
 # Use standard logging in this module.
 import logging
 
-from dls_utilpack.global_signals import global_sigint
-
 # Base class for cli subcommands.
 from xchembku_cli.subcommands.base import ArgKeywords, Base
 
@@ -17,7 +15,7 @@ logger = logging.getLogger()
 # --------------------------------------------------------------
 class Service(Base):
     """
-    Start one or more services and keep them running until ^C.
+    Start single service and keep running until ^C or remotely requested shutdown.
     """
 
     def __init__(self, args, mainiac):
@@ -35,27 +33,16 @@ class Service(Base):
         """"""
 
         # Load the configuration.
-        xchembku_multiconf = self.get_multiconf(vars(self._args))
-        configuration = await xchembku_multiconf.load()
+        multiconf = self.get_multiconf(vars(self._args))
+        configuration = await multiconf.load()
 
-        # Make a service context from the specification in the configuration.
-        context = Context(configuration["xchembku_dataface_specification"])
-
-        # Activate the signal handling.
-        # global_sigint.activate()
+        # Make a client context for the xchembku service.
+        xchembku_context = Context(configuration["xchembku_dataface_specification"])
 
         # Open the context which starts the service process.
-        async with context:
-            await context.server.wait_for_shutdown()
-
-            # while True:
-            #     await asyncio.sleep(0.2)
-            #     if global_sigint.count() > 0:
-            #         logger.info("control-C detected")
-            #         await context.server.direct_shutdown()
-            #         break
-
-        # global_sigint.deactivate()
+        async with xchembku_context:
+            # Wait for it to finish.
+            await xchembku_context.server.wait_for_shutdown()
 
     # ----------------------------------------------------------
     def add_arguments(parser):

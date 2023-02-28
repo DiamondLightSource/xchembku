@@ -27,7 +27,7 @@ class Context(ContextBase):
     # ----------------------------------------------------------------------------------------
     def __init__(self, specification):
         ContextBase.__init__(self, thing_type, specification)
-        self.__api_xchembku_dataface_context = None
+        self.__api_context = None
 
     # ----------------------------------------------------------------------------------------
     async def aenter(self):
@@ -35,6 +35,9 @@ class Context(ContextBase):
 
         # Build the object according to the specification.
         self.server = Datafaces().build_object(self.specification())
+
+        # If there is more than one collector, the last one defined will be the default.
+        # collectors_set_default(self.server)
 
         if self.context_specification.get("start_as") == "coro":
             await self.server.activate_coro()
@@ -45,8 +48,8 @@ class Context(ContextBase):
         elif self.context_specification.get("start_as") == "process":
             await self.server.start_process()
 
-        self.__api_xchembku_dataface_context = DatafaceContext(self.specification())
-        await self.__api_xchembku_dataface_context.aenter()
+        self.__api_context = DatafaceContext(self.specification())
+        await self.__api_context.aenter()
 
     # ----------------------------------------------------------------------------------------
     async def aexit(self):
@@ -60,5 +63,8 @@ class Context(ContextBase):
             if self.context_specification.get("start_as") == "coro":
                 await self.server.direct_shutdown()
 
-        if self.__api_xchembku_dataface_context is not None:
-            await self.__api_xchembku_dataface_context.aexit()
+        if self.__api_context is not None:
+            await self.__api_context.aexit()
+
+        # Clear the global variable.  Important between pytests.
+        # collectors_set_default(None)
