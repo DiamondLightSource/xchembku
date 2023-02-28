@@ -35,4 +35,4 @@ xchembku_dataface_specification:
                 filename: *DATABASE_FILENAME
                 log_level: "WARNING"
     context:
-        start_as: process
+        start_as: coro

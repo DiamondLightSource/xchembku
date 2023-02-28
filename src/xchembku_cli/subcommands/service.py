@@ -3,6 +3,8 @@ import asyncio
 # Use standard logging in this module.
 import logging
 
+from dls_utilpack.global_signals import global_sigint
+
 # Base class for cli subcommands.
 from xchembku_cli.subcommands.base import ArgKeywords, Base
 
@@ -13,7 +15,7 @@ logger = logging.getLogger()
 
 
 # --------------------------------------------------------------
-class Start(Base):
+class Service(Base):
     """
     Start one or more services and keep them running until ^C.
     """
@@ -39,19 +41,19 @@ class Start(Base):
         # Make a service context from the specification in the configuration.
         context = Context(configuration["xchembku_dataface_specification"])
 
+        # Activate the signal handling.
+        global_sigint.activate()
+
         # Open the context which starts the service process.
         async with context:
-            try:
-                while True:
-                    await asyncio.sleep(1.0)
-                    if not await context.is_process_started():
-                        logger.info("process is not started")
-                        break
-                    if not await context.is_process_alive():
-                        logger.info("process is not alive")
-                        break
-            except KeyboardInterrupt:
-                pass
+            while True:
+                await asyncio.sleep(0.1)
+                if global_sigint.count() > 0:
+                    logger.info("control-C detected")
+                    await context.server.direct_shutdown()
+                    break
+
+        global_sigint.deactivate()
 
     # ----------------------------------------------------------
     def add_arguments(parser):
