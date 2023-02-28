@@ -8,7 +8,7 @@ from xchembku_api.databases.constants import CrystalWellFieldnames
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 
 # Context creator.
-from xchembku_lib.contexts.contexts import Contexts
+from xchembku_lib.datafaces.context import Context as XchembkuDatafaceContext
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,9 @@ class DatafaceTester(Base):
         xchembku_multiconf = self.get_multiconf()
 
         context_configuration = await xchembku_multiconf.load()
-        xchembku_context = Contexts().build_object(context_configuration)
+        xchembku_context = XchembkuDatafaceContext(
+            context_configuration["xchembku_dataface_specification"]
+        )
 
         async with xchembku_context:
             dataface = xchembku_datafaces_get_default()
