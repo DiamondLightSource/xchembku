@@ -42,18 +42,18 @@ class Service(Base):
         context = Context(configuration["xchembku_dataface_specification"])
 
         # Activate the signal handling.
-        global_sigint.activate()
+        # global_sigint.activate()
 
         # Open the context which starts the service process.
         async with context:
-            while True:
-                await asyncio.sleep(0.1)
-                if global_sigint.count() > 0:
-                    logger.info("control-C detected")
-                    await context.server.direct_shutdown()
-                    break
+            try:
+                while True:
+                    await asyncio.sleep(0.1)
+            except KeyboardInterrupt:
+                logger.info("control-C detected")
+                await context.server.direct_shutdown()
 
-        global_sigint.deactivate()
+        # global_sigint.deactivate()
 
     # ----------------------------------------------------------
     def add_arguments(parser):
