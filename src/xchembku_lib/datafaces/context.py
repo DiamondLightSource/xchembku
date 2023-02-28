@@ -53,9 +53,12 @@ class Context(ContextBase):
         """ """
 
         if self.server is not None:
-            if hasattr(self.server, "client_shutdown"):
+            if self.context_specification.get("start_as") == "process":
                 # Put in request to shutdown the server.
                 await self.server.client_shutdown()
+
+            if self.context_specification.get("start_as") == "coro":
+                await self.server.direct_shutdown()
 
         if self.__api_xchembku_dataface_context is not None:
             await self.__api_xchembku_dataface_context.aexit()

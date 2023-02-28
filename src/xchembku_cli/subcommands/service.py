@@ -46,12 +46,14 @@ class Service(Base):
 
         # Open the context which starts the service process.
         async with context:
-            try:
-                while True:
-                    await asyncio.sleep(0.1)
-            except KeyboardInterrupt:
-                logger.info("control-C detected")
-                await context.server.direct_shutdown()
+            await context.server.wait_for_shutdown()
+
+            # while True:
+            #     await asyncio.sleep(0.2)
+            #     if global_sigint.count() > 0:
+            #         logger.info("control-C detected")
+            #         await context.server.direct_shutdown()
+            #         break
 
         # global_sigint.deactivate()
 
