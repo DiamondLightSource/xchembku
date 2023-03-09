@@ -6,6 +6,8 @@ from xchembku_api.databases.constants import CrystalWellFieldnames
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
+from xchembku_api.models.well_geometry_model import WellGeometryModel
+from xchembku_api.models.well_model import WellModel
 
 # Context creator.
 from xchembku_lib.datafaces.context import Context as XchembkuDatafaceContext
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestDatafaceDirect:
+class TestWellDirect:
     """
     Test dataface interface by direct call.
     """
@@ -26,11 +28,11 @@ class TestDatafaceDirect:
         output_directory,
     ):
         configuration_file = "tests/configurations/direct.yaml"
-        DatafaceTester().main(constants, configuration_file, output_directory)
+        WellTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class TestDatafaceService:
+class TestWellService:
     """
     Test dataface interface through network interface.
     """
@@ -44,13 +46,13 @@ class TestDatafaceService:
         """ """
 
         configuration_file = "tests/configurations/service.yaml"
-        DatafaceTester().main(constants, configuration_file, output_directory)
+        WellTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class DatafaceTester(Base):
+class WellTester(Base):
     """
-    Class to test the dataface.
+    Class to test the dataface well-related endpoints.
     """
 
     async def _main_coroutine(self, constants, output_directory):
@@ -73,16 +75,11 @@ class DatafaceTester(Base):
             # Reference the dataface object which the context has set up as the default.
             dataface = xchembku_datafaces_get_default()
 
-            # Write one record.
-            await dataface.originate_crystal_wells(
-                [
-                    {
-                        CrystalWellFieldnames.FILENAME: "x",
-                        CrystalWellFieldnames.TARGET_POSITION_X: "1",
-                        CrystalWellFieldnames.TARGET_POSITION_Y: "2",
-                    }
-                ],
-            )
+            # Write one well record.
+            well_model = WellModel(filename="abc.jpg")
+            await dataface.originate_crystal_wells([well_model])
+
+            return
 
             # Fetch all the records.
             records = await dataface.fetch_crystal_wells_filenames()

@@ -4,6 +4,7 @@ import logging
 from dls_normsql.table_definition import TableDefinition
 
 from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
+from xchembku_api.models.well_model import WellModel
 
 logger = logging.getLogger(__name__)
 
@@ -12,45 +13,32 @@ logger = logging.getLogger(__name__)
 class RockmakerImagesTable(TableDefinition):
     # ----------------------------------------------------------------------------------------
     def __init__(self):
-        TableDefinition.__init__(self, Tablenames.CRYSTAL_WELLS)
+        model_class = WellModel
+        table_name = model_class.__name__.lower()
 
-        # All images have a unique autoid field.
-        self.fields[CrystalWellFieldnames.AUTOID] = {
-            "type": "INTEGER PRIMARY KEY AUTOINCREMENT",
-            "index": True,
-        }
+        TableDefinition.__init__(self, table_name)
 
-        self.fields[CrystalWellFieldnames.FILENAME] = {"type": "TEXT", "index": True}
-        self.fields[CrystalWellFieldnames.ERROR] = {"type": "TEXT", "index": False}
-        self.fields[CrystalWellFieldnames.WIDTH] = {"type": "INTEGER", "index": False}
-        self.fields[CrystalWellFieldnames.HEIGHT] = {"type": "INTEGER", "index": False}
-        self.fields[CrystalWellFieldnames.WELL_CENTER_X] = {
-            "type": "INTEGER",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.WELL_CENTER_Y] = {
-            "type": "INTEGER",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.TARGET_POSITION_X] = {
-            "type": "INTEGER",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.TARGET_POSITION_Y] = {
-            "type": "INTEGER",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.CRYSTAL_PROBABILITY] = {
-            "type": "FLOAT",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.NUMBER_OF_CRYSTALS] = {
-            "type": "INTEGER",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.IS_USABLE] = {
-            "type": "BOOLEAN",
-            "index": False,
-        }
-        self.fields[CrystalWellFieldnames.IS_DROP] = {"type": "BOOLEAN", "index": False}
-        self.fields[CrystalWellFieldnames.CREATED_ON] = {"type": "TEXT", "index": False}
+        fields = model_class.__fields__
+        for field_name, field in fields.items():
+            field_type = field.type_
+
+            if field_name == "uuid":
+                # All images have a unique autoid field.
+                self.fields[CrystalWellFieldnames.AUTOID] = {
+                    "type": "TEXT PRIMARY KEY",
+                    "index": True,
+                }
+
+            else:
+                if field_type == int:
+                    sql_type = "INTEGER"
+                elif field_type == str:
+                    sql_type = "TEXT"
+                elif field_type == float:
+                    sql_type = "REAL"
+                elif field_type == bool:
+                    sql_type = "BOOLEAN"
+
+                self.fields[field_name] = {"type": sql_type}
+
+            # self.fields["filename"]["index"] = True

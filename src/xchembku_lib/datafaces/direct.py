@@ -1,6 +1,8 @@
 import logging
+from typing import Dict, List, Union
 
 from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
+from xchembku_api.models.well_model import WellModel
 
 # Base class for generic things.
 from xchembku_api.thing import Thing
@@ -81,7 +83,7 @@ class Direct(Thing):
         return await self.__database.execute(sql, subs=subs, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def insert(self, table_name, records, why=None):
+    async def insert(self, table_name, records, why=None) -> None:
         """"""
         await self.establish_database_connection()
 
@@ -103,13 +105,22 @@ class Direct(Thing):
         }
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells(self, records):
+    async def originate_crystal_wells(
+        self, records: Union[List[Dict], List[WellModel]]
+    ) -> None:
         """
         Caller provides the records containing fields to be created.
         The filename field should be unique in all records.
         """
 
-        table_name = Tablenames.CRYSTAL_WELLS
+        if len(records) == 0:
+            return
+
+        if isinstance(records[0], WellModel):
+            models: List[WellModel] = records
+            records = [model.dict() for model in models]
+
+        table_name = WellModel.__name__.lower()
 
         return await self.insert(table_name, records, why="originate_crystal_wells")
 
