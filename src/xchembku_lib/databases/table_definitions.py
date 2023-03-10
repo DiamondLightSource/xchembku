@@ -29,7 +29,7 @@ class CrystalWellsTable(TableDefinition):
 
             if field_name == "uuid":
                 # All images have a unique autoid field.
-                self.fields[CommonFieldnames.AUTOGUID] = {
+                self.fields[CommonFieldnames.UUID] = {
                     "type": "TEXT PRIMARY KEY",
                     "index": True,
                 }
@@ -64,7 +64,7 @@ class CrystalWellAutolocationsTable(TableDefinition):
 
             if field_name == "uuid":
                 # All images have a unique autoid field.
-                self.fields[CommonFieldnames.AUTOGUID] = {
+                self.fields[CommonFieldnames.UUID] = {
                     "type": "TEXT PRIMARY KEY",
                     "index": True,
                 }
