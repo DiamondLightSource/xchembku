@@ -19,7 +19,7 @@ class CrystalWellsTable(TableDefinition):
     # ----------------------------------------------------------------------------------------
     def __init__(self):
         model_class = CrystalWellModel
-        table_name = model_class.__name__.lower()
+        table_name = "crystal_wells"
 
         TableDefinition.__init__(self, table_name)
 
@@ -45,8 +45,6 @@ class CrystalWellsTable(TableDefinition):
                     sql_type = "BOOLEAN"
 
                 self.fields[field_name] = {"type": sql_type}
-
-            # self.fields["filename"]["index"] = True
 
 
 # ----------------------------------------------------------------------------------------
@@ -54,7 +52,7 @@ class CrystalWellAutolocationsTable(TableDefinition):
     # ----------------------------------------------------------------------------------------
     def __init__(self):
         model_class = CrystalWellAutolocationModel
-        table_name = model_class.__name__.lower()
+        table_name = "crystal_well_autolocations"
 
         TableDefinition.__init__(self, table_name)
 
@@ -81,4 +79,5 @@ class CrystalWellAutolocationsTable(TableDefinition):
 
                 self.fields[field_name] = {"type": sql_type}
 
-            self.fields["crystal_well_uuid"]["index"] = True
+        # Add index.
+        self.fields["crystal_well_uuid"]["index"] = True

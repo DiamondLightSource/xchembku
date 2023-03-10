@@ -117,8 +117,6 @@ class Direct(Thing):
         The filename field should be unique in all records.
         """
 
-        table_name = CrystalWellModel.__name__.lower()
-
         if len(records) > 0:
             # If we're being given models, serialize them into dicts.
             if isinstance(records[0], CrystalWellModel):
@@ -126,7 +124,7 @@ class Direct(Thing):
                 records = [model.dict() for model in models]
 
             return await self.insert(
-                table_name,
+                "crystal_wells",
                 records,
                 why="originate_crystal_wells",
             )
@@ -139,8 +137,6 @@ class Direct(Thing):
         Caller provides the crystal well record with the fields to be updated.
         """
 
-        table_name = CrystalWellModel.__name__.lower()
-
         count = 0
         if len(records) > 0:
             # If we're being given models, serialize them into dicts.
@@ -150,7 +146,7 @@ class Direct(Thing):
 
             for record in records:
                 result = await self.update(
-                    table_name,
+                    "crystal_wells",
                     record,
                     f"({CommonFieldnames.UUID} = ?)",
                     subs=[record[CommonFieldnames.UUID]],
@@ -167,20 +163,15 @@ class Direct(Thing):
         Returns records from the database.
         """
 
-        crystal_well_table_name = CrystalWellModel.__name__.lower()
-        crystal_well_autolocations_table_name = (
-            CrystalWellAutolocationModel.__name__.lower(),
-        )
-
         if why is None:
             why = "API fetch_crystal_wells_needing_autolocation"
         result = await self.query(
-            "SELECT wells.*"
-            f"FROM {crystal_well_table_name} AS wells"
-            f"RIGHT JOIN {crystal_well_autolocations_table_name} AS autolocations"
-            "ON wells.uuid = autolocations.crystal_well_uuid"
-            "WHERE autolocations.uuid IS NULL"
-            "LIMIT 1",
+            "SELECT crystal_wells.*"
+            f" FROM crystal_wells"
+            f" LEFT JOIN crystal_well_autolocations "
+            " ON crystal_wells.uuid = crystal_well_autolocations.crystal_well_uuid"
+            " WHERE crystal_well_autolocations.uuid IS NULL"
+            " LIMIT 1",
             why=why,
         )
 
