@@ -157,7 +157,9 @@ class Direct(Thing):
         return {"count": count}
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_needing_autolocation(self, why=None):
+    async def fetch_crystal_wells_needing_autolocation(
+        self, why=None
+    ) -> List[CrystalWellModel]:
         """
         Caller provides the filters for selecting which crystal wells.
         Returns records from the database.
@@ -165,7 +167,7 @@ class Direct(Thing):
 
         if why is None:
             why = "API fetch_crystal_wells_needing_autolocation"
-        result = await self.query(
+        records = await self.query(
             "SELECT crystal_wells.*"
             f" FROM crystal_wells"
             f" LEFT JOIN crystal_well_autolocations "
@@ -175,7 +177,9 @@ class Direct(Thing):
             why=why,
         )
 
-        return result
+        models = [CrystalWellModel(**record) for record in records]
+
+        return models
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):
