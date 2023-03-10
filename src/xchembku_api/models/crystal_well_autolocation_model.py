@@ -21,6 +21,9 @@ class CrystalWellAutolocationModel(BaseModel):
     number_of_crystals: int = None
     crystal_coordinates: List[Tuple[int, int]] = None
 
+    # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
+    created_on: str
+
     def __init__(self, **kwargs):
         # Automatically cook up a uuid if it's not provided to the constructor.
         if "uuid" not in kwargs:

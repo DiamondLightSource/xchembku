@@ -173,6 +173,7 @@ class Direct(Thing):
             f" LEFT JOIN crystal_well_autolocations "
             " ON crystal_wells.uuid = crystal_well_autolocations.crystal_well_uuid"
             " WHERE crystal_well_autolocations.uuid IS NULL"
+            f" ORDER BY {CommonFieldnames.CREATED_ON}"
             " LIMIT 1",
             why=why,
         )
@@ -180,6 +181,26 @@ class Direct(Thing):
         models = [CrystalWellModel(**record) for record in records]
 
         return models
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_well_autolocations(
+        self, records: Union[List[Dict], List[CrystalWellAutolocationModel]]
+    ) -> None:
+        """
+        Caller provides the records containing fields to be created.
+        """
+
+        if len(records) > 0:
+            # If we're being given models, serialize them into dicts.
+            if isinstance(records[0], CrystalWellAutolocationModel):
+                models: List[CrystalWellAutolocationModel] = records
+                records = [model.dict() for model in models]
+
+            return await self.insert(
+                "crystal_well_autolocations",
+                records,
+                why="originate_crystal_well_autolocations",
+            )
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):

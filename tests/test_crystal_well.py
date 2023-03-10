@@ -76,37 +76,41 @@ class CrystalWellTester(Base):
             # Reference the dataface object which the context has set up as the default.
             dataface = xchembku_datafaces_get_default()
 
-            # Write one well record.
-            filename = "abc.jpg"
-            well_model = CrystalWellModel(filename=filename)
-            await dataface.originate_crystal_wells([well_model])
+            # Write two well records.
+            filename1 = "abc.jpg"
+            crystal_well_model1 = CrystalWellModel(filename=filename1)
+            filename2 = "xyz.jpg"
+            crystal_well_model2 = CrystalWellModel(filename=filename2)
+            await dataface.originate_crystal_wells(
+                [crystal_well_model1, crystal_well_model2]
+            )
 
-            # Fetch all the models which need autolocation.
+            # Fetch all the wells which need autolocation.
             crystal_well_models = (
                 await dataface.fetch_crystal_wells_needing_autolocation()
             )
 
-            assert len(crystal_well_models) == 1
+            assert len(crystal_well_models) == 2
 
-            assert crystal_well_models[0].filename == filename
-            return
+            assert crystal_well_models[0].filename == filename1
+            assert crystal_well_models[1].filename == filename2
 
             # ----------------------------------------------------------------
-            # Now try an update.
-            record = {
-                CrystalWellFieldnames.AUTOID: records[0][CrystalWellFieldnames.AUTOID],
-                CrystalWellFieldnames.WELL_CENTER_X: 123,
-                CrystalWellFieldnames.WELL_CENTER_Y: 456,
-            }
-
-            result = await dataface.update_crystal_wells(
-                [record],
-                why="test update",
+            # Now try adding a crystal well autolocation.
+            crystal_well_autolocation_model = CrystalWellAutolocationModel(
+                crystal_well_uuid=crystal_well_model1.uuid
             )
 
-            assert result["count"] == 1
+            crystal_well_autolocation_model.number_of_crystals = 10
+            await dataface.originate_crystal_well_autolocations(
+                [crystal_well_autolocation_model]
+            )
 
-            records = await dataface.fetch_crystal_wells_needing_autolocation()
-            assert len(records) == 1
-            assert records[0][CrystalWellFieldnames.WELL_CENTER_X] == 123
-            assert records[0][CrystalWellFieldnames.WELL_CENTER_Y] == 456
+            # Fetch all the wells which need autolocation.
+            crystal_well_models = (
+                await dataface.fetch_crystal_wells_needing_autolocation()
+            )
+
+            # Now there is only one needing autolocation.
+            assert len(crystal_well_models) == 1
+            assert crystal_well_models[0].filename == filename2
