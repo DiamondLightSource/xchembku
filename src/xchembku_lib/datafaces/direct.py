@@ -109,52 +109,77 @@ class Direct(Thing):
         }
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells(
-        self, records: Union[List[Dict], List[CrystalWellModel]]
-    ) -> None:
+    async def originate_crystal_wells_serialized(self, records: List[Dict]) -> None:
+        # We are being given json, so parse it into models.
+        models = [CrystalWellModel(**record) for record in records]
+        # Return the method doing the work.
+        return await self.originate_crystal_wells(models)
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_wells(self, models: List[CrystalWellModel]) -> None:
         """
         Caller provides the records containing fields to be created.
         The filename field should be unique in all records.
         """
 
-        if len(records) > 0:
-            # If we're being given models, serialize them into dicts.
-            if isinstance(records[0], CrystalWellModel):
-                models: List[CrystalWellModel] = records
-                records = [model.dict() for model in models]
+        # We're being given models, so serialize them into dicts to give to the sql.
+        records = [model.dict() for model in models]
 
-            return await self.insert(
-                "crystal_wells",
-                records,
-                why="originate_crystal_wells",
-            )
+        return await self.insert(
+            "crystal_wells",
+            records,
+            why="originate_crystal_wells",
+        )
+
+    # ----------------------------------------------------------------------------------------
+    async def update_crystal_wells_serialized(self, records: List[Dict]) -> Dict:
+        # We are being given json, so parse it into models.
+        models = [CrystalWellModel(**record) for record in records]
+        # Return the method doing the work.
+        return await self.update_crystal_wells(models)
 
     # ----------------------------------------------------------------------------------------
     async def update_crystal_wells(
-        self, records: Union[List[Dict], List[CrystalWellModel]], why=None
+        self, models: List[CrystalWellModel], why=None
     ) -> Dict:
         """
         Caller provides the crystal well record with the fields to be updated.
         """
 
-        count = 0
-        if len(records) > 0:
-            # If we're being given models, serialize them into dicts.
-            if isinstance(records[0], CrystalWellModel):
-                models: List[CrystalWellModel] = records
-                records = [model.dict() for model in models]
+        # We're being given models, so serialize them into dicts to give to the sql.
+        records = [model.dict() for model in models]
 
-            for record in records:
-                result = await self.update(
-                    "crystal_wells",
-                    record,
-                    f"({CommonFieldnames.UUID} = ?)",
-                    subs=[record[CommonFieldnames.UUID]],
-                    why=why,
-                )
-                count += result.get("count", 0)
+        count = 0
+        for record in records:
+            result = await self.update(
+                "crystal_wells",
+                record,
+                f"({CommonFieldnames.UUID} = ?)",
+                subs=[record[CommonFieldnames.UUID]],
+                why=why,
+            )
+            count += result.get("count", 0)
 
         return {"count": count}
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_needing_autolocation_serialized(
+        self, limit: int = 1, why=None
+    ) -> List[Dict]:
+        """
+        Caller provides the filters for selecting which crystal wells.
+        Returns records from the database.
+        """
+
+        # Get the models from the direct call.
+        models = await self.fetch_crystal_wells_needing_autolocation(
+            limit=limit, why=why
+        )
+
+        # Serialize models into dicts to give to the response.
+        records = [model.dict() for model in models]
+
+        return records
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_autolocation(
@@ -178,29 +203,90 @@ class Direct(Thing):
             why=why,
         )
 
+        # Parse the records returned by sql into models.
         models = [CrystalWellModel(**record) for record in records]
 
         return models
 
     # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_needing_droplocation_serialized(
+        self, limit: int = 1, why=None
+    ) -> List[Dict]:
+        """
+        Caller provides the filters for selecting which crystal wells.
+        Returns records from the database.
+        """
+
+        # Get the models from the direct call.
+        models = await self.fetch_crystal_wells_needing_droplocation(
+            limit=limit, why=why
+        )
+
+        # Serialize models into dicts to give to the response.
+        records = [model.dict() for model in models]
+
+        return records
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_needing_droplocation(
+        self, limit: int = 20, why=None
+    ) -> List[CrystalWellModel]:
+        """
+        Caller provides the filters for selecting which crystal wells.
+        Returns records from the database.
+        """
+
+        created_on = CommonFieldnames.CREATED_ON
+
+        where = (
+            f"\n  SELECT MAX({created_on})"
+            "\n  FROM crystal_well_autolocations"
+            "\n  WHERE crystal_well_uuid = t1.uuid"
+        )
+
+        if why is None:
+            why = "API fetch_crystal_wells_needing_droplocation"
+        records = await self.query(
+            "SELECT t1.*, t2.target_position_x, t2.target_position_y"
+            "\nFROM crystal_wells AS t1"
+            "\nINNER JOIN crystal_well_autolocations AS t2"
+            "\n ON t1.uuid = t2.crystal_well_uuid"
+            f"\nWHERE t2.{created_on} = ({where})"
+            f"\nORDER BY t1.{created_on}"
+            f"\nLIMIT {limit}",
+            why=why,
+        )
+
+        # Parse the records returned by sql into models.
+        models = [CrystalWellModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_well_autolocations_serialized(
+        self, records: List[Dict]
+    ) -> None:
+        # We are being given json, so parse it into models.
+        models = [CrystalWellAutolocationModel(**record) for record in records]
+        # Return the method doing the work.
+        return await self.originate_crystal_well_autolocations(models)
+
+    # ----------------------------------------------------------------------------------------
     async def originate_crystal_well_autolocations(
-        self, records: Union[List[Dict], List[CrystalWellAutolocationModel]]
+        self, models: List[CrystalWellAutolocationModel]
     ) -> None:
         """
         Caller provides the records containing fields to be created.
         """
 
-        if len(records) > 0:
-            # If we're being given models, serialize them into dicts.
-            if isinstance(records[0], CrystalWellAutolocationModel):
-                models: List[CrystalWellAutolocationModel] = records
-                records = [model.dict() for model in models]
+        # We're being given models, serialize them into dicts for the sql.
+        records = [model.dict() for model in models]
 
-            return await self.insert(
-                "crystal_well_autolocations",
-                records,
-                why="originate_crystal_well_autolocations",
-            )
+        return await self.insert(
+            "crystal_well_autolocations",
+            records,
+            why="originate_crystal_well_autolocations",
+        )
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):

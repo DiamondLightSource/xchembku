@@ -6,8 +6,10 @@ from xchembku_api.aiohttp_client import AiohttpClient
 
 # Dataface protocolj things.
 from xchembku_api.datafaces.constants import Commands, Keywords
+from xchembku_api.models.crystal_well_autolocation_model import (
+    CrystalWellAutolocationModel,
+)
 from xchembku_api.models.crystal_well_model import CrystalWellModel
-from xchembku_api.models.well_autolocation_model import WellAutolocationModel
 
 logger = logging.getLogger(__name__)
 
@@ -61,18 +63,30 @@ class Aiohttp:
         )
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells(self, models: List[CrystalWellModel]):
+    async def originate_crystal_wells(
+        self,
+        models: List[CrystalWellModel],
+    ) -> None:
         """"""
 
         records: List[Dict] = [model.dict() for model in models]
-        return await self.__send_protocolj("originate_crystal_wells", records)
+        await self.__send_protocolj(
+            "originate_crystal_wells_serialized",
+            records,
+        )
+
+        return None
 
     # ----------------------------------------------------------------------------------------
-    async def update_crystal_wells(self, records, why: Optional[str] = None):
+    async def update_crystal_wells(
+        self,
+        records,
+        why: Optional[str] = None,
+    ) -> Dict:
         """"""
 
         return await self.__send_protocolj(
-            "update_crystal_wells",
+            "update_crystal_wells_serialized",
             records,
             why=why,
         )
@@ -82,12 +96,52 @@ class Aiohttp:
         self,
         limit: int = 1,
         why: Optional[str] = None,
-    ):
+    ) -> List[CrystalWellModel]:
         """"""
 
-        return await self.__send_protocolj(
-            "fetch_crystal_wells_needing_autolocation", limit=limit, why=why
+        records = await self.__send_protocolj(
+            "fetch_crystal_wells_needing_autolocation_serialized",
+            limit=limit,
+            why=why,
         )
+
+        # Dicts are returned, so parse them into models.
+        models = [CrystalWellModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_needing_droplocation(
+        self,
+        limit: int = 1,
+        why: Optional[str] = None,
+    ) -> List[CrystalWellModel]:
+        """"""
+
+        records = await self.__send_protocolj(
+            "fetch_crystal_wells_needing_droplocation_serialized",
+            limit=limit,
+            why=why,
+        )
+
+        # Dicts are returned, so parse them into models.
+        models = [CrystalWellModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_well_autolocations(
+        self, models: List[CrystalWellAutolocationModel]
+    ) -> None:
+        """"""
+
+        records: List[Dict] = [model.dict() for model in models]
+        await self.__send_protocolj(
+            "originate_crystal_well_autolocations_serialized",
+            records,
+        )
+
+        return None
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):
