@@ -1,7 +1,10 @@
 import logging
 
 # Base class for all aiosqlite database objects.
-from xchembku_lib.databases.table_definitions import RockmakerImagesTable
+from xchembku_lib.databases.table_definitions import (
+    CrystalWellAutolocationsTable,
+    CrystalWellsTable,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -49,4 +52,5 @@ class DatabaseDefinition:
         """
 
         # Table schemas in our database.
-        self.add_table_definition(RockmakerImagesTable())
+        self.add_table_definition(CrystalWellsTable())
+        self.add_table_definition(CrystalWellAutolocationsTable())

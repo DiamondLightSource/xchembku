@@ -2,12 +2,11 @@ import logging
 
 # Base class for the tester.
 from tests.base import Base
-from xchembku_api.databases.constants import CrystalWellFieldnames
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
-from xchembku_api.models.well_geometry_model import WellGeometryModel
-from xchembku_api.models.well_model import WellModel
+from xchembku_api.models.crystal_well_model import CrystalWellModel
+from xchembku_api.models.well_autolocation_model import WellAutolocationModel
 
 # Context creator.
 from xchembku_lib.datafaces.context import Context as XchembkuDatafaceContext
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestWellDirect:
+class TestCrystalWellDirect:
     """
     Test dataface interface by direct call.
     """
@@ -28,11 +27,11 @@ class TestWellDirect:
         output_directory,
     ):
         configuration_file = "tests/configurations/direct.yaml"
-        WellTester().main(constants, configuration_file, output_directory)
+        CrystalWellTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class TestWellService:
+class TestCrystalWellService:
     """
     Test dataface interface through network interface.
     """
@@ -46,11 +45,11 @@ class TestWellService:
         """ """
 
         configuration_file = "tests/configurations/service.yaml"
-        WellTester().main(constants, configuration_file, output_directory)
+        CrystalWellTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class WellTester(Base):
+class CrystalWellTester(Base):
     """
     Class to test the dataface well-related endpoints.
     """
@@ -76,15 +75,15 @@ class WellTester(Base):
             dataface = xchembku_datafaces_get_default()
 
             # Write one well record.
-            well_model = WellModel(filename="abc.jpg")
+            well_model = CrystalWellModel(filename="abc.jpg")
             await dataface.originate_crystal_wells([well_model])
 
-            return
-
             # Fetch all the records.
-            records = await dataface.fetch_crystal_wells_filenames()
+            records = await dataface.fetch_crystal_wells()
 
             assert len(records) == 1
+
+            return
             assert records[0][CrystalWellFieldnames.FILENAME] == "x"
             assert records[0][CrystalWellFieldnames.TARGET_POSITION_X] == 1
             assert records[0][CrystalWellFieldnames.TARGET_POSITION_Y] == 2
@@ -104,7 +103,7 @@ class WellTester(Base):
 
             assert result["count"] == 1
 
-            records = await dataface.fetch_crystal_wells_filenames()
+            records = await dataface.fetch_crystal_wells_for_autolocation()
             assert len(records) == 1
             assert records[0][CrystalWellFieldnames.WELL_CENTER_X] == 123
             assert records[0][CrystalWellFieldnames.WELL_CENTER_Y] == 456

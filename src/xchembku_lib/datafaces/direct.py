@@ -1,8 +1,9 @@
 import logging
 from typing import Dict, List, Union
 
-from xchembku_api.databases.constants import CrystalWellFieldnames, Tablenames
-from xchembku_api.models.well_model import WellModel
+from dls_normsql.constants import CommonFieldnames
+
+from xchembku_api.models.crystal_well_model import CrystalWellModel
 
 # Base class for generic things.
 from xchembku_api.thing import Thing
@@ -106,7 +107,7 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def originate_crystal_wells(
-        self, records: Union[List[Dict], List[WellModel]]
+        self, records: Union[List[Dict], List[CrystalWellModel]]
     ) -> None:
         """
         Caller provides the records containing fields to be created.
@@ -115,35 +116,39 @@ class Direct(Thing):
 
         if len(records) > 0:
             # If we're being given models, serialize them into dicts.
-            if isinstance(records[0], WellModel):
-                models: List[WellModel] = records
+            if isinstance(records[0], CrystalWellModel):
+                models: List[CrystalWellModel] = records
                 records = [model.dict() for model in models]
 
             return await self.insert(
-                WellModel.__name__.lower(), records, why="originate_crystal_wells"
+                CrystalWellModel.__name__.lower(),
+                records,
+                why="originate_crystal_wells",
             )
 
     # ----------------------------------------------------------------------------------------
     async def update_crystal_wells(
-        self, records: Union[List[Dict], List[WellModel]], why=None
+        self, records: Union[List[Dict], List[CrystalWellModel]], why=None
     ) -> Dict:
         """
         Caller provides the crystal well record with the fields to be updated.
         """
 
+        table_name = (CrystalWellModel.__name__.lower(),)
+
         count = 0
         if len(records) > 0:
             # If we're being given models, serialize them into dicts.
-            if isinstance(records[0], WellModel):
-                models: List[WellModel] = records
+            if isinstance(records[0], CrystalWellModel):
+                models: List[CrystalWellModel] = records
                 records = [model.dict() for model in models]
 
             for record in records:
                 result = await self.update(
-                    WellModel.__name__.lower(),
+                    table_name,
                     record,
-                    f"({CrystalWellFieldnames.AUTOID} = ?)",
-                    subs=[record[CrystalWellFieldnames.AUTOID]],
+                    f"({CommonFieldnames.AUTOGUID} = ?)",
+                    subs=[record[CommonFieldnames.AUTOGUID]],
                     why=why,
                 )
                 count += result.get("count", 0)
@@ -151,18 +156,21 @@ class Direct(Thing):
         return {"count": count}
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_filenames(self, why=None):
+    async def fetch_crystal_wells_for_autolocation(self, why=None):
         """
         Caller provides the filters for selecting which crystal wells.
         Returns records from the database.
         """
 
-        table_name = Tablenames.CRYSTAL_WELLS
+        crystal_well_table_name = (CrystalWellModel.__name__.lower(),)
+        crystal_well_autolocation_table_name = (
+            CrystalWellAutolocationModel.__name__.lower(),
+        )
 
         if why is None:
-            why = "API fetch_crystal_wells_filenames"
+            why = "API fetch_crystal_wells_for_autolocation"
         result = await self.query(
-            f"SELECT * FROM {table_name}",
+            f"SELECT * FROM {crystal_well_table_name}",
             why=why,
         )
 

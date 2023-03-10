@@ -6,8 +6,8 @@ from xchembku_api.aiohttp_client import AiohttpClient
 
 # Dataface protocolj things.
 from xchembku_api.datafaces.constants import Commands, Keywords
-from xchembku_api.models.well_geometry_model import WellGeometryModel
-from xchembku_api.models.well_model import WellModel
+from xchembku_api.models.crystal_well_model import CrystalWellModel
+from xchembku_api.models.well_autolocation_model import WellAutolocationModel
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class Aiohttp:
         )
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells(self, models: List[WellModel]):
+    async def originate_crystal_wells(self, models: List[CrystalWellModel]):
         """"""
 
         records: List[Dict] = [model.dict() for model in models]
@@ -67,10 +67,12 @@ class Aiohttp:
         return await self.__send_protocolj("update_crystal_wells", records, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_filenames(self, why=None):
+    async def fetch_crystal_wells_for_autolocation(self, why=None):
         """"""
 
-        return await self.__send_protocolj("fetch_crystal_wells_filenames", why=why)
+        return await self.__send_protocolj(
+            "fetch_crystal_wells_for_autolocation", why=why
+        )
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):

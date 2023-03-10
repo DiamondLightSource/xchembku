@@ -7,14 +7,7 @@ class Types:
 
 
 # ----------------------------------------------------------------------------------------
-class Tablenames:
-    CRYSTAL_WELLS = "crystal_wells"
-
-
-# ----------------------------------------------------------------------------------------
 class CrystalWellFieldnames:
-    AUTOID = CommonFieldnames.AUTOID
-    CREATED_ON = CommonFieldnames.CREATED_ON
     FILENAME = "filename"
     ERROR = "error"
     WIDTH = "width"
