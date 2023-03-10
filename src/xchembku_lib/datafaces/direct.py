@@ -90,7 +90,7 @@ class Direct(Thing):
         return await self.__database.insert(table_name, records, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def update(self, table_name, record, where, subs=None, why=None):
+    async def update(self, table_name, record, where, subs=None, why=None) -> Dict:
         """"""
         await self.establish_database_connection()
 
@@ -113,35 +113,42 @@ class Direct(Thing):
         The filename field should be unique in all records.
         """
 
-        if len(records) == 0:
-            return
+        if len(records) > 0:
+            # If we're being given models, serialize them into dicts.
+            if isinstance(records[0], WellModel):
+                models: List[WellModel] = records
+                records = [model.dict() for model in models]
 
-        if isinstance(records[0], WellModel):
-            models: List[WellModel] = records
-            records = [model.dict() for model in models]
-
-        table_name = WellModel.__name__.lower()
-
-        return await self.insert(table_name, records, why="originate_crystal_wells")
+            return await self.insert(
+                WellModel.__name__.lower(), records, why="originate_crystal_wells"
+            )
 
     # ----------------------------------------------------------------------------------------
-    async def update_crystal_wells(self, records, why=None):
+    async def update_crystal_wells(
+        self, records: Union[List[Dict], List[WellModel]], why=None
+    ) -> Dict:
         """
         Caller provides the crystal well record with the fields to be updated.
         """
 
-        table_name = Tablenames.CRYSTAL_WELLS
+        count = 0
+        if len(records) > 0:
+            # If we're being given models, serialize them into dicts.
+            if isinstance(records[0], WellModel):
+                models: List[WellModel] = records
+                records = [model.dict() for model in models]
 
-        for record in records:
-            result = await self.update(
-                table_name,
-                record,
-                f"({CrystalWellFieldnames.AUTOID} = ?)",
-                subs=[record[CrystalWellFieldnames.AUTOID]],
-                why=why,
-            )
+            for record in records:
+                result = await self.update(
+                    WellModel.__name__.lower(),
+                    record,
+                    f"({CrystalWellFieldnames.AUTOID} = ?)",
+                    subs=[record[CrystalWellFieldnames.AUTOID]],
+                    why=why,
+                )
+                count += result.get("count", 0)
 
-        return result
+        return {"count": count}
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_filenames(self, why=None):
