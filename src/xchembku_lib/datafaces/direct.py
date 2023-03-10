@@ -161,21 +161,26 @@ class Direct(Thing):
         return {"count": count}
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_for_autolocation(self, why=None):
+    async def fetch_crystal_wells_needing_autolocation(self, why=None):
         """
         Caller provides the filters for selecting which crystal wells.
         Returns records from the database.
         """
 
         crystal_well_table_name = CrystalWellModel.__name__.lower()
-        crystal_well_autolocation_table_name = (
+        crystal_well_autolocations_table_name = (
             CrystalWellAutolocationModel.__name__.lower(),
         )
 
         if why is None:
-            why = "API fetch_crystal_wells_for_autolocation"
+            why = "API fetch_crystal_wells_needing_autolocation"
         result = await self.query(
-            f"SELECT * FROM {crystal_well_table_name}",
+            "SELECT wells.*"
+            f"FROM {crystal_well_table_name} AS wells"
+            f"RIGHT JOIN {crystal_well_autolocations_table_name} AS autolocations"
+            "ON wells.uuid = autolocations.crystal_well_uuid"
+            "WHERE autolocations.uuid IS NULL"
+            "LIMIT 1",
             why=why,
         )
 

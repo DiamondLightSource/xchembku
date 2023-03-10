@@ -67,11 +67,11 @@ class Aiohttp:
         return await self.__send_protocolj("update_crystal_wells", records, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_for_autolocation(self, why=None):
+    async def fetch_crystal_wells_needing_autolocation(self, why=None):
         """"""
 
         return await self.__send_protocolj(
-            "fetch_crystal_wells_for_autolocation", why=why
+            "fetch_crystal_wells_needing_autolocation", why=why
         )
 
     # ----------------------------------------------------------------------------------------

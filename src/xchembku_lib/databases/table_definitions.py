@@ -81,4 +81,4 @@ class CrystalWellAutolocationsTable(TableDefinition):
 
                 self.fields[field_name] = {"type": sql_type}
 
-            # self.fields["filename"]["index"] = True
+            self.fields["crystal_well_uuid"]["index"] = True
