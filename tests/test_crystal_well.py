@@ -54,6 +54,9 @@ class TestCrystalWellService:
 class CrystalWellTester(Base):
     """
     Class to test the dataface well-related endpoints.
+
+    This test creates two crystal wells.
+    Then it adds autolocation to them one at a time, each time checking the fetched results.
     """
 
     async def _main_coroutine(self, constants, output_directory):
@@ -87,7 +90,7 @@ class CrystalWellTester(Base):
 
             # Fetch all the wells which need autolocation.
             crystal_well_models = (
-                await dataface.fetch_crystal_wells_needing_autolocation()
+                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
             )
 
             assert len(crystal_well_models) == 2
@@ -106,11 +109,30 @@ class CrystalWellTester(Base):
                 [crystal_well_autolocation_model]
             )
 
-            # Fetch all the wells which need autolocation.
+            # Fetch all the wells which need autolocation, which now there is only one.
             crystal_well_models = (
-                await dataface.fetch_crystal_wells_needing_autolocation()
+                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
             )
 
             # Now there is only one needing autolocation.
             assert len(crystal_well_models) == 1
             assert crystal_well_models[0].filename == filename2
+
+            # ----------------------------------------------------------------
+            # Now try adding a second crystal well autolocation.
+            crystal_well_autolocation_model = CrystalWellAutolocationModel(
+                crystal_well_uuid=crystal_well_model2.uuid
+            )
+
+            crystal_well_autolocation_model.number_of_crystals = 10
+            await dataface.originate_crystal_well_autolocations(
+                [crystal_well_autolocation_model]
+            )
+
+            # Fetch all the wells which need autolocation.
+            crystal_well_models = (
+                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
+            )
+
+            # Now there are no more needing autolocation.
+            assert len(crystal_well_models) == 0

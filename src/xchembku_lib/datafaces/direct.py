@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from dls_normsql.constants import CommonFieldnames
 
@@ -158,7 +158,7 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_autolocation(
-        self, why=None
+        self, limit: int = 1, why=None
     ) -> List[CrystalWellModel]:
         """
         Caller provides the filters for selecting which crystal wells.
@@ -174,7 +174,7 @@ class Direct(Thing):
             " ON crystal_wells.uuid = crystal_well_autolocations.crystal_well_uuid"
             " WHERE crystal_well_autolocations.uuid IS NULL"
             f" ORDER BY {CommonFieldnames.CREATED_ON}"
-            " LIMIT 1",
+            f" LIMIT {limit}",
             why=why,
         )
 

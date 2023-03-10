@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -14,7 +15,7 @@ class CrystalWellModel(BaseModel):
     filename: str
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
-    created_on: str = None
+    created_on: Optional[str] = None
 
     def __init__(self, **kwargs):
         # Automatically cook up a uuid if it's not provided to the constructor.

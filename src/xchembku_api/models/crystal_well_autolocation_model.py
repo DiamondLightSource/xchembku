@@ -1,28 +1,28 @@
 import uuid
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from pydantic import BaseModel
 
 
 class CrystalWellAutolocationModel(BaseModel):
     """
-    Model containing well autolocation.
+    Model containing crystal well autolocation information.
 
     Typically this structure is populated and transmitted by the chimpflow.
     """
 
     uuid: str
-    crystal_well_uuid: str = None
-    drop_detected: bool = None
-    target_position_x: int = None
-    target_position_y: int = None
-    well_centroid_x: int = None
-    well_centroid_y: int = None
-    number_of_crystals: int = None
-    crystal_coordinates: List[Tuple[int, int]] = None
+    crystal_well_uuid: Optional[str] = None
+    drop_detected: Optional[bool] = None
+    target_position_x: Optional[int] = None
+    target_position_y: Optional[int] = None
+    well_centroid_x: Optional[int] = None
+    well_centroid_y: Optional[int] = None
+    number_of_crystals: Optional[int] = None
+    crystal_coordinates: Optional[List[Tuple[int, int]]] = None
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
-    created_on: str
+    created_on: Optional[str] = None
 
     def __init__(self, **kwargs):
         # Automatically cook up a uuid if it's not provided to the constructor.

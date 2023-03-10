@@ -46,6 +46,9 @@ class CrystalWellsTable(TableDefinition):
 
                 self.fields[field_name] = {"type": sql_type}
 
+        # Add indexes.
+        self.fields[CommonFieldnames.CREATED_ON]["index"] = True
+
 
 # ----------------------------------------------------------------------------------------
 class CrystalWellAutolocationsTable(TableDefinition):
@@ -79,5 +82,6 @@ class CrystalWellAutolocationsTable(TableDefinition):
 
                 self.fields[field_name] = {"type": sql_type}
 
-        # Add index.
+        # Add indexes.
         self.fields["crystal_well_uuid"]["index"] = True
+        self.fields[CommonFieldnames.CREATED_ON]["index"] = True

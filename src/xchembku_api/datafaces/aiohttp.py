@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 # Class for an aiohttp client.
 from xchembku_api.aiohttp_client import AiohttpClient
@@ -32,22 +32,29 @@ class Aiohttp:
         return self.__specification
 
     # ----------------------------------------------------------------------------------------
-    async def query(self, sql, subs=None, why=None):
+    async def query(self, sql, subs=None, why: Optional[str] = None):
         """"""
         return await self.__send_protocolj("query", sql, subs=subs, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def execute(self, sql, subs=None, why=None):
+    async def execute(self, sql, subs=None, why: Optional[str] = None):
         """"""
         return await self.__send_protocolj("execute", sql, subs=subs, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def insert(self, table_name, records, why=None):
+    async def insert(self, table_name, records, why: Optional[str] = None):
         """"""
-        return await self.__send_protocolj("insert", table_name, records, why=why)
+        return await self.__send_protocolj(
+            "insert",
+            table_name,
+            records,
+            why=why,
+        )
 
     # ----------------------------------------------------------------------------------------
-    async def update(self, table_name, record, where, subs=None, why=None):
+    async def update(
+        self, table_name, record, where, subs=None, why: Optional[str] = None
+    ):
         """"""
         return await self.__send_protocolj(
             "update", table_name, record, where, subs=subs, why=why
@@ -61,17 +68,25 @@ class Aiohttp:
         return await self.__send_protocolj("originate_crystal_wells", records)
 
     # ----------------------------------------------------------------------------------------
-    async def update_crystal_wells(self, records, why=None):
-        """"""
-
-        return await self.__send_protocolj("update_crystal_wells", records, why=why)
-
-    # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_needing_autolocation(self, why=None):
+    async def update_crystal_wells(self, records, why: Optional[str] = None):
         """"""
 
         return await self.__send_protocolj(
-            "fetch_crystal_wells_needing_autolocation", why=why
+            "update_crystal_wells",
+            records,
+            why=why,
+        )
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_needing_autolocation(
+        self,
+        limit: int = 1,
+        why: Optional[str] = None,
+    ):
+        """"""
+
+        return await self.__send_protocolj(
+            "fetch_crystal_wells_needing_autolocation", limit=limit, why=why
         )
 
     # ----------------------------------------------------------------------------------------
