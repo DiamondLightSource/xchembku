@@ -14,8 +14,8 @@ class CrystalWellAutolocationModel(BaseModel):
     uuid: str
     crystal_well_uuid: Optional[str] = None
     drop_detected: Optional[bool] = None
-    target_position_x: Optional[int] = None
-    target_position_y: Optional[int] = None
+    auto_target_position_x: Optional[int] = None
+    auto_target_position_y: Optional[int] = None
     well_centroid_x: Optional[int] = None
     well_centroid_y: Optional[int] = None
     number_of_crystals: Optional[int] = None

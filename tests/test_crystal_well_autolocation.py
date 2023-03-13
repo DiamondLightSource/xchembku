@@ -119,7 +119,7 @@ class CrystalWellTester(Base):
             assert crystal_well_models[0].filename == filename2
 
             # ----------------------------------------------------------------
-            # Now try adding a second crystal well autolocation.
+            # Now try adding an autolocation to the second well.
             crystal_well_autolocation_model = CrystalWellAutolocationModel(
                 crystal_well_uuid=crystal_well_model2.uuid
             )

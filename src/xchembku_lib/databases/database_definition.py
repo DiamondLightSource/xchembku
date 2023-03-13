@@ -3,6 +3,7 @@ import logging
 # Base class for all aiosqlite database objects.
 from xchembku_lib.databases.table_definitions import (
     CrystalWellAutolocationsTable,
+    CrystalWellDroplocationsTable,
     CrystalWellsTable,
 )
 
@@ -54,3 +55,4 @@ class DatabaseDefinition:
         # Table schemas in our database.
         self.add_table_definition(CrystalWellsTable())
         self.add_table_definition(CrystalWellAutolocationsTable())
+        self.add_table_definition(CrystalWellDroplocationsTable())

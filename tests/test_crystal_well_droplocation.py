@@ -8,6 +8,9 @@ from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
+from xchembku_api.models.crystal_well_droplocation_model import (
+    CrystalWellDroplocationModel,
+)
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 
 # Context creator.
@@ -82,7 +85,6 @@ class CrystalWellDroplocationTester(Base):
 
             # Reference the dataface object which the context has set up as the default.
             dataface = xchembku_datafaces_get_default()
-
             # Write two well records.
             filename1 = "abc.jpg"
             crystal_well_model1 = CrystalWellModel(filename=filename1)
@@ -96,14 +98,11 @@ class CrystalWellDroplocationTester(Base):
             crystal_well_models = (
                 await dataface.fetch_crystal_wells_needing_droplocation(limit=100)
             )
-
+            # Initially there are none.
             assert len(crystal_well_models) == 0
 
-            assert crystal_well_models[0].filename == filename1
-            assert crystal_well_models[1].filename == filename2
-
-            # ----------------------------------------------------------------
-            # Now try adding a crystal well autolocation.
+            # ---------------------------------------------------------------------
+            # Add a crystal well autolocation.
             crystal_well_autolocation_model = CrystalWellAutolocationModel(
                 crystal_well_uuid=crystal_well_model1.uuid
             )
@@ -113,30 +112,39 @@ class CrystalWellDroplocationTester(Base):
                 [crystal_well_autolocation_model]
             )
 
-            # Fetch all the wells which need autolocation, which now there is only one.
+            # Fetch all the wells which need droplocation.
             crystal_well_models = (
                 await dataface.fetch_crystal_wells_needing_droplocation(limit=100)
             )
 
-            # Now there is only one needing autolocation.
+            # Now there is 1 which needs a droplocation.
             assert len(crystal_well_models) == 1
-            assert crystal_well_models[0].filename == filename2
+            assert crystal_well_models[0].filename == filename1
 
             # ----------------------------------------------------------------
-            # Now try adding a second crystal well autolocation.
-            crystal_well_autolocation_model = CrystalWellAutolocationModel(
-                crystal_well_uuid=crystal_well_model2.uuid
+            # Add a crystal well droplocation.
+            crystal_well_droplocation_model = CrystalWellDroplocationModel(
+                crystal_well_uuid=crystal_well_model1.uuid
             )
 
-            crystal_well_autolocation_model.number_of_crystals = 10
-            await dataface.originate_crystal_well_autolocations(
+            crystal_well_droplocation_model.confirmed_target_position_x = 10
+            crystal_well_droplocation_model.confirmed_target_position_y = 11
+            await dataface.originate_crystal_well_droplocations(
                 [crystal_well_autolocation_model]
             )
 
-            # Fetch all the wells which need autolocation.
+            # Fetch all the wells which need droplocation.
             crystal_well_models = (
                 await dataface.fetch_crystal_wells_needing_droplocation(limit=100)
             )
 
-            # Now there are no more needing autolocation.
+            # Now there are none needing droplocation.
             assert len(crystal_well_models) == 0
+
+            # Fetch all the wells which need autolocation.
+            crystal_well_models = (
+                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
+            )
+
+            # There is still one needing autolocation.
+            assert len(crystal_well_models) == 1

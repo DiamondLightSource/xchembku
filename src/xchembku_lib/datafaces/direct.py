@@ -6,6 +6,9 @@ from dls_normsql.constants import CommonFieldnames
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
+from xchembku_api.models.crystal_well_droplocation_model import (
+    CrystalWellDroplocationModel,
+)
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 
 # Base class for generic things.
@@ -166,10 +169,7 @@ class Direct(Thing):
     async def fetch_crystal_wells_needing_autolocation_serialized(
         self, limit: int = 1, why=None
     ) -> List[Dict]:
-        """
-        Caller provides the filters for selecting which crystal wells.
-        Returns records from the database.
-        """
+        """ """
 
         # Get the models from the direct call.
         models = await self.fetch_crystal_wells_needing_autolocation(
@@ -186,8 +186,7 @@ class Direct(Thing):
         self, limit: int = 1, why=None
     ) -> List[CrystalWellModel]:
         """
-        Caller provides the filters for selecting which crystal wells.
-        Returns records from the database.
+        Wells need an autolocation if they don't have one yet.
         """
 
         if why is None:
@@ -232,8 +231,7 @@ class Direct(Thing):
         self, limit: int = 20, why=None
     ) -> List[CrystalWellModel]:
         """
-        Caller provides the filters for selecting which crystal wells.
-        Returns records from the database.
+        Wells need a droplocation if they have an autolocation but no droplocation.
         """
 
         created_on = CommonFieldnames.CREATED_ON
@@ -246,13 +244,16 @@ class Direct(Thing):
 
         if why is None:
             why = "API fetch_crystal_wells_needing_droplocation"
+
         records = await self.query(
-            "SELECT t1.*, t2.target_position_x, t2.target_position_y"
-            "\nFROM crystal_wells AS t1"
-            "\nINNER JOIN crystal_well_autolocations AS t2"
-            "\n ON t1.uuid = t2.crystal_well_uuid"
-            f"\nWHERE t2.{created_on} = ({where})"
-            f"\nORDER BY t1.{created_on}"
+            "\nSELECT crystal_wells.*,"
+            "\n  crystal_well_autolocations.auto_target_position_x,"
+            "\n  crystal_well_autolocations.auto_target_position_y"
+            "\nFROM crystal_wells"
+            "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
+            "\n/* Exclude crystal wells which already have drop locations. */"
+            "\nWHERE crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+            f"\nORDER BY crystal_wells.{created_on}"
             f"\nLIMIT {limit}",
             why=why,
         )
@@ -286,6 +287,32 @@ class Direct(Thing):
             "crystal_well_autolocations",
             records,
             why="originate_crystal_well_autolocations",
+        )
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_well_droplocations_serialized(
+        self, records: List[Dict]
+    ) -> None:
+        # We are being given json, so parse it into models.
+        models = [CrystalWellDroplocationModel(**record) for record in records]
+        # Return the method doing the work.
+        return await self.originate_crystal_well_droplocations(models)
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_well_droplocations(
+        self, models: List[CrystalWellDroplocationModel]
+    ) -> None:
+        """
+        Caller provides the records containing fields to be created.
+        """
+
+        # We're being given models, serialize them into dicts for the sql.
+        records = [model.dict() for model in models]
+
+        return await self.insert(
+            "crystal_well_droplocations",
+            records,
+            why="originate_crystal_well_droplocations",
         )
 
     # ----------------------------------------------------------------------------------------
