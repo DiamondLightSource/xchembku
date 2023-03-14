@@ -166,6 +166,38 @@ class Direct(Thing):
         return {"count": count}
 
     # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_filenames_serialized(self, why=None) -> List[Dict]:
+        """ """
+
+        # Get the models from the direct call.
+        models = await self.fetch_crystal_wells_filenames(why=why)
+
+        # Serialize models into dicts to give to the response.
+        records = [model.dict() for model in models]
+
+        return records
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_filenames(self, why=None) -> List[CrystalWellModel]:
+        """
+        Filenams for ALL wells ever.
+        """
+
+        if why is None:
+            why = "API fetch_crystal_wells_filenames"
+        records = await self.query(
+            "SELECT crystal_wells.filename"
+            f" FROM crystal_wells"
+            f" ORDER BY {CommonFieldnames.CREATED_ON}",
+            why=why,
+        )
+
+        # Parse the records returned by sql into models.
+        models = [CrystalWellModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_autolocation_serialized(
         self, limit: int = 1, why=None
     ) -> List[Dict]:
