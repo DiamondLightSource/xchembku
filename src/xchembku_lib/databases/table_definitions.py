@@ -85,6 +85,9 @@ class CrystalWellAutolocationsTable(TableDefinition):
 
                 self.fields[field_name] = {"type": sql_type}
 
+        # Remove attribute of the model that doesn't get stored in the database.
+        self.fields.pop("crystal_coordinates")
+
         # Add indexes.
         self.fields["crystal_well_uuid"]["index"] = True
         self.fields[CommonFieldnames.CREATED_ON]["index"] = True

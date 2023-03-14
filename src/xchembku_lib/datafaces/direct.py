@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Optional, Union
 
 from dls_normsql.constants import CommonFieldnames
+from dls_utilpack.describe import describe
 
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
@@ -44,7 +45,6 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def establish_database_connection(self):
-
         if self.__database is None:
             self.__database = Databases().build_object(self.specification()["database"])
             await self.__database.connect()
@@ -225,12 +225,12 @@ class Direct(Thing):
             why = "API fetch_crystal_wells_needing_autolocation"
         records = await self.query(
             "SELECT crystal_wells.*"
-            f" FROM crystal_wells"
-            f" LEFT JOIN crystal_well_autolocations "
+            f"\n  FROM crystal_wells"
+            f"\n  LEFT JOIN crystal_well_autolocations"
             " ON crystal_wells.uuid = crystal_well_autolocations.crystal_well_uuid"
-            " WHERE crystal_well_autolocations.uuid IS NULL"
-            f" ORDER BY {CommonFieldnames.CREATED_ON}"
-            f" LIMIT {limit}",
+            "\n  WHERE crystal_well_autolocations.uuid IS NULL"
+            f"\n  ORDER BY {CommonFieldnames.CREATED_ON}"
+            f"\n  LIMIT {limit}",
             why=why,
         )
 
@@ -327,6 +327,7 @@ class Direct(Thing):
     ) -> None:
         # We are being given json, so parse it into models.
         models = [CrystalWellDroplocationModel(**record) for record in records]
+
         # Return the method doing the work.
         return await self.originate_crystal_well_droplocations(models)
 
