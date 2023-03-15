@@ -92,23 +92,6 @@ class Aiohttp:
         )
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_filenames(
-        self,
-        why: Optional[str] = None,
-    ) -> List[CrystalWellModel]:
-        """"""
-
-        records = await self.__send_protocolj(
-            "fetch_crystal_wells_filenames_serialized",
-            why=why,
-        )
-
-        # Dicts are returned, so parse them into models.
-        models = [CrystalWellModel(**record) for record in records]
-
-        return models
-
-    # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_autolocation(
         self,
         limit: int = 1,

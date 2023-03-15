@@ -3,6 +3,9 @@ import logging
 # Base class for the tester.
 from tests.base import Base
 
+# Client context creator.
+from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientContext
+
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 from xchembku_api.models.crystal_well_autolocation_model import (
@@ -10,35 +13,37 @@ from xchembku_api.models.crystal_well_autolocation_model import (
 )
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 
-# Context creator.
-from xchembku_lib.datafaces.context import Context as XchembkuDatafaceContext
+# Server context creator.
+from xchembku_lib.datafaces.context import Context as XchembkuDatafaceServerContext
 
 logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDirect:
+class TestCrystalWellAutolocationDirect:
     """
     Test dataface interface by direct call.
     """
 
-    def test_dataface_multiconf(
+    def test(
         self,
         constants,
         logging_setup,
         output_directory,
     ):
         configuration_file = "tests/configurations/direct.yaml"
-        CrystalWellTester().main(constants, configuration_file, output_directory)
+        CrystalWellAutolocationTester().main(
+            constants, configuration_file, output_directory
+        )
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellService:
+class TestCrystalWellAutolocationService:
     """
     Test dataface interface through network interface.
     """
 
-    def test_dataface_multiconf(
+    def test(
         self,
         constants,
         logging_setup,
@@ -47,11 +52,13 @@ class TestCrystalWellService:
         """ """
 
         configuration_file = "tests/configurations/service.yaml"
-        CrystalWellTester().main(constants, configuration_file, output_directory)
+        CrystalWellAutolocationTester().main(
+            constants, configuration_file, output_directory
+        )
 
 
 # ----------------------------------------------------------------------------------------
-class CrystalWellTester(Base):
+class CrystalWellAutolocationTester(Base):
     """
     Class to test the dataface well-related endpoints.
 
@@ -69,70 +76,88 @@ class CrystalWellTester(Base):
         multiconf_dict = await multiconf.load()
 
         # Reference the dict entry for the xchembku dataface.
-        xchembku_context = XchembkuDatafaceContext(
-            multiconf_dict["xchembku_dataface_specification"]
+        xchembku_dataface_specification = multiconf_dict[
+            "xchembku_dataface_specification"
+        ]
+
+        # Make the server context.
+        xchembku_server_context = XchembkuDatafaceServerContext(
+            xchembku_dataface_specification
         )
 
-        # Start the xchembku context which includes the direct or network-addressable service.
-        async with xchembku_context:
+        # Make the client context.
+        xchembku_client_context = XchembkuDatafaceClientContext(
+            xchembku_dataface_specification
+        )
 
-            # Reference the dataface object which the context has set up as the default.
-            dataface = xchembku_datafaces_get_default()
+        # Start the xchembku server context which includes the direct or network-addressable service.
+        async with xchembku_server_context:
+            # Start the matching xchembku client context.
+            async with xchembku_client_context:
+                await self.__run_the_test(constants, output_directory)
 
-            # Write two well records.
-            filename1 = "abc.jpg"
-            crystal_well_model1 = CrystalWellModel(filename=filename1)
-            filename2 = "xyz.jpg"
-            crystal_well_model2 = CrystalWellModel(filename=filename2)
-            await dataface.originate_crystal_wells(
-                [crystal_well_model1, crystal_well_model2]
-            )
+    # ----------------------------------------------------------------------------------------
 
-            # Fetch all the wells which need autolocation.
-            crystal_well_models = (
-                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
-            )
+    async def __run_the_test(self, constants, output_directory):
+        """ """
 
-            assert len(crystal_well_models) == 2
+        # Reference the dataface object which the context has set up as the default.
+        dataface = xchembku_datafaces_get_default()
 
-            assert crystal_well_models[0].filename == filename1
-            assert crystal_well_models[1].filename == filename2
+        # Write two well records.
+        filename1 = "abc.jpg"
+        crystal_well_model1 = CrystalWellModel(filename=filename1)
+        filename2 = "xyz.jpg"
+        crystal_well_model2 = CrystalWellModel(filename=filename2)
+        await dataface.originate_crystal_wells(
+            [crystal_well_model1, crystal_well_model2]
+        )
 
-            # ----------------------------------------------------------------
-            # Now try adding a crystal well autolocation.
-            crystal_well_autolocation_model = CrystalWellAutolocationModel(
-                crystal_well_uuid=crystal_well_model1.uuid
-            )
+        # Fetch all the wells which need autolocation.
+        crystal_well_models = await dataface.fetch_crystal_wells_needing_autolocation(
+            limit=100
+        )
 
-            crystal_well_autolocation_model.number_of_crystals = 10
-            await dataface.originate_crystal_well_autolocations(
-                [crystal_well_autolocation_model]
-            )
+        assert len(crystal_well_models) == 2
 
-            # Fetch all the wells which need autolocation, which now there is only one.
-            crystal_well_models = (
-                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
-            )
+        assert crystal_well_models[0].filename == filename1
+        assert crystal_well_models[1].filename == filename2
 
-            # Now there is only one needing autolocation.
-            assert len(crystal_well_models) == 1
-            assert crystal_well_models[0].filename == filename2
+        # ----------------------------------------------------------------
+        # Now try adding a crystal well autolocation.
+        crystal_well_autolocation_model = CrystalWellAutolocationModel(
+            crystal_well_uuid=crystal_well_model1.uuid
+        )
 
-            # ----------------------------------------------------------------
-            # Now try adding an autolocation to the second well.
-            crystal_well_autolocation_model = CrystalWellAutolocationModel(
-                crystal_well_uuid=crystal_well_model2.uuid
-            )
+        crystal_well_autolocation_model.number_of_crystals = 10
+        await dataface.originate_crystal_well_autolocations(
+            [crystal_well_autolocation_model]
+        )
 
-            crystal_well_autolocation_model.number_of_crystals = 10
-            await dataface.originate_crystal_well_autolocations(
-                [crystal_well_autolocation_model]
-            )
+        # Fetch all the wells which need autolocation, which now there is only one.
+        crystal_well_models = await dataface.fetch_crystal_wells_needing_autolocation(
+            limit=100
+        )
 
-            # Fetch all the wells which need autolocation.
-            crystal_well_models = (
-                await dataface.fetch_crystal_wells_needing_autolocation(limit=100)
-            )
+        # Now there is only one needing autolocation.
+        assert len(crystal_well_models) == 1
+        assert crystal_well_models[0].filename == filename2
 
-            # Now there are no more needing autolocation.
-            assert len(crystal_well_models) == 0
+        # ----------------------------------------------------------------
+        # Now try adding an autolocation to the second well.
+        crystal_well_autolocation_model = CrystalWellAutolocationModel(
+            crystal_well_uuid=crystal_well_model2.uuid
+        )
+
+        crystal_well_autolocation_model.number_of_crystals = 10
+        await dataface.originate_crystal_well_autolocations(
+            [crystal_well_autolocation_model]
+        )
+
+        # Fetch all the wells which need autolocation.
+        crystal_well_models = await dataface.fetch_crystal_wells_needing_autolocation(
+            limit=100
+        )
+
+        # Now there are no more needing autolocation.
+        assert len(crystal_well_models) == 0

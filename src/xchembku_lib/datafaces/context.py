@@ -1,8 +1,5 @@
 import logging
 
-# Things created in the context.
-from xchembku_api.datafaces.datafaces import Datafaces, xchembku_datafaces_set_default
-
 # Base class for an asyncio context
 from xchembku_lib.contexts.base import Base as ContextBase
 
@@ -51,9 +48,6 @@ class Context(ContextBase):
         elif self.context_specification.get("start_as") is None:
             await self.server.start()
 
-        # If there is more than one dataface, the last one defined will be the default.
-        xchembku_datafaces_set_default(self.server)
-
     # ----------------------------------------------------------------------------------------
     async def aexit(self):
         """ """
@@ -68,6 +62,3 @@ class Context(ContextBase):
 
             if self.context_specification.get("start_as") is None:
                 await self.server.disconnect()
-
-        # If there is more than one dataface, the last one defined will be the default.
-        xchembku_datafaces_set_default(self.server)
