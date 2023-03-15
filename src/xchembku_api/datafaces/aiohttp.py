@@ -196,6 +196,13 @@ class Aiohttp:
         )
 
     # ----------------------------------------------------------------------------------------
+    async def open_client_session(self):
+        """"""
+
+        if self.__aiohttp_client is not None:
+            await self.__aiohttp_client.open_client_session()
+
+    # ----------------------------------------------------------------------------------------
     async def close_client_session(self):
         """"""
 

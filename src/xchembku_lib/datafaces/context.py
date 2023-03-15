@@ -45,11 +45,6 @@ class Context(ContextBase):
         elif self.context_specification.get("start_as") == "process":
             await self.server.start_process()
 
-        # Not running as a service?
-        elif self.context_specification.get("start_as") is None:
-            # We need to start to make the database connection.
-            await self.server.start()
-
     # ----------------------------------------------------------------------------------------
     async def aexit(self):
         """ """
@@ -61,6 +56,3 @@ class Context(ContextBase):
 
             if self.context_specification.get("start_as") == "coro":
                 await self.server.direct_shutdown()
-
-            if self.context_specification.get("start_as") is None:
-                await self.server.disconnect()

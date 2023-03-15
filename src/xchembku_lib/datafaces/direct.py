@@ -35,6 +35,7 @@ class Direct(Thing):
     # ----------------------------------------------------------------------------------------
     async def start(self):
         # Connect to the database to create the schemas if they don't exist already.
+        # TODO: Consider if direct dataface needs a start method.
         await self.establish_database_connection()
 
     # ----------------------------------------------------------------------------------------
@@ -357,6 +358,12 @@ class Direct(Thing):
         report["alive"] = True
 
         return report
+
+    # ----------------------------------------------------------------------------------------
+    async def open_client_session(self):
+        """"""
+        # Connect to the database to create the schemas if they don't exist already.
+        await self.establish_database_connection()
 
     # ----------------------------------------------------------------------------------------
     async def close_client_session(self):

@@ -32,11 +32,15 @@ class Context(ContextBase):
         # If there is more than one dataface, the last one defined will be the default.
         xchembku_datafaces_set_default(self.interface)
 
+        # Open client session to the service or direct connection.
+        await self.interface.open_client_session()
+
     # ----------------------------------------------------------------------------------------
     async def aexit(self):
         """ """
 
         if self.interface is not None:
+            # Close client session to the service or direct connection.
             await self.interface.close_client_session()
 
             # Clear the global variable.  Important between pytests.
