@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocationDirect:
+class TestCrystalWellDroplocationDirectPoll:
     """
     Test dataface interface by direct call.
     """
@@ -63,10 +63,7 @@ class TestCrystalWellDroplocationService:
 # ----------------------------------------------------------------------------------------
 class CrystalWellDroplocationTester(Base):
     """
-    Class to test the dataface well-related endpoints.
-
-    This test creates two crystal wells.
-    Then it adds autolocation to them one at a time, each time checking the fetched results.
+    Class to test the dataface droplocation-related endpoints.
     """
 
     async def _main_coroutine(self, constants, output_directory):
