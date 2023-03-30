@@ -9,6 +9,7 @@ from xchembku_api.datafaces.constants import Commands, Keywords
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
+from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 
 logger = logging.getLogger(__name__)
@@ -113,14 +114,14 @@ class Aiohttp:
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_droplocation(
         self,
-        limit: int = 1,
+        filter: CrystalWellFilterModel,
         why: Optional[str] = None,
     ) -> List[CrystalWellModel]:
         """"""
 
         records = await self.__send_protocolj(
             "fetch_crystal_wells_needing_droplocation_serialized",
-            limit=limit,
+            filter.dict(),
             why=why,
         )
 

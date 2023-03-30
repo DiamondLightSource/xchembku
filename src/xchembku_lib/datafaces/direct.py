@@ -243,7 +243,7 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_droplocation_serialized(
-        self, filter: CrystalWellFilterModel, why=None
+        self, filter: Dict, why=None
     ) -> List[Dict]:
         """
         Caller provides the filters for selecting which crystal wells.
@@ -251,7 +251,9 @@ class Direct(Thing):
         """
 
         # Get the models from the direct call.
-        models = await self.fetch_crystal_wells_needing_droplocation(filter, why=why)
+        models = await self.fetch_crystal_wells_needing_droplocation(
+            CrystalWellFilterModel(**filter), why=why
+        )
 
         # Serialize models into dicts to give to the response.
         records = [model.dict() for model in models]
@@ -270,6 +272,8 @@ class Direct(Thing):
 
         created_on = CommonFieldnames.CREATED_ON
 
+        where = "WHERE"
+
         if why is None:
             why = "API fetch_crystal_wells_needing_droplocation"
 
@@ -285,21 +289,22 @@ class Direct(Thing):
         if filter.is_confirmed is False:
             query += (
                 "\n/* Exclude crystal wells which already have confirmed drop locations. */"
-                "\nWHERE crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+                f"\n{where} crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
             )
+            where = "AND"
 
         if filter.anchor is not None:
             op = ">"
-            if filter.direction is not None:
+            if filter.direction == -1:
                 op = "<"
             query += (
                 "\n/* Get the crystal well(s) starting from the anchor. */"
-                f"\nWHERE crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
+                f"\n{where} crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
             )
-            subs.append(filter.uuid)
+            subs.append(filter.anchor)
 
         sql_direction = "ASC"
-        if filter.direction is not None:
+        if filter.direction == -1:
             sql_direction = "DESC"
 
         query += f"\nORDER BY crystal_wells.{created_on} {sql_direction}"

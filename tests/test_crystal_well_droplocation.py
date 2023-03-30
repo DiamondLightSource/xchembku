@@ -69,6 +69,7 @@ class CrystalWellDroplocationTester(Base):
 
     async def _main_coroutine(self, constants, output_directory):
         """ """
+        self.__injected_count = 0
 
         # Get the multiconf from the testing configuration yaml.
         multiconf = self.get_multiconf()
@@ -99,75 +100,138 @@ class CrystalWellDroplocationTester(Base):
 
     # ----------------------------------------------------------------------------------------
 
+    async def __inject(self, dataface, autolocation: bool, droplocation: bool):
+        """ """
+        filename = "%03d.jpg" % (self.__injected_count)
+        self.__injected_count += 1
+
+        # Write well record.
+        crystal_well_model = CrystalWellModel(filename=filename)
+
+        await dataface.originate_crystal_wells([crystal_well_model])
+
+        if autolocation:
+            # Add a crystal well autolocation.
+            crystal_well_autolocation_model = CrystalWellAutolocationModel(
+                crystal_well_uuid=crystal_well_model.uuid
+            )
+
+            crystal_well_autolocation_model.number_of_crystals = 10
+            await dataface.originate_crystal_well_autolocations(
+                [crystal_well_autolocation_model]
+            )
+
+        if droplocation:
+            # Add a crystal well droplocation.
+            crystal_well_droplocation_model = CrystalWellDroplocationModel(
+                crystal_well_uuid=crystal_well_model.uuid,
+                confirmed_target_position_x=10,
+                confirmed_target_position_y=11,
+            )
+
+            await dataface.originate_crystal_well_droplocations(
+                [crystal_well_droplocation_model]
+            )
+
+        return crystal_well_model
+
+    # ----------------------------------------------------------------------------------------
+
+    async def __check(
+        self,
+        dataface,
+        filter: CrystalWellFilterModel,
+        expected: int,
+        note: str,
+        filename: str = None,
+    ):
+        """ """
+
+        crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
+            filter
+        )
+
+        assert len(crystal_well_models) == expected, note
+
+        if filename is not None:
+            assert crystal_well_models[0].filename == filename, f"{note} filename"
+
+    # ----------------------------------------------------------------------------------------
+
     async def __run_the_test(self, constants, output_directory):
         """ """
 
         # Reference the dataface object which the context has set up as the default.
         dataface = xchembku_datafaces_get_default()
-        # Write two well records.
-        filename1 = "abc.jpg"
-        crystal_well_model1 = CrystalWellModel(filename=filename1)
-        filename2 = "xyz.jpg"
-        crystal_well_model2 = CrystalWellModel(filename=filename2)
-        await dataface.originate_crystal_wells(
-            [crystal_well_model1, crystal_well_model2]
+
+        models = []
+
+        # Inject some wells.
+        models.append(await self.__inject(dataface, False, False))
+        models.append(await self.__inject(dataface, True, True))
+        models.append(await self.__inject(dataface, True, False))
+        models.append(await self.__inject(dataface, True, True))
+        models.append(await self.__inject(dataface, True, True))
+        models.append(await self.__inject(dataface, True, False))
+
+        # Check the filtered queries.
+        await self.__check(dataface, CrystalWellFilterModel(), 5, "no limit, all")
+        await self.__check(dataface, CrystalWellFilterModel(limit=1), 1, "limit 1")
+        await self.__check(dataface, CrystalWellFilterModel(limit=2), 2, "limit 2")
+        await self.__check(
+            dataface, CrystalWellFilterModel(is_confirmed=False), 2, "unconfirmed only"
         )
 
-        # Filter with nothing specific.
-        filter = CrystalWellFilterModel()
-
-        # Fetch all the wells which need droplocation.
-        crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            filter
-        )
-        # Initially there are none.
-        assert len(crystal_well_models) == 0
-
-        # ---------------------------------------------------------------------
-        # Add a crystal well autolocation.
-        crystal_well_autolocation_model = CrystalWellAutolocationModel(
-            crystal_well_uuid=crystal_well_model1.uuid
+        # Check the anchor query forward.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(anchor=models[3].uuid, direction=1, limit=1),
+            1,
+            "anchored forward",
+            filename="004.jpg",
         )
 
-        crystal_well_autolocation_model.number_of_crystals = 10
-        await dataface.originate_crystal_well_autolocations(
-            [crystal_well_autolocation_model]
+        # Check the anchor query forward at the end of the list.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(anchor=models[5].uuid, direction=1),
+            0,
+            "anchored forward at the end of the list",
         )
 
-        # Fetch all the wells which need droplocation.
-        crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            filter
+        # Check the anchor query backward.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(anchor=models[2].uuid, direction=-1),
+            1,
+            "anchored backward",
+            filename="001.jpg",
         )
 
-        # Now there is 1 which needs a droplocation.
-        assert len(crystal_well_models) == 1
-        assert crystal_well_models[0].filename == filename1
-
-        # ----------------------------------------------------------------
-        # Add a crystal well droplocation.
-        crystal_well_droplocation_model = CrystalWellDroplocationModel(
-            crystal_well_uuid=crystal_well_model1.uuid
+        # Check the anchor query backward at the start of the list.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(anchor=models[1].uuid, direction=-1),
+            0,
+            "anchored at the start of the list",
         )
 
-        crystal_well_droplocation_model.confirmed_target_position_x = 10
-        crystal_well_droplocation_model.confirmed_target_position_y = 11
-        await dataface.originate_crystal_well_droplocations(
-            [crystal_well_droplocation_model]
+        # Check the anchor query backward at the start of the list of those unconfirmed.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                is_confirmed=False, anchor=models[1].uuid, direction=-1
+            ),
+            0,
+            "anchored at the start of the list, backward, unconfirmed",
         )
 
-        # Fetch all the wells which need droplocation.
-        filter.is_confirmed = False
-        crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            filter
+        # Check the anchor query backward at the start of the list of those unconfirmed.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                is_confirmed=False, anchor=models[2].uuid, direction=-1
+            ),
+            0,
+            "anchored at the start of the list, forward unconfirmed",
         )
-
-        # Now there are none needing droplocation.
-        assert len(crystal_well_models) == 0
-
-        # Fetch all the wells which need autolocation.
-        crystal_well_models = await dataface.fetch_crystal_wells_needing_autolocation(
-            limit=100
-        )
-
-        # There is still one needing autolocation.
-        assert len(crystal_well_models) == 1
