@@ -10,6 +10,7 @@ from xchembku_api.models.crystal_well_autolocation_model import (
 from xchembku_api.models.crystal_well_droplocation_model import (
     CrystalWellDroplocationModel,
 )
+from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 
 # Base class for generic things.
@@ -242,7 +243,7 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_droplocation_serialized(
-        self, limit: int = 1, why=None
+        self, filter: CrystalWellFilterModel, why=None
     ) -> List[Dict]:
         """
         Caller provides the filters for selecting which crystal wells.
@@ -250,9 +251,7 @@ class Direct(Thing):
         """
 
         # Get the models from the direct call.
-        models = await self.fetch_crystal_wells_needing_droplocation(
-            limit=limit, why=why
-        )
+        models = await self.fetch_crystal_wells_needing_droplocation(filter, why=why)
 
         # Serialize models into dicts to give to the response.
         records = [model.dict() for model in models]
@@ -261,35 +260,54 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_droplocation(
-        self, limit: int = 20, why=None
+        self, filter: CrystalWellFilterModel, why=None
     ) -> List[CrystalWellModel]:
         """
         Wells need a droplocation if they have an autolocation but no droplocation.
         """
 
-        created_on = CommonFieldnames.CREATED_ON
+        subs = []
 
-        where = (
-            f"\n  SELECT MAX({created_on})"
-            "\n  FROM crystal_well_autolocations"
-            "\n  WHERE crystal_well_uuid = t1.uuid"
-        )
+        created_on = CommonFieldnames.CREATED_ON
 
         if why is None:
             why = "API fetch_crystal_wells_needing_droplocation"
 
-        records = await self.query(
+        query = (
             "\nSELECT crystal_wells.*,"
             "\n  crystal_well_autolocations.auto_target_position_x,"
             "\n  crystal_well_autolocations.auto_target_position_y"
             "\nFROM crystal_wells"
             "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
-            "\n/* Exclude crystal wells which already have drop locations. */"
-            "\nWHERE crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
-            f"\nORDER BY crystal_wells.{created_on}"
-            f"\nLIMIT {limit}",
-            why=why,
         )
+
+        # Caller wants only those not yet confirmed.
+        if filter.is_confirmed is False:
+            query += (
+                "\n/* Exclude crystal wells which already have confirmed drop locations. */"
+                "\nWHERE crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+            )
+
+        if filter.anchor is not None:
+            op = ">"
+            if filter.direction is not None:
+                op = "<"
+            query += (
+                "\n/* Get the crystal well(s) starting from the anchor. */"
+                f"\nWHERE crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
+            )
+            subs.append(filter.uuid)
+
+        sql_direction = "ASC"
+        if filter.direction is not None:
+            sql_direction = "DESC"
+
+        query += f"\nORDER BY crystal_wells.{created_on} {sql_direction}"
+
+        if filter.limit is not None:
+            query += f"\nLIMIT {filter.limit}"
+
+        records = await self.query(query, subs=subs, why=why)
 
         # Parse the records returned by sql into models.
         models = [CrystalWellModel(**record) for record in records]

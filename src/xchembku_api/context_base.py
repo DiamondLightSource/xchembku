@@ -12,6 +12,15 @@ class ContextBase:
         self.__interface = None
 
     # ----------------------------------------------------------------------------------------
+    def get_specification(self):
+        return self.__specification
+
+    def set_specification(self, specification):
+        self.__specification = specification
+
+    specification = property(get_specification, set_specification)
+
+    # ----------------------------------------------------------------------------------------
     def get_interface(self):
         return self.__interface
 

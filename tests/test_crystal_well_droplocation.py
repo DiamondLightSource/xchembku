@@ -14,6 +14,7 @@ from xchembku_api.models.crystal_well_autolocation_model import (
 from xchembku_api.models.crystal_well_droplocation_model import (
     CrystalWellDroplocationModel,
 )
+from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 
 # Server context creator.
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocationDirectPoll:
+class TestCrystalWellDroplocationDirect:
     """
     Test dataface interface by direct call.
     """
@@ -112,9 +113,12 @@ class CrystalWellDroplocationTester(Base):
             [crystal_well_model1, crystal_well_model2]
         )
 
+        # Filter with nothing specific.
+        filter = CrystalWellFilterModel()
+
         # Fetch all the wells which need droplocation.
         crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            limit=100
+            filter
         )
         # Initially there are none.
         assert len(crystal_well_models) == 0
@@ -132,7 +136,7 @@ class CrystalWellDroplocationTester(Base):
 
         # Fetch all the wells which need droplocation.
         crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            limit=100
+            filter
         )
 
         # Now there is 1 which needs a droplocation.
@@ -148,12 +152,13 @@ class CrystalWellDroplocationTester(Base):
         crystal_well_droplocation_model.confirmed_target_position_x = 10
         crystal_well_droplocation_model.confirmed_target_position_y = 11
         await dataface.originate_crystal_well_droplocations(
-            [crystal_well_autolocation_model]
+            [crystal_well_droplocation_model]
         )
 
         # Fetch all the wells which need droplocation.
+        filter.is_confirmed = False
         crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            limit=100
+            filter
         )
 
         # Now there are none needing droplocation.
