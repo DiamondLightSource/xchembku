@@ -102,38 +102,39 @@ class CrystalWellDroplocationTester(Base):
 
     async def __inject(self, dataface, autolocation: bool, droplocation: bool):
         """ """
-        filename = "%03d.jpg" % (self.__injected_count)
+
+        letter = "a"
+        if self.__injected_count > 3:
+            letter = "b"
+
+        filename = "%03d%s.jpg" % (self.__injected_count, letter)
         self.__injected_count += 1
 
         # Write well record.
-        crystal_well_model = CrystalWellModel(filename=filename)
+        m = CrystalWellModel(filename=filename)
 
-        await dataface.originate_crystal_wells([crystal_well_model])
+        await dataface.originate_crystal_wells([m])
 
         if autolocation:
             # Add a crystal well autolocation.
-            crystal_well_autolocation_model = CrystalWellAutolocationModel(
-                crystal_well_uuid=crystal_well_model.uuid
+            t = CrystalWellAutolocationModel(
+                crystal_well_uuid=m.uuid,
+                number_of_crystals=10,
             )
 
-            crystal_well_autolocation_model.number_of_crystals = 10
-            await dataface.originate_crystal_well_autolocations(
-                [crystal_well_autolocation_model]
-            )
+            await dataface.originate_crystal_well_autolocations([t])
 
         if droplocation:
             # Add a crystal well droplocation.
-            crystal_well_droplocation_model = CrystalWellDroplocationModel(
-                crystal_well_uuid=crystal_well_model.uuid,
+            t = CrystalWellDroplocationModel(
+                crystal_well_uuid=m.uuid,
                 confirmed_target_position_x=10,
                 confirmed_target_position_y=11,
             )
 
-            await dataface.originate_crystal_well_droplocations(
-                [crystal_well_droplocation_model]
-            )
+            await dataface.originate_crystal_well_droplocations([t])
 
-        return crystal_well_model
+        return m
 
     # ----------------------------------------------------------------------------------------
 
@@ -155,6 +156,8 @@ class CrystalWellDroplocationTester(Base):
 
         if filename is not None:
             assert crystal_well_models[0].filename == filename, f"{note} filename"
+
+        return crystal_well_models
 
     # ----------------------------------------------------------------------------------------
 
@@ -188,7 +191,7 @@ class CrystalWellDroplocationTester(Base):
             CrystalWellFilterModel(anchor=models[3].uuid, direction=1, limit=1),
             1,
             "anchored forward",
-            filename="004.jpg",
+            filename="004b.jpg",
         )
 
         # Check the anchor query forward at the end of the list.
@@ -205,7 +208,7 @@ class CrystalWellDroplocationTester(Base):
             CrystalWellFilterModel(anchor=models[2].uuid, direction=-1),
             1,
             "anchored backward",
-            filename="001.jpg",
+            filename="001a.jpg",
         )
 
         # Check the anchor query backward at the start of the list.
@@ -235,3 +238,15 @@ class CrystalWellDroplocationTester(Base):
             0,
             "anchored at the start of the list, forward unconfirmed",
         )
+
+        # Query for list from filename glob.
+        crystal_well_models = await self.__check(
+            dataface,
+            CrystalWellFilterModel(filename_pattern="*a.jpg"),
+            3,
+            "filename glob",
+            filename="001a.jpg",
+        )
+
+        assert crystal_well_models[1].filename == "002a.jpg"
+        assert crystal_well_models[2].filename == "003a.jpg"

@@ -12,6 +12,9 @@ from xchembku_api.models.crystal_well_droplocation_model import (
 )
 from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
+from xchembku_api.models.crystal_well_needing_droplocation_model import (
+    CrystalWellNeedingDroplocationModel,
+)
 
 # Base class for generic things.
 from xchembku_api.thing import Thing
@@ -78,6 +81,7 @@ class Direct(Thing):
     # ----------------------------------------------------------------------------------------
     async def query(self, sql, subs=None, why=None):
         """"""
+
         await self.establish_database_connection()
 
         records = await self.__database.query(sql, subs=subs, why=why)
@@ -263,7 +267,7 @@ class Direct(Thing):
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_needing_droplocation(
         self, filter: CrystalWellFilterModel, why=None
-    ) -> List[CrystalWellModel]:
+    ) -> List[CrystalWellNeedingDroplocationModel]:
         """
         Wells need a droplocation if they have an autolocation but no droplocation.
         """
@@ -280,12 +284,25 @@ class Direct(Thing):
         query = (
             "\nSELECT crystal_wells.*,"
             "\n  crystal_well_autolocations.auto_target_position_x,"
-            "\n  crystal_well_autolocations.auto_target_position_y"
+            "\n  crystal_well_autolocations.auto_target_position_y,"
+            "\n  crystal_well_droplocations.confirmed_target_position_x,"
+            "\n  crystal_well_droplocations.confirmed_target_position_y,"
+            "\n  crystal_well_droplocations.is_valid"
             "\nFROM crystal_wells"
             "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
+            "\nLEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
         )
 
-        # Caller wants only those not yet confirmed.
+        # Caller wants a glob of file?
+        if filter.filename_pattern is not None:
+            query += (
+                "\n/* Just certain filenames. */"
+                f"\n{where} crystal_wells.filename GLOB ?"
+            )
+            subs.append(filter.filename_pattern)
+            where = "AND"
+
+        # Caller wants only those not yet confirmed?
         if filter.is_confirmed is False:
             query += (
                 "\n/* Exclude crystal wells which already have confirmed drop locations. */"
@@ -293,14 +310,23 @@ class Direct(Thing):
             )
             where = "AND"
 
+        # Caller wants results relative to anchor?
         if filter.anchor is not None:
-            op = ">"
-            if filter.direction == -1:
-                op = "<"
-            query += (
-                "\n/* Get the crystal well(s) starting from the anchor. */"
-                f"\n{where} crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
-            )
+            # Caller wants the anchor itself?
+            if filter.direction is None:
+                query += (
+                    "\n/* Get the crystal well at the anchor. */"
+                    f"\n{where} crystal_wells.uuid = ?"
+                )
+            # Not the anchor itself, but either side of the anchor?
+            else:
+                op = ">"
+                if filter.direction == -1:
+                    op = "<"
+                query += (
+                    "\n/* Get the crystal well(s) starting from the anchor. */"
+                    f"\n{where} crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
+                )
             subs.append(filter.anchor)
 
         sql_direction = "ASC"
@@ -315,7 +341,7 @@ class Direct(Thing):
         records = await self.query(query, subs=subs, why=why)
 
         # Parse the records returned by sql into models.
-        models = [CrystalWellModel(**record) for record in records]
+        models = [CrystalWellNeedingDroplocationModel(**record) for record in records]
 
         return models
 

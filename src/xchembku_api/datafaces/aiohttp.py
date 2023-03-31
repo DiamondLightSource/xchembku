@@ -11,6 +11,9 @@ from xchembku_api.models.crystal_well_autolocation_model import (
 )
 from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
+from xchembku_api.models.crystal_well_needing_droplocation_model import (
+    CrystalWellNeedingDroplocationModel,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +119,7 @@ class Aiohttp:
         self,
         filter: CrystalWellFilterModel,
         why: Optional[str] = None,
-    ) -> List[CrystalWellModel]:
+    ) -> List[CrystalWellNeedingDroplocationModel]:
         """"""
 
         records = await self.__send_protocolj(
@@ -126,7 +129,7 @@ class Aiohttp:
         )
 
         # Dicts are returned, so parse them into models.
-        models = [CrystalWellModel(**record) for record in records]
+        models = [CrystalWellNeedingDroplocationModel(**record) for record in records]
 
         return models
 
