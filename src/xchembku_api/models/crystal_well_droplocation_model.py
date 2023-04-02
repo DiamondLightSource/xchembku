@@ -13,7 +13,6 @@ class CrystalWellDroplocationModel(BaseModel):
 
     uuid: str
     crystal_well_uuid: Optional[str] = None
-    is_valid: Optional[bool] = None
     confirmed_target_position_x: Optional[int] = None
     confirmed_target_position_y: Optional[int] = None
 

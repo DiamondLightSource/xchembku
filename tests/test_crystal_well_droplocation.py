@@ -132,7 +132,7 @@ class CrystalWellDroplocationTester(Base):
                 confirmed_target_position_y=11,
             )
 
-            await dataface.originate_crystal_well_droplocations([t])
+            await dataface.upsert_crystal_well_droplocations([t])
 
         return m
 
@@ -181,6 +181,9 @@ class CrystalWellDroplocationTester(Base):
         await self.__check(dataface, CrystalWellFilterModel(), 5, "no limit, all")
         await self.__check(dataface, CrystalWellFilterModel(limit=1), 1, "limit 1")
         await self.__check(dataface, CrystalWellFilterModel(limit=2), 2, "limit 2")
+        await self.__check(
+            dataface, CrystalWellFilterModel(is_confirmed=True), 3, "confirmed only"
+        )
         await self.__check(
             dataface, CrystalWellFilterModel(is_confirmed=False), 2, "unconfirmed only"
         )
@@ -250,3 +253,38 @@ class CrystalWellDroplocationTester(Base):
 
         assert crystal_well_models[1].filename == "002a.jpg"
         assert crystal_well_models[2].filename == "003a.jpg"
+
+        # --------------------------------------------------------------------------
+        # Check the usable queries.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(is_confirmed=True, is_usable=False),
+            0,
+            "confirmed but unusable only",
+        )
+        crystal_well_models = await self.__check(
+            dataface, CrystalWellFilterModel(is_usable=True), 3, "usable only"
+        )
+
+        # Change one of the usable to unusable.
+        t = CrystalWellDroplocationModel(
+            crystal_well_uuid=crystal_well_models[0].uuid,
+            confirmed_target_position_x=None,
+            confirmed_target_position_y=None,
+        )
+
+        await dataface.upsert_crystal_well_droplocations([t])
+
+        # Check the usable queries again.
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(is_confirmed=True, is_usable=False),
+            1,
+            "confirmed but unusable only",
+        )
+        crystal_well_models = await self.__check(
+            dataface,
+            CrystalWellFilterModel(is_usable=True),
+            2,
+            "usable only after upsert",
+        )

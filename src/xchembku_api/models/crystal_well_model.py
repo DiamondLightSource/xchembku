@@ -13,6 +13,7 @@ class CrystalWellModel(BaseModel):
 
     uuid: str
     filename: str
+    error: Optional[str]
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
     created_on: Optional[str] = None

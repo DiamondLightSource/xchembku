@@ -14,6 +14,7 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     # Stuff from the original record.
     uuid: str
     filename: str
+    error: Optional[str]
     created_on: str
 
     # Stuff from the autolocation.
@@ -21,6 +22,8 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     auto_target_position_y: Optional[int] = None
     well_centroid_x: Optional[int] = None
     well_centroid_y: Optional[int] = None
+    drop_detected: Optional[bool] = None
+    number_of_crystals: Optional[int] = None
 
     # Stuff from the droplocation.
     is_valid: Optional[bool] = None

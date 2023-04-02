@@ -4,6 +4,9 @@ from typing import Dict, List, Optional, Union
 from dls_normsql.constants import CommonFieldnames
 from dls_utilpack.describe import describe
 
+# Base class for generic things.
+from dls_utilpack.thing import Thing
+
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
@@ -15,9 +18,6 @@ from xchembku_api.models.crystal_well_model import CrystalWellModel
 from xchembku_api.models.crystal_well_needing_droplocation_model import (
     CrystalWellNeedingDroplocationModel,
 )
-
-# Base class for generic things.
-from xchembku_api.thing import Thing
 
 # Database manager.
 from xchembku_lib.databases.databases import Databases
@@ -286,8 +286,7 @@ class Direct(Thing):
             "\n  crystal_well_autolocations.auto_target_position_x,"
             "\n  crystal_well_autolocations.auto_target_position_y,"
             "\n  crystal_well_droplocations.confirmed_target_position_x,"
-            "\n  crystal_well_droplocations.confirmed_target_position_y,"
-            "\n  crystal_well_droplocations.is_valid"
+            "\n  crystal_well_droplocations.confirmed_target_position_y"
             "\nFROM crystal_wells"
             "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
             "\nLEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
@@ -307,6 +306,31 @@ class Direct(Thing):
             query += (
                 "\n/* Exclude crystal wells which already have confirmed drop locations. */"
                 f"\n{where} crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+            )
+            where = "AND"
+
+        # Caller wants only those which are confirmed?
+        if filter.is_confirmed is True:
+            query += (
+                "\n/* Include only crystal wells which already have confirmed drop locations. */"
+                f"\n{where} crystal_wells.uuid IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+            )
+            where = "AND"
+
+        # Caller wants only those which are confirmed but do not have usable coordinates?
+        usable_sql = "SELECT crystal_well_uuid FROM crystal_well_droplocations WHERE confirmed_target_position_x IS NOT NULL AND confirmed_target_position_y IS NOT NULL"
+        if filter.is_usable is False:
+            query += (
+                "\n/* Include only crystal wells which DO NOT have drop locations with usable coordinates. */"
+                f"\n{where} crystal_wells.uuid NOT IN ({usable_sql})"
+            )
+            where = "AND"
+
+        # Caller wants only those which are confirmed to have usable coordinates?
+        if filter.is_usable is True:
+            query += (
+                "\n/* Include only crystal wells which have drop locations with usable coordinates. */"
+                f"\n{where} crystal_wells.uuid IN ({usable_sql})"
             )
             where = "AND"
 
@@ -397,6 +421,52 @@ class Direct(Thing):
             records,
             why="originate_crystal_well_droplocations",
         )
+
+    # ----------------------------------------------------------------------------------------
+    async def upsert_crystal_well_droplocations_serialized(
+        self, records: List[Dict]
+    ) -> Dict:
+        # We are being given json, so parse it into models.
+        models = [CrystalWellDroplocationModel(**record) for record in records]
+        # Return the method doing the work.
+        return await self.upsert_crystal_well_droplocations(models)
+
+    # ----------------------------------------------------------------------------------------
+    async def upsert_crystal_well_droplocations(
+        self, models: List[CrystalWellDroplocationModel], why=None
+    ) -> Dict:
+        """
+        Caller provides the crystal well droplocation record with the fields to be updated.
+        """
+
+        # We're being given models, so serialize them into dicts to give to the sql.
+        records = [model.dict() for model in models]
+
+        count = 0
+        new_records = []
+        for record in records:
+            result = await self.update(
+                "crystal_well_droplocations",
+                record,
+                # We upsert the droplocation record keyed on the crystal well uuid.
+                "(crystal_well_uuid = ?)",
+                subs=[record["crystal_well_uuid"]],
+                why=why,
+            )
+            if result.get("count", 0) == 0:
+                new_records.append(record)
+
+            count += result.get("count", 0)
+
+        await self.insert(
+            "crystal_well_droplocations",
+            new_records,
+            why="upsert_crystal_well_droplocations",
+        )
+
+        count += len(new_records)
+
+        return {"count": count}
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):

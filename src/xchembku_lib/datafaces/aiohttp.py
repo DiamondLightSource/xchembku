@@ -7,11 +7,11 @@ from dls_utilpack.callsign import callsign
 from dls_utilpack.explain import explain
 from dls_utilpack.require import require
 
+# Basic things.
+from dls_utilpack.thing import Thing
+
 # Dataface protocolj things.
 from xchembku_api.datafaces.constants import Commands, Keywords
-
-# Basic things.
-from xchembku_api.thing import Thing
 
 # Base class for an aiohttp server.
 from xchembku_lib.base_aiohttp import BaseAiohttp

@@ -9,6 +9,9 @@ from xchembku_api.datafaces.constants import Commands, Keywords
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
+from xchembku_api.models.crystal_well_droplocation_model import (
+    CrystalWellDroplocationModel,
+)
 from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 from xchembku_api.models.crystal_well_needing_droplocation_model import (
@@ -149,13 +152,27 @@ class Aiohttp:
 
     # ----------------------------------------------------------------------------------------
     async def originate_crystal_well_droplocations(
-        self, models: List[CrystalWellAutolocationModel]
+        self, models: List[CrystalWellDroplocationModel]
     ) -> None:
         """"""
 
         records: List[Dict] = [model.dict() for model in models]
         await self.__send_protocolj(
             "originate_crystal_well_droplocations_serialized",
+            records,
+        )
+
+        return None
+
+    # ----------------------------------------------------------------------------------------
+    async def upsert_crystal_well_droplocations(
+        self, models: List[CrystalWellDroplocationModel]
+    ) -> None:
+        """"""
+
+        records: List[Dict] = [model.dict() for model in models]
+        await self.__send_protocolj(
+            "upsert_crystal_well_droplocations_serialized",
             records,
         )
 
