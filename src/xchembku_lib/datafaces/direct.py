@@ -310,6 +310,7 @@ class Direct(Thing):
             where = "AND"
 
         # Caller wants only those which are confirmed?
+        # Confirmed means a droplocation record has been created at all (though might not have usable coordinates).
         if filter.is_confirmed is True:
             query += (
                 "\n/* Include only crystal wells which already have confirmed drop locations. */"
