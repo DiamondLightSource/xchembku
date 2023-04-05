@@ -26,6 +26,6 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     number_of_crystals: Optional[int] = None
 
     # Stuff from the droplocation.
-    is_valid: Optional[bool] = None
+    crystal_well_droplocation_uuid: Optional[str] = None
     confirmed_target_position_x: Optional[int] = None
     confirmed_target_position_y: Optional[int] = None

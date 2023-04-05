@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Optional, Union
 
 from dls_normsql.constants import CommonFieldnames
+from dls_utilpack.callsign import callsign
 from dls_utilpack.describe import describe
 
 # Base class for generic things.
@@ -45,7 +46,9 @@ class Direct(Thing):
     # ----------------------------------------------------------------------------------------
     async def disconnect(self):
         if self.__database is not None:
+            logger.debug(f"{callsign(self)} disconnecting")
             await self.__database.disconnect()
+            logger.debug(f"{callsign(self)} disconnected")
             self.__database = None
 
     # ----------------------------------------------------------------------------------------
@@ -172,11 +175,13 @@ class Direct(Thing):
         return {"count": count}
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_filenames_serialized(self, why=None) -> List[Dict]:
+    async def fetch_crystal_wells_filenames_serialized(
+        self, limit: int = 1, why=None
+    ) -> List[Dict]:
         """ """
 
         # Get the models from the direct call.
-        models = await self.fetch_crystal_wells_filenames(why=why)
+        models = await self.fetch_crystal_wells_filenames(limit=limit, why=why)
 
         # Serialize models into dicts to give to the response.
         records = [model.dict() for model in models]
@@ -184,7 +189,9 @@ class Direct(Thing):
         return records
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_filenames(self, why=None) -> List[CrystalWellModel]:
+    async def fetch_crystal_wells_filenames(
+        self, limit: int = 1, why=None
+    ) -> List[CrystalWellModel]:
         """
         Filenams for ALL wells ever.
         """
@@ -365,6 +372,8 @@ class Direct(Thing):
 
         records = await self.query(query, subs=subs, why=why)
 
+        logger.debug(describe("records", records))
+
         # Parse the records returned by sql into models.
         models = [CrystalWellNeedingDroplocationModel(**record) for record in records]
 
@@ -488,5 +497,8 @@ class Direct(Thing):
     # ----------------------------------------------------------------------------------------
     async def close_client_session(self):
         """"""
+        logger.debug(f"[ECHDON] {callsign(self)} in aexit, calling disconnect")
 
         await self.disconnect()
+
+        logger.debug(f"[ECHDON] {callsign(self)} in aexit, disconnected")

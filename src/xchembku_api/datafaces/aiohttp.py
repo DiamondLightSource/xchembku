@@ -1,6 +1,8 @@
 import logging
 from typing import Dict, List, Optional
 
+from dls_utilpack.callsign import callsign
+
 # Class for an aiohttp client.
 from xchembku_api.aiohttp_client import AiohttpClient
 
@@ -68,6 +70,25 @@ class Aiohttp:
         return await self.__send_protocolj(
             "update", table_name, record, where, subs=subs, why=why
         )
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_filenames(
+        self,
+        limit: int = 1,
+        why: Optional[str] = None,
+    ) -> List[CrystalWellModel]:
+        """"""
+
+        records = await self.__send_protocolj(
+            "fetch_crystal_wells_filenames_serialized",
+            limit=limit,
+            why=why,
+        )
+
+        # Dicts are returned, so parse them into models.
+        models = [CrystalWellModel(**record) for record in records]
+
+        return models
 
     # ----------------------------------------------------------------------------------------
     async def originate_crystal_wells(
@@ -226,9 +247,16 @@ class Aiohttp:
     # ----------------------------------------------------------------------------------------
     async def close_client_session(self):
         """"""
+        logger.debug(f"[ECHDON] {callsign(self)} in aexit")
 
         if self.__aiohttp_client is not None:
+            logger.debug(
+                f"[ECHDON] {callsign(self)} calling __aiohttp_client.close_client_session"
+            )
             await self.__aiohttp_client.close_client_session()
+            logger.debug(
+                f"[ECHDON] {callsign(self)} called __aiohttp_client.close_client_session"
+            )
 
     # ----------------------------------------------------------------------------------------
     async def client_report_health(self):

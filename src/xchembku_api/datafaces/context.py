@@ -1,5 +1,7 @@
 import logging
 
+from dls_utilpack.callsign import callsign
+
 # Base class.
 from xchembku_api.context_base import ContextBase
 
@@ -38,10 +40,15 @@ class Context(ContextBase):
     # ----------------------------------------------------------------------------------------
     async def aexit(self):
         """ """
+        logger.debug(f"[ECHDON] {callsign(self)} in aexit")
 
         if self.interface is not None:
+            logger.debug(
+                f"[ECHDON] {callsign(self)} calling close_client_session on {callsign(self.interface)}"
+            )
             # Close client session to the service or direct connection.
             await self.interface.close_client_session()
+            logger.debug(f"[ECHDON] {callsign(self)} called close_client_session")
 
             # Clear the global variable.  Important between pytests.
             xchembku_datafaces_set_default(None)
