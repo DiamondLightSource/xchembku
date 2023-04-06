@@ -12,6 +12,8 @@ class CrystalPlateModel(BaseModel):
     """
 
     uuid: str
+    # ID from the Plate table.
+    formulatrix__plate__id: int
     barcode: str
     visit: str
 

@@ -111,6 +111,7 @@ class CrystalWellDroplocationTester(Base):
         # Make a plate for the wells we will create.
         self.__visit = "cm00001-1"
         self.__crystal_plate_model = CrystalPlateModel(
+            formulatrix__plate__id=1,
             barcode="xyzw",
             visit=self.__visit,
         )
