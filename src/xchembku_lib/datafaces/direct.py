@@ -434,20 +434,25 @@ class Direct(Thing):
 
     # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations_serialized(
-        self, records: List[Dict]
+        self, records: List[Dict], why=None
     ) -> Dict:
         # We are being given json, so parse it into models.
         models = [CrystalWellDroplocationModel(**record) for record in records]
         # Return the method doing the work.
-        return await self.upsert_crystal_well_droplocations(models)
+        return await self.upsert_crystal_well_droplocations(models, why=why)
 
     # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations(
-        self, models: List[CrystalWellDroplocationModel], why=None
+        self,
+        models: List[CrystalWellDroplocationModel],
+        why=None,
     ) -> Dict:
         """
         Caller provides the crystal well droplocation record with the fields to be updated.
         """
+
+        if why is None:
+            why = "upsert_crystal_well_droplocations"
 
         # We're being given models, so serialize them into dicts to give to the sql.
         records = [model.dict() for model in models]
@@ -471,7 +476,7 @@ class Direct(Thing):
         await self.insert(
             "crystal_well_droplocations",
             new_records,
-            why="upsert_crystal_well_droplocations",
+            why=why,
         )
 
         count += len(new_records)

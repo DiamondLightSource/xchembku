@@ -179,6 +179,18 @@ class CrystalWellDroplocationTester(Base):
 
         # Check the filtered queries.
         await self.__check(dataface, CrystalWellFilterModel(), 5, "no limit, all")
+
+        # Upsert all with the same values to make sure it doesn't make new records.
+        records = await dataface.query(
+            "SELECT * FROM crystal_well_droplocations",
+            why="[UPSCHK] direct query all drop locations",
+        )
+        m = [CrystalWellDroplocationModel(**record) for record in records]
+        await dataface.upsert_crystal_well_droplocations(m, why="[UPSCHK]")
+        await self.__check(
+            dataface, CrystalWellFilterModel(), 5, "no limit, all after upsert"
+        )
+
         await self.__check(dataface, CrystalWellFilterModel(limit=1), 1, "limit 1")
         await self.__check(dataface, CrystalWellFilterModel(limit=2), 2, "limit 2")
         await self.__check(
