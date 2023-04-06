@@ -9,11 +9,12 @@ from xchembku_api.models.crystal_well_model import CrystalWellModel
 from xchembku_api.models.crystal_well_needing_droplocation_model import (
     CrystalWellNeedingDroplocationModel,
 )
+from xchembku_lib.datafaces.direct_base import DirectBase
 
 logger = logging.getLogger(__name__)
 
 
-class DirectCrystalWells:
+class DirectCrystalWells(DirectBase):
     """ """
 
     # ----------------------------------------------------------------------------------------

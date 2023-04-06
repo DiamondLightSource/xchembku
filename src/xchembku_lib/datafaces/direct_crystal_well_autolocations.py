@@ -4,11 +4,12 @@ from typing import Dict, List
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
+from xchembku_lib.datafaces.direct_base import DirectBase
 
 logger = logging.getLogger(__name__)
 
 
-class DirectCrystalWellAutolocations:
+class DirectCrystalWellAutolocations(DirectBase):
     """ """
 
     # ----------------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 # Base class for the tester.
 from tests.base import Base
@@ -117,22 +118,22 @@ class CrystalWellDroplocationTester(Base):
 
         if autolocation:
             # Add a crystal well autolocation.
-            t = CrystalWellAutolocationModel(
+            ta = CrystalWellAutolocationModel(
                 crystal_well_uuid=m.uuid,
                 number_of_crystals=10,
             )
 
-            await dataface.originate_crystal_well_autolocations([t])
+            await dataface.originate_crystal_well_autolocations([ta])
 
         if droplocation:
             # Add a crystal well droplocation.
-            t = CrystalWellDroplocationModel(
+            td = CrystalWellDroplocationModel(
                 crystal_well_uuid=m.uuid,
                 confirmed_target_position_x=10,
                 confirmed_target_position_y=11,
             )
 
-            await dataface.upsert_crystal_well_droplocations([t])
+            await dataface.upsert_crystal_well_droplocations([td])
 
         return m
 
@@ -144,7 +145,7 @@ class CrystalWellDroplocationTester(Base):
         filter: CrystalWellFilterModel,
         expected: int,
         note: str,
-        filename: str = None,
+        filename: Optional[str] = None,
     ):
         """ """
 
