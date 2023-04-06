@@ -142,8 +142,15 @@ class CrystalPlateTester(Base):
             dataface,
             CrystalPlateFilterModel(uuid=models[1].uuid),
             1,
-            "specific",
+            "by uuid",
             formulatrix__plate__id=20,
+        )
+        await self.__check(
+            dataface,
+            CrystalPlateFilterModel(barcode=models[2].barcode),
+            1,
+            "by barcode",
+            formulatrix__plate__id=30,
         )
 
     # ----------------------------------------------------------------------------------------

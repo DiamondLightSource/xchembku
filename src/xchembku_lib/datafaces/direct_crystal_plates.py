@@ -97,14 +97,22 @@ class DirectCrystalPlates(DirectBase):
 
         subs = []
 
+        where = "WHERE"
+
         if why is None:
             why = "API fetch_crystal_plates"
 
         query = "\nSELECT crystal_plates.*" "\nFROM crystal_plates"
 
         if filter.uuid is not None:
-            query += "\nWHERE uuid = ?"
+            query += f"\n{where} uuid = ?"
             subs.append(filter.uuid)
+            where = "AND"
+
+        if filter.barcode is not None:
+            query += f"\n{where} barcode = ?"
+            subs.append(filter.barcode)
+            where = "AND"
 
         sql_direction = "ASC"
         if filter.direction == -1:

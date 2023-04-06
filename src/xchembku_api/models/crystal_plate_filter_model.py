@@ -9,5 +9,6 @@ class CrystalPlateFilterModel(BaseModel):
     """
 
     uuid: Optional[str] = None
+    barcode: Optional[str] = None
     limit: Optional[int] = None
     direction: Optional[int] = None
