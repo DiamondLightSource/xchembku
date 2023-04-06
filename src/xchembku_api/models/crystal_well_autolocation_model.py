@@ -1,7 +1,7 @@
 import uuid
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class CrystalWellAutolocationModel(BaseModel):
