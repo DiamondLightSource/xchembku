@@ -12,6 +12,7 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
 
     # Stuff from the original record.
     uuid: str
+    visit: str
     filename: str
     error: Optional[str]
     created_on: str

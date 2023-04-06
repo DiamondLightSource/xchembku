@@ -1,6 +1,7 @@
 import logging
 
 from xchembku_lib.datafaces.direct_base import DirectBase
+from xchembku_lib.datafaces.direct_crystal_plates import DirectCrystalPlates
 from xchembku_lib.datafaces.direct_crystal_well_autolocations import (
     DirectCrystalWellAutolocations,
 )
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class Direct(
+    DirectCrystalPlates,
     DirectCrystalWells,
     DirectCrystalWellAutolocations,
     DirectCrystalWellDroplocations,

@@ -8,6 +8,7 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
+from xchembku_api.models.crystal_plate_model import CrystalPlateModel
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
@@ -101,11 +102,21 @@ class CrystalWellAutolocationTester(Base):
         # Reference the dataface object which the context has set up as the default.
         dataface = xchembku_datafaces_get_default()
 
+        # Make a plate for the wells we will create.
+        crystal_plate_model = CrystalPlateModel(
+            barcode="xyzw",
+            visit="cm00001-1",
+        )
+
         # Write two well records.
         filename1 = "abc.jpg"
-        crystal_well_model1 = CrystalWellModel(filename=filename1)
+        crystal_well_model1 = CrystalWellModel(
+            crystal_plate_uuid=crystal_plate_model.uuid, filename=filename1
+        )
         filename2 = "xyz.jpg"
-        crystal_well_model2 = CrystalWellModel(filename=filename2)
+        crystal_well_model2 = CrystalWellModel(
+            crystal_plate_uuid=crystal_plate_model.uuid, filename=filename2
+        )
         await dataface.originate_crystal_wells(
             [crystal_well_model1, crystal_well_model2]
         )

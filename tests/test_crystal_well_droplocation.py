@@ -9,6 +9,7 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
+from xchembku_api.models.crystal_plate_model import CrystalPlateModel
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
@@ -101,76 +102,27 @@ class CrystalWellDroplocationTester(Base):
 
     # ----------------------------------------------------------------------------------------
 
-    async def __inject(self, dataface, autolocation: bool, droplocation: bool):
-        """ """
-
-        letter = "a"
-        if self.__injected_count > 3:
-            letter = "b"
-
-        filename = "%03d%s.jpg" % (self.__injected_count, letter)
-        self.__injected_count += 1
-
-        # Write well record.
-        m = CrystalWellModel(filename=filename)
-
-        await dataface.originate_crystal_wells([m])
-
-        if autolocation:
-            # Add a crystal well autolocation.
-            ta = CrystalWellAutolocationModel(
-                crystal_well_uuid=m.uuid,
-                number_of_crystals=10,
-            )
-
-            await dataface.originate_crystal_well_autolocations([ta])
-
-        if droplocation:
-            # Add a crystal well droplocation.
-            td = CrystalWellDroplocationModel(
-                crystal_well_uuid=m.uuid,
-                confirmed_target_position_x=10,
-                confirmed_target_position_y=11,
-            )
-
-            await dataface.upsert_crystal_well_droplocations([td])
-
-        return m
-
-    # ----------------------------------------------------------------------------------------
-
-    async def __check(
-        self,
-        dataface,
-        filter: CrystalWellFilterModel,
-        expected: int,
-        note: str,
-        filename: Optional[str] = None,
-    ):
-        """ """
-
-        crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
-            filter
-        )
-
-        assert len(crystal_well_models) == expected, note
-
-        if filename is not None:
-            assert crystal_well_models[0].filename == filename, f"{note} filename"
-
-        return crystal_well_models
-
-    # ----------------------------------------------------------------------------------------
-
     async def __run_the_test(self, constants, output_directory):
         """ """
 
         # Reference the dataface object which the context has set up as the default.
         dataface = xchembku_datafaces_get_default()
 
+        # Make a plate for the wells we will create.
+        self.__visit = "cm00001-1"
+        self.__crystal_plate_model = CrystalPlateModel(
+            barcode="xyzw",
+            visit=self.__visit,
+        )
+
+        # Write plate record.
+        await dataface.originate_crystal_plates(
+            [self.__crystal_plate_model],
+        )
+
         models = []
 
-        # Inject some wells.
+        # Inject some wells, all of which will belong to the plate we just made.
         models.append(await self.__inject(dataface, False, False))
         models.append(await self.__inject(dataface, True, True))
         models.append(await self.__inject(dataface, True, False))
@@ -301,3 +253,72 @@ class CrystalWellDroplocationTester(Base):
             2,
             "usable only after upsert",
         )
+
+    # ----------------------------------------------------------------------------------------
+
+    async def __inject(self, dataface, autolocation: bool, droplocation: bool):
+        """ """
+
+        letter = "a"
+        if self.__injected_count > 3:
+            letter = "b"
+
+        filename = "%03d%s.jpg" % (self.__injected_count, letter)
+        self.__injected_count += 1
+
+        # Create the well object.
+        m = CrystalWellModel(
+            crystal_plate_uuid=self.__crystal_plate_model.uuid,
+            filename=filename,
+        )
+
+        # Write well record.
+        await dataface.originate_crystal_wells([m])
+
+        if autolocation:
+            # Add a crystal well autolocation.
+            ta = CrystalWellAutolocationModel(
+                crystal_well_uuid=m.uuid,
+                number_of_crystals=10,
+            )
+
+            await dataface.originate_crystal_well_autolocations([ta])
+
+        if droplocation:
+            # Add a crystal well droplocation.
+            td = CrystalWellDroplocationModel(
+                crystal_well_uuid=m.uuid,
+                confirmed_target_position_x=10,
+                confirmed_target_position_y=11,
+            )
+
+            await dataface.upsert_crystal_well_droplocations([td])
+
+        return m
+
+    # ----------------------------------------------------------------------------------------
+
+    async def __check(
+        self,
+        dataface,
+        filter: CrystalWellFilterModel,
+        expected: int,
+        note: str,
+        filename: Optional[str] = None,
+    ):
+        """ """
+
+        crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
+            filter
+        )
+
+        assert len(crystal_well_models) == expected, note
+
+        # All wells should belong to the visit.
+        for crystal_well_model in crystal_well_models:
+            assert crystal_well_model.visit == self.__visit, f"{note} visit"
+
+        if filename is not None:
+            assert crystal_well_models[0].filename == filename, f"{note} filename"
+
+        return crystal_well_models

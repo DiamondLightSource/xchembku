@@ -12,6 +12,7 @@ class CrystalWellModel(BaseModel):
     """
 
     uuid: str
+    crystal_plate_uuid: str
     filename: str
     error: Optional[str]
 

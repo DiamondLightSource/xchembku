@@ -8,6 +8,7 @@ from xchembku_api.aiohttp_client import AiohttpClient
 
 # Dataface protocolj things.
 from xchembku_api.datafaces.constants import Commands, Keywords
+from xchembku_api.models.crystal_plate_model import CrystalPlateModel
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
@@ -69,6 +70,35 @@ class Aiohttp:
         """"""
         return await self.__send_protocolj(
             "update", table_name, record, where, subs=subs, why=why
+        )
+
+    # ----------------------------------------------------------------------------------------
+    async def originate_crystal_plates(
+        self,
+        models: List[CrystalPlateModel],
+    ) -> None:
+        """"""
+
+        records: List[Dict] = [model.dict() for model in models]
+        await self.__send_protocolj(
+            "originate_crystal_plates_serialized",
+            records,
+        )
+
+        return None
+
+    # ----------------------------------------------------------------------------------------
+    async def update_crystal_plates(
+        self,
+        records,
+        why: Optional[str] = None,
+    ) -> Dict:
+        """"""
+
+        return await self.__send_protocolj(
+            "update_crystal_plates_serialized",
+            records,
+            why=why,
         )
 
     # ----------------------------------------------------------------------------------------

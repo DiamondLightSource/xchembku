@@ -190,10 +190,12 @@ class DirectCrystalWells(DirectBase):
             "\n  crystal_well_autolocations.auto_target_position_x,"
             "\n  crystal_well_autolocations.auto_target_position_y,"
             "\n  crystal_well_droplocations.confirmed_target_position_x,"
-            "\n  crystal_well_droplocations.confirmed_target_position_y"
+            "\n  crystal_well_droplocations.confirmed_target_position_y,"
+            "\n  crystal_plates.visit"
             "\nFROM crystal_wells"
             "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
             "\nLEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
+            "\nLEFT JOIN crystal_plates ON crystal_plates.uuid = crystal_wells.crystal_plate_uuid"
         )
 
         # Caller wants a glob of file?
