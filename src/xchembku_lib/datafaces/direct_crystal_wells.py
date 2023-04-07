@@ -96,7 +96,7 @@ class DirectCrystalWells(DirectBase):
         if why is None:
             why = "API fetch_crystal_wells_filenames"
         records = await self.query(
-            "SELECT crystal_wells.filename"
+            "SELECT crystal_wells.filename, crystal_wells.crystal_plate_uuid"
             f" FROM crystal_wells"
             f" ORDER BY {CommonFieldnames.CREATED_ON}",
             why=why,

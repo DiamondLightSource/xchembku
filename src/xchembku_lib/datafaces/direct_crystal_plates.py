@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import Dict, List
 
@@ -15,58 +16,64 @@ class DirectCrystalPlates(DirectBase):
     """ """
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_plates_serialized(self, records: List[Dict]) -> None:
+    async def upsert_crystal_plates_serialized(
+        self,
+        records: List[Dict],
+        why=None,
+    ) -> Dict:
         # We are being given json, so parse it into models.
         models = [CrystalPlateModel(**record) for record in records]
         # Return the method doing the work.
-        return await self.originate_crystal_plates(models)
+        return await self.upsert_crystal_plates(models, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_plates(self, models: List[CrystalPlateModel]) -> None:
-        """
-        Caller provides the records containing fields to be created.
-        The filename field should be unique in all records.
-        """
-
-        # We're being given models, so serialize them into dicts to give to the sql.
-        records = [model.dict() for model in models]
-
-        return await self.insert(
-            "crystal_plates",
-            records,
-            why="originate_crystal_plates",
-        )
-
-    # ----------------------------------------------------------------------------------------
-    async def update_crystal_plates_serialized(self, records: List[Dict]) -> Dict:
-        # We are being given json, so parse it into models.
-        models = [CrystalPlateModel(**record) for record in records]
-        # Return the method doing the work.
-        return await self.update_crystal_plates(models)
-
-    # ----------------------------------------------------------------------------------------
-    async def update_crystal_plates(
-        self, models: List[CrystalPlateModel], why=None
+    async def upsert_crystal_plates(
+        self,
+        models: List[CrystalPlateModel],
+        why="upsert_crystal_plates",
     ) -> Dict:
         """
         Caller provides the crystal plate record with the fields to be updated.
         """
 
-        # We're being given models, so serialize them into dicts to give to the sql.
-        records = [model.dict() for model in models]
+        inserted_count = 0
+        updated_count = 0
 
-        count = 0
-        for record in records:
-            result = await self.update(
-                "crystal_plates",
-                record,
-                f"({CommonFieldnames.UUID} = ?)",
-                subs=[record[CommonFieldnames.UUID]],
+        # Loop over all the models to be upserted.
+        for model in models:
+            # Find any existing record for this model object.
+            records = await self.query(
+                "SELECT * FROM crystal_plates WHERE formulatrix__plate__id = ?",
+                subs=[model.formulatrix__plate__id],
                 why=why,
             )
-            count += result.get("count", 0)
 
-        return {"count": count}
+            if len(records) > 0:
+                # Make a copy of the model record and remove some fields not to update.
+                model_copy = copy.deepcopy(model.dict())
+                model_copy.pop(CommonFieldnames.UUID)
+                model_copy.pop(CommonFieldnames.CREATED_ON)
+                model_copy.pop("formulatrix__plate__id")
+                result = await self.update(
+                    "crystal_plates",
+                    model_copy,
+                    "(formulatrix__plate__id = ?)",
+                    subs=[model.formulatrix__plate__id],
+                    why=why,
+                )
+                updated_count += result.get("count", 0)
+            else:
+                await self.insert(
+                    "crystal_plates",
+                    [model.dict()],
+                    why=why,
+                )
+                inserted_count += 1
+
+        return {
+            "updated_count": updated_count,
+            "inserted_count": inserted_count,
+        }
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_plates_serialized(
@@ -112,6 +119,14 @@ class DirectCrystalPlates(DirectBase):
         if filter.barcode is not None:
             query += f"\n{where} barcode = ?"
             subs.append(filter.barcode)
+            where = "AND"
+
+        if filter.from_formulatrix__plate__id is not None:
+            if filter.direction == -1:
+                query += f"\n{where} formulatrix__plate__id < ?"
+            else:
+                query += f"\n{where} formulatrix__plate__id > ?"
+            subs.append(filter.from_formulatrix__plate__id)
             where = "AND"
 
         sql_direction = "ASC"

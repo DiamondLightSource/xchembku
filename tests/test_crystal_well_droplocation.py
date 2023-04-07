@@ -117,7 +117,7 @@ class CrystalWellDroplocationTester(Base):
         )
 
         # Write plate record.
-        await dataface.originate_crystal_plates(
+        await dataface.upsert_crystal_plates(
             [self.__crystal_plate_model],
         )
 

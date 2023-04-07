@@ -12,3 +12,6 @@ class CrystalPlateFilterModel(BaseModel):
     barcode: Optional[str] = None
     limit: Optional[int] = None
     direction: Optional[int] = None
+
+    # Allow searching starting from a particular plate id.
+    from_formulatrix__plate__id: Optional[int] = None

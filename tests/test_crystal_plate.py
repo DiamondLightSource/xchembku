@@ -109,7 +109,7 @@ class CrystalPlateTester(Base):
             CrystalPlateModel(formulatrix__plate__id=30, barcode="xyz3", visit=visit)
         )
 
-        await dataface.originate_crystal_plates(models)
+        await dataface.upsert_crystal_plates(models)
 
         # Check the filtered queries.
         await self.__check(
@@ -152,6 +152,60 @@ class CrystalPlateTester(Base):
             "by barcode",
             formulatrix__plate__id=30,
         )
+        await self.__check(
+            dataface,
+            CrystalPlateFilterModel(
+                from_formulatrix__plate__id=models[0].formulatrix__plate__id
+            ),
+            2,
+            "from plate_id",
+            formulatrix__plate__id=20,
+        )
+
+        # ------------------------------------------------------------------------------------
+        # Create an object to be upserted.
+        upserted_model = CrystalPlateModel(
+            formulatrix__plate__id=40, barcode="xyz4", visit=visit
+        )
+
+        # First upsert is an insert.
+        await dataface.upsert_crystal_plates([upserted_model])
+        upserted_models = await self.__check(
+            dataface,
+            CrystalPlateFilterModel(limit=1, direction=-1),
+            1,
+            "upsert insert",
+            formulatrix__plate__id=40,
+        )
+        assert upserted_models[0].uuid == upserted_model.uuid
+        created_on = upserted_models[0].created_on
+
+        # Again, with no change, so should not insert.
+        await dataface.upsert_crystal_plates([upserted_model])
+        upserted_models = await self.__check(
+            dataface,
+            CrystalPlateFilterModel(limit=1, direction=-1),
+            1,
+            "upsert insert",
+            formulatrix__plate__id=40,
+        )
+        assert upserted_models[0].uuid == upserted_model.uuid
+        assert upserted_models[0].created_on == created_on
+
+        # Again, this time changing visit.
+        upserted_model.visit = visit + "1"
+        await dataface.upsert_crystal_plates([upserted_model])
+        upserted_models = await self.__check(
+            dataface,
+            CrystalPlateFilterModel(limit=1, direction=-1),
+            1,
+            "upsert insert",
+            formulatrix__plate__id=40,
+        )
+
+        assert upserted_models[0].uuid == upserted_model.uuid
+        assert upserted_models[0].created_on == created_on
+        assert upserted_models[0].visit == upserted_model.visit
 
     # ----------------------------------------------------------------------------------------
 

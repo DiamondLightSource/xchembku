@@ -70,20 +70,27 @@ class Aiohttp:
     ):
         """"""
         return await self.__send_protocolj(
-            "update", table_name, record, where, subs=subs, why=why
+            "update",
+            table_name,
+            record,
+            where,
+            subs=subs,
+            why=why,
         )
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_plates(
+    async def upsert_crystal_plates(
         self,
         models: List[CrystalPlateModel],
+        why=None,
     ) -> None:
         """"""
 
         records: List[Dict] = [model.dict() for model in models]
         await self.__send_protocolj(
-            "originate_crystal_plates_serialized",
+            "upsert_crystal_plates_serialized",
             records,
+            why=why,
         )
 
         return None
@@ -106,20 +113,6 @@ class Aiohttp:
         models = [CrystalPlateModel(**record) for record in records]
 
         return models
-
-    # ----------------------------------------------------------------------------------------
-    async def update_crystal_plates(
-        self,
-        records,
-        why: Optional[str] = None,
-    ) -> Dict:
-        """"""
-
-        return await self.__send_protocolj(
-            "update_crystal_plates_serialized",
-            records,
-            why=why,
-        )
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_filenames(
