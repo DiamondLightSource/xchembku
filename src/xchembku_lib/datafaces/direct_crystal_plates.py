@@ -1,6 +1,6 @@
 import copy
 import logging
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from dls_normsql.constants import CommonFieldnames
 from dls_utilpack.describe import describe
@@ -102,7 +102,7 @@ class DirectCrystalPlates(DirectBase):
         Plates need a droplocation if they have an autolocation but no droplocation.
         """
 
-        subs = []
+        subs: List[Union[str, int]] = []
 
         where = "WHERE"
 
