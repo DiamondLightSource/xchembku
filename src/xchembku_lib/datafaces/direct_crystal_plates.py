@@ -140,8 +140,6 @@ class DirectCrystalPlates(DirectBase):
 
         records = await self.query(query, subs=subs, why=why)
 
-        logger.debug(describe("records", records))
-
         # Parse the records returned by sql into models.
         models = [CrystalPlateModel(**record) for record in records]
 
