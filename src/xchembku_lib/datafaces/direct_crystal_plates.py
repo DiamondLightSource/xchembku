@@ -3,7 +3,6 @@ import logging
 from typing import Dict, List, Union
 
 from dls_normsql.constants import CommonFieldnames
-from dls_utilpack.describe import describe
 
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
