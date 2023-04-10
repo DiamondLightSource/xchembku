@@ -274,7 +274,7 @@ class CrystalWellDroplocationTester(Base):
         )
 
         # Write well record.
-        await dataface.originate_crystal_wells([m])
+        await dataface.upsert_crystal_wells([m])
 
         if autolocation:
             # Add a crystal well autolocation.

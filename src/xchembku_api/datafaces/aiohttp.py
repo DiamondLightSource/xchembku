@@ -134,7 +134,7 @@ class Aiohttp:
         return models
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells(
+    async def upsert_crystal_wells(
         self,
         models: List[CrystalWellModel],
     ) -> None:
@@ -142,7 +142,7 @@ class Aiohttp:
 
         records: List[Dict] = [model.dict() for model in models]
         await self.__send_protocolj(
-            "originate_crystal_wells_serialized",
+            "upsert_crystal_wells_serialized",
             records,
         )
 

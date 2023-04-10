@@ -118,9 +118,7 @@ class CrystalWellAutolocationTester(Base):
         crystal_well_model2 = CrystalWellModel(
             crystal_plate_uuid=crystal_plate_model.uuid, filename=filename2
         )
-        await dataface.originate_crystal_wells(
-            [crystal_well_model1, crystal_well_model2]
-        )
+        await dataface.upsert_crystal_wells([crystal_well_model1, crystal_well_model2])
 
         # Fetch all the wells which need autolocation.
         crystal_well_models = await dataface.fetch_crystal_wells_needing_autolocation(

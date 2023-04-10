@@ -33,6 +33,10 @@ class DirectCrystalPlates(DirectBase):
     ) -> Dict:
         """
         Caller provides the crystal plate record with the fields to be updated.
+
+        We don't insert the same formulatrix__plate__id twice.
+
+        TODO: Find more efficient way to upsert_crystal_plates in batch.
         """
 
         inserted_count = 0

@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import Dict, List
 
@@ -18,72 +19,71 @@ class DirectCrystalWells(DirectBase):
     """ """
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells_serialized(self, records: List[Dict]) -> None:
+    async def upsert_crystal_wells_serialized(
+        self,
+        records: List[Dict],
+        why=None,
+    ) -> Dict:
         # We are being given json, so parse it into models.
         models = [CrystalWellModel(**record) for record in records]
         # Return the method doing the work.
-        return await self.originate_crystal_wells(models)
+        return await self.upsert_crystal_wells(models, why=why)
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_wells(self, models: List[CrystalWellModel]) -> None:
-        """
-        Caller provides the records containing fields to be created.
-        The filename field should be unique in all records.
-        """
-
-        # We're being given models, so serialize them into dicts to give to the sql.
-        records = [model.dict() for model in models]
-
-        return await self.insert(
-            "crystal_wells",
-            records,
-            why="originate_crystal_wells",
-        )
-
-    # ----------------------------------------------------------------------------------------
-    async def update_crystal_wells_serialized(self, records: List[Dict]) -> Dict:
-        # We are being given json, so parse it into models.
-        models = [CrystalWellModel(**record) for record in records]
-        # Return the method doing the work.
-        return await self.update_crystal_wells(models)
-
-    # ----------------------------------------------------------------------------------------
-    async def update_crystal_wells(
-        self, models: List[CrystalWellModel], why=None
+    async def upsert_crystal_wells(
+        self,
+        models: List[CrystalWellModel],
+        why="upsert_crystal_wells",
     ) -> Dict:
         """
         Caller provides the crystal well record with the fields to be updated.
+
+        We don't insert the same filename twice.
+
+        TODO: Consider an alternate way besides filename to distinguish duplicate crystal wells in upsert.
+
+        TODO: Find more efficient way to upsert_crystal_wells in batch.
         """
 
-        # We're being given models, so serialize them into dicts to give to the sql.
-        records = [model.dict() for model in models]
+        inserted_count = 0
+        updated_count = 0
 
-        count = 0
-        for record in records:
-            result = await self.update(
-                "crystal_wells",
-                record,
-                f"({CommonFieldnames.UUID} = ?)",
-                subs=[record[CommonFieldnames.UUID]],
+        # Loop over all the models to be upserted.
+        for model in models:
+            # Find any existing record for this model object.
+            records = await self.query(
+                "SELECT * FROM crystal_wells WHERE filename = ?",
+                subs=[model.filename],
                 why=why,
             )
-            count += result.get("count", 0)
 
-        return {"count": count}
+            if len(records) > 0:
+                # Make a copy of the model record and remove some fields not to update.
+                model_copy = copy.deepcopy(model.dict())
+                model_copy.pop(CommonFieldnames.UUID)
+                model_copy.pop(CommonFieldnames.CREATED_ON)
+                model_copy.pop("filename")
+                model_copy.pop("crystal_plate_uuid")
+                result = await self.update(
+                    "crystal_wells",
+                    model_copy,
+                    "(filename = ?)",
+                    subs=[model.filename],
+                    why=why,
+                )
+                updated_count += result.get("count", 0)
+            else:
+                await self.insert(
+                    "crystal_wells",
+                    [model.dict()],
+                    why=why,
+                )
+                inserted_count += 1
 
-    # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_filenames_serialized(
-        self, limit: int = 1, why=None
-    ) -> List[Dict]:
-        """ """
-
-        # Get the models from the direct call.
-        models = await self.fetch_crystal_wells_filenames(limit=limit, why=why)
-
-        # Serialize models into dicts to give to the response.
-        records = [model.dict() for model in models]
-
-        return records
+        return {
+            "updated_count": updated_count,
+            "inserted_count": inserted_count,
+        }
 
     # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_filenames(
