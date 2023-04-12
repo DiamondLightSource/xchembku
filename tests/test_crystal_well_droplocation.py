@@ -110,9 +110,10 @@ class CrystalWellDroplocationTester(Base):
 
         # Make a plate for the wells we will create.
         self.__visit = "cm00001-1"
+        self.__barcode = "xyzw"
         self.__crystal_plate_model = CrystalPlateModel(
             formulatrix__plate__id=1,
-            barcode="xyzw",
+            barcode=self.__barcode,
             visit=self.__visit,
         )
 
@@ -149,6 +150,18 @@ class CrystalWellDroplocationTester(Base):
         await self.__check(dataface, CrystalWellFilterModel(limit=2), 2, "limit 2")
         await self.__check(
             dataface, CrystalWellFilterModel(is_confirmed=True), 3, "confirmed only"
+        )
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(barcode=self.__barcode, is_confirmed=True),
+            3,
+            "confirmed only, barcode",
+        )
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(barcode="abcd", is_confirmed=True),
+            0,
+            "confirmed only, other barcode",
         )
         await self.__check(
             dataface, CrystalWellFilterModel(is_confirmed=False), 2, "unconfirmed only"
@@ -229,7 +242,23 @@ class CrystalWellDroplocationTester(Base):
             "confirmed but unusable only",
         )
         crystal_well_models = await self.__check(
-            dataface, CrystalWellFilterModel(is_usable=True), 3, "usable only"
+            dataface,
+            CrystalWellFilterModel(
+                visit=self.__visit,
+                is_usable=True,
+            ),
+            3,
+            "usable only, visit",
+        )
+
+        crystal_well_models = await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                barcode=self.__barcode,
+                is_usable=True,
+            ),
+            3,
+            "usable only, barcode",
         )
 
         # Change one of the usable to unusable.
@@ -244,7 +273,11 @@ class CrystalWellDroplocationTester(Base):
         # Check the usable queries again.
         await self.__check(
             dataface,
-            CrystalWellFilterModel(is_confirmed=True, is_usable=False),
+            CrystalWellFilterModel(
+                visit=self.__visit,
+                is_confirmed=True,
+                is_usable=False,
+            ),
             1,
             "confirmed but unusable only",
         )

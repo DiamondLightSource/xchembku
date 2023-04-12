@@ -211,6 +211,24 @@ class DirectCrystalWells(DirectBase):
             subs.append(filter.filename_pattern)
             where = "AND"
 
+        # Caller wants specific barcode?
+        if filter.barcode is not None:
+            query += (
+                "\n/* Just a wells on plates with a certain barcode. */"
+                f"\n{where} crystal_plates.barcode = ?"
+            )
+            subs.append(filter.barcode)
+            where = "AND"
+
+        # Caller wants specific visit?
+        if filter.visit is not None:
+            query += (
+                "\n/* Just a wells on plates with a certain visit. */"
+                f"\n{where} crystal_plates.visit = ?"
+            )
+            subs.append(filter.visit)
+            where = "AND"
+
         # Caller wants only those not yet confirmed?
         if filter.is_confirmed is False:
             query += (

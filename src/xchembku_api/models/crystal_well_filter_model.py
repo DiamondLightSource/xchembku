@@ -9,6 +9,8 @@ class CrystalWellFilterModel(BaseModel):
     """
 
     filename_pattern: Optional[str] = None
+    visit: Optional[str] = None
+    barcode: Optional[str] = None
     anchor: Optional[str] = None
     limit: Optional[int] = None
     direction: Optional[int] = None
