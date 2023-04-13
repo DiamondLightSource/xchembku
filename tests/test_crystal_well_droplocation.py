@@ -149,22 +149,22 @@ class CrystalWellDroplocationTester(Base):
         await self.__check(dataface, CrystalWellFilterModel(limit=1), 1, "limit 1")
         await self.__check(dataface, CrystalWellFilterModel(limit=2), 2, "limit 2")
         await self.__check(
-            dataface, CrystalWellFilterModel(is_confirmed=True), 3, "confirmed only"
+            dataface, CrystalWellFilterModel(is_decided=True), 3, "confirmed only"
         )
         await self.__check(
             dataface,
-            CrystalWellFilterModel(barcode=self.__barcode, is_confirmed=True),
+            CrystalWellFilterModel(barcode=self.__barcode, is_decided=True),
             3,
             "confirmed only, barcode",
         )
         await self.__check(
             dataface,
-            CrystalWellFilterModel(barcode="abcd", is_confirmed=True),
+            CrystalWellFilterModel(barcode="abcd", is_decided=True),
             0,
             "confirmed only, other barcode",
         )
         await self.__check(
-            dataface, CrystalWellFilterModel(is_confirmed=False), 2, "unconfirmed only"
+            dataface, CrystalWellFilterModel(is_decided=False), 2, "unconfirmed only"
         )
 
         # Check the anchor query forward.
@@ -205,7 +205,7 @@ class CrystalWellDroplocationTester(Base):
         await self.__check(
             dataface,
             CrystalWellFilterModel(
-                is_confirmed=False, anchor=models[1].uuid, direction=-1
+                is_decided=False, anchor=models[1].uuid, direction=-1
             ),
             0,
             "anchored at the start of the list, backward, unconfirmed",
@@ -215,7 +215,7 @@ class CrystalWellDroplocationTester(Base):
         await self.__check(
             dataface,
             CrystalWellFilterModel(
-                is_confirmed=False, anchor=models[2].uuid, direction=-1
+                is_decided=False, anchor=models[2].uuid, direction=-1
             ),
             0,
             "anchored at the start of the list, forward unconfirmed",
@@ -237,9 +237,9 @@ class CrystalWellDroplocationTester(Base):
         # Check the usable queries.
         await self.__check(
             dataface,
-            CrystalWellFilterModel(is_confirmed=True, is_usable=False),
+            CrystalWellFilterModel(is_decided=True, is_usable=False),
             0,
-            "confirmed but unusable only",
+            "confirmed but unusable only (1)",
         )
         crystal_well_models = await self.__check(
             dataface,
@@ -264,8 +264,7 @@ class CrystalWellDroplocationTester(Base):
         # Change one of the usable to unusable.
         t = CrystalWellDroplocationModel(
             crystal_well_uuid=crystal_well_models[0].uuid,
-            confirmed_target_x=None,
-            confirmed_target_y=None,
+            is_usable=False,
         )
 
         await dataface.upsert_crystal_well_droplocations([t])
@@ -275,11 +274,11 @@ class CrystalWellDroplocationTester(Base):
             dataface,
             CrystalWellFilterModel(
                 visit=self.__visit,
-                is_confirmed=True,
+                is_decided=True,
                 is_usable=False,
             ),
             1,
-            "confirmed but unusable only",
+            "confirmed but unusable only (2)",
         )
         crystal_well_models = await self.__check(
             dataface,
@@ -325,6 +324,7 @@ class CrystalWellDroplocationTester(Base):
                 crystal_well_uuid=m.uuid,
                 confirmed_target_x=10,
                 confirmed_target_y=11,
+                is_usable=True,
             )
 
             await dataface.upsert_crystal_well_droplocations([td])

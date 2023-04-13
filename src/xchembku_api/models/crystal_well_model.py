@@ -23,6 +23,12 @@ class CrystalWellModel(BaseModel):
     # This is the filename containing the well's image.
     filename: str
 
+    # This is the size of the well's image.
+    # Optional for now to avoid having to refactor all tests to include it on the constructur.
+    # TODO: Make crystal_well_model width and height not optional.
+    width: Optional[int] = None
+    height: Optional[int] = None
+
     # This is the error reading and parsing the image file, if any.
     error: Optional[str]
 

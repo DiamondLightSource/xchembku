@@ -200,6 +200,7 @@ class DirectCrystalWells(DirectBase):
             "\n  crystal_well_autolocations.number_of_crystals,"
             "\n  crystal_well_droplocations.confirmed_target_x,"
             "\n  crystal_well_droplocations.confirmed_target_y,"
+            "\n  crystal_well_droplocations.is_usable,"
             "\n  crystal_plates.visit"
             "\nFROM crystal_wells"
             "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
@@ -234,38 +235,30 @@ class DirectCrystalWells(DirectBase):
             subs.append(filter.visit)
             where = "AND"
 
-        # Caller wants only those not yet confirmed?
-        if filter.is_confirmed is False:
+        # Caller wants only those not yet decided?
+        if filter.is_decided is False:
             query += (
                 "\n/* Exclude crystal wells which already have confirmed drop locations. */"
                 f"\n{where} crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
             )
             where = "AND"
 
-        # Caller wants only those which are confirmed?
+        # Caller wants only those which are decided?
         # Confirmed means a droplocation record has been created at all (though might not have usable coordinates).
-        if filter.is_confirmed is True:
+        if filter.is_decided is True:
             query += (
                 "\n/* Include only crystal wells which already have confirmed drop locations. */"
                 f"\n{where} crystal_wells.uuid IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
             )
             where = "AND"
 
-        # Caller wants only those which are confirmed but do not have usable coordinates?
-        usable_sql = "SELECT crystal_well_uuid FROM crystal_well_droplocations WHERE confirmed_target_x IS NOT NULL AND confirmed_target_y IS NOT NULL"
-        if filter.is_usable is False:
+        # Caller wants only those which are decided but do or don't have usable coordinates?
+        if filter.is_usable is not None:
             query += (
-                "\n/* Include only crystal wells which DO NOT have drop locations with usable coordinates. */"
-                f"\n{where} crystal_wells.uuid NOT IN ({usable_sql})"
+                f"\n/* Include only crystal wells which have filter.is_usable = {filter.is_usable}. */"
+                f"\n{where} crystal_well_droplocations.is_usable = ?"
             )
-            where = "AND"
-
-        # Caller wants only those which are confirmed to have usable coordinates?
-        if filter.is_usable is True:
-            query += (
-                "\n/* Include only crystal wells which have drop locations with usable coordinates. */"
-                f"\n{where} crystal_wells.uuid IN ({usable_sql})"
-            )
+            subs.append(filter.is_usable)
             where = "AND"
 
         # Caller wants results relative to anchor?

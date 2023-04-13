@@ -15,6 +15,8 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     visit: str
     position: str
     filename: str
+    width: Optional[int]
+    height: Optional[int]
     error: Optional[str]
     created_on: str
 
@@ -30,3 +32,4 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     crystal_well_droplocation_uuid: Optional[str] = None
     confirmed_target_x: Optional[int] = None
     confirmed_target_y: Optional[int] = None
+    is_usable: Optional[bool] = None

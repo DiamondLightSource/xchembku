@@ -170,4 +170,5 @@ class CrystalWellDroplocationsTable(TableDefinition):
 
         # Add indexes.
         self.fields["crystal_well_uuid"]["index"] = True
+        self.fields["is_usable"]["index"] = True
         self.fields[CommonFieldnames.CREATED_ON]["index"] = True

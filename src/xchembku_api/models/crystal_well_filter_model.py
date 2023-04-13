@@ -14,5 +14,5 @@ class CrystalWellFilterModel(BaseModel):
     anchor: Optional[str] = None
     limit: Optional[int] = None
     direction: Optional[int] = None
-    is_confirmed: Optional[bool] = None
+    is_decided: Optional[bool] = None
     is_usable: Optional[bool] = None
