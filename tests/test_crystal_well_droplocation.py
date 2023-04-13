@@ -264,8 +264,8 @@ class CrystalWellDroplocationTester(Base):
         # Change one of the usable to unusable.
         t = CrystalWellDroplocationModel(
             crystal_well_uuid=crystal_well_models[0].uuid,
-            confirmed_target_position_x=None,
-            confirmed_target_position_y=None,
+            confirmed_target_x=None,
+            confirmed_target_y=None,
         )
 
         await dataface.upsert_crystal_well_droplocations([t])
@@ -302,6 +302,7 @@ class CrystalWellDroplocationTester(Base):
 
         # Create the well object.
         m = CrystalWellModel(
+            position="01A_1",
             crystal_plate_uuid=self.__crystal_plate_model.uuid,
             filename=filename,
         )
@@ -322,8 +323,8 @@ class CrystalWellDroplocationTester(Base):
             # Add a crystal well droplocation.
             td = CrystalWellDroplocationModel(
                 crystal_well_uuid=m.uuid,
-                confirmed_target_position_x=10,
-                confirmed_target_position_y=11,
+                confirmed_target_x=10,
+                confirmed_target_y=11,
             )
 
             await dataface.upsert_crystal_well_droplocations([td])

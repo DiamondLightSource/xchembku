@@ -96,7 +96,12 @@ class DirectCrystalWells(DirectBase):
         if why is None:
             why = "API fetch_crystal_wells_filenames"
         records = await self.query(
-            "SELECT crystal_wells.filename, crystal_wells.crystal_plate_uuid"
+            "SELECT"
+            " crystal_wells.uuid,"
+            " crystal_wells.position,"
+            " crystal_wells.filename,"
+            " crystal_wells.crystal_plate_uuid,"
+            f" crystal_wells.{CommonFieldnames.CREATED_ON}"
             f" FROM crystal_wells"
             f" ORDER BY {CommonFieldnames.CREATED_ON}",
             why=why,
@@ -187,14 +192,14 @@ class DirectCrystalWells(DirectBase):
 
         query = (
             "\nSELECT crystal_wells.*,"
-            "\n  crystal_well_autolocations.auto_target_position_x,"
-            "\n  crystal_well_autolocations.auto_target_position_y,"
+            "\n  crystal_well_autolocations.auto_target_x,"
+            "\n  crystal_well_autolocations.auto_target_y,"
             "\n  crystal_well_autolocations.well_centroid_x,"
             "\n  crystal_well_autolocations.well_centroid_y,"
             "\n  crystal_well_autolocations.drop_detected,"
             "\n  crystal_well_autolocations.number_of_crystals,"
-            "\n  crystal_well_droplocations.confirmed_target_position_x,"
-            "\n  crystal_well_droplocations.confirmed_target_position_y,"
+            "\n  crystal_well_droplocations.confirmed_target_x,"
+            "\n  crystal_well_droplocations.confirmed_target_y,"
             "\n  crystal_plates.visit"
             "\nFROM crystal_wells"
             "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
@@ -247,7 +252,7 @@ class DirectCrystalWells(DirectBase):
             where = "AND"
 
         # Caller wants only those which are confirmed but do not have usable coordinates?
-        usable_sql = "SELECT crystal_well_uuid FROM crystal_well_droplocations WHERE confirmed_target_position_x IS NOT NULL AND confirmed_target_position_y IS NOT NULL"
+        usable_sql = "SELECT crystal_well_uuid FROM crystal_well_droplocations WHERE confirmed_target_x IS NOT NULL AND confirmed_target_y IS NOT NULL"
         if filter.is_usable is False:
             query += (
                 "\n/* Include only crystal wells which DO NOT have drop locations with usable coordinates. */"

@@ -112,11 +112,15 @@ class CrystalWellAutolocationTester(Base):
         # Write two well records.
         filename1 = "abc.jpg"
         crystal_well_model1 = CrystalWellModel(
-            crystal_plate_uuid=crystal_plate_model.uuid, filename=filename1
+            position="01A_1",
+            crystal_plate_uuid=crystal_plate_model.uuid,
+            filename=filename1,
         )
         filename2 = "xyz.jpg"
         crystal_well_model2 = CrystalWellModel(
-            crystal_plate_uuid=crystal_plate_model.uuid, filename=filename2
+            position="01A_2",
+            crystal_plate_uuid=crystal_plate_model.uuid,
+            filename=filename2,
         )
         await dataface.upsert_crystal_wells([crystal_well_model1, crystal_well_model2])
 

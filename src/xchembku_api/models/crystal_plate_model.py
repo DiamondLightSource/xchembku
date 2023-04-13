@@ -14,7 +14,12 @@ class CrystalPlateModel(BaseModel):
     uuid: str
     # ID from the Plate table.
     formulatrix__plate__id: int
+    # Directory stem where wells were mined from.
+    # Also used by echolocator to format the export csv filename.
+    rockminer_collected_stem: Optional[str] = None
+    # The 4-letter barcode.
     barcode: str
+    # The visit gleaned from the Formulatrix database.
     visit: str
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.

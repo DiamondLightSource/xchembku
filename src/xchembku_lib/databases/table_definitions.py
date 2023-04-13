@@ -90,6 +90,7 @@ class CrystalWellsTable(TableDefinition):
                 self.fields[field_name] = {"type": sql_type}
 
         # Add indexes.
+        self.fields["position"]["index"] = True
         self.fields["filename"]["index"] = True
         self.fields["crystal_plate_uuid"]["index"] = True
         self.fields[CommonFieldnames.CREATED_ON]["index"] = True
