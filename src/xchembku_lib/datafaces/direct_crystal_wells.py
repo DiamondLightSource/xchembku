@@ -200,6 +200,8 @@ class DirectCrystalWells(DirectBase):
             "\n  crystal_well_autolocations.number_of_crystals,"
             "\n  crystal_well_droplocations.confirmed_target_x,"
             "\n  crystal_well_droplocations.confirmed_target_y,"
+            "\n  (crystal_well_autolocations.well_centroid_x - crystal_well_droplocations.confirmed_target_x) AS echo_coordinate_x,"
+            "\n  (crystal_well_autolocations.well_centroid_y - crystal_well_droplocations.confirmed_target_y) AS echo_coordinate_y,"
             "\n  crystal_well_droplocations.is_usable,"
             "\n  crystal_plates.visit"
             "\nFROM crystal_wells"
@@ -238,8 +240,8 @@ class DirectCrystalWells(DirectBase):
         # Caller wants only those not yet decided?
         if filter.is_decided is False:
             query += (
-                "\n/* Exclude crystal wells which already have confirmed drop locations. */"
-                f"\n{where} crystal_wells.uuid NOT IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+                "\n/* Include only crystal wells which have not had a decision made. */"
+                f"\n{where} crystal_well_droplocations.is_usable IS NULL"
             )
             where = "AND"
 
@@ -247,8 +249,8 @@ class DirectCrystalWells(DirectBase):
         # Confirmed means a droplocation record has been created at all (though might not have usable coordinates).
         if filter.is_decided is True:
             query += (
-                "\n/* Include only crystal wells which already have confirmed drop locations. */"
-                f"\n{where} crystal_wells.uuid IN (SELECT crystal_well_uuid FROM crystal_well_droplocations)"
+                "\n/* Include only crystal wells which have a decision made. */"
+                f"\n{where} crystal_well_droplocations.is_usable IS NOT NULL"
             )
             where = "AND"
 
@@ -275,7 +277,7 @@ class DirectCrystalWells(DirectBase):
                 if filter.direction == -1:
                     op = "<"
                 query += (
-                    "\n/* Get the crystal well(s) starting from the anchor. */"
+                    f"\n/* Get the crystal well(s) starting from the anchor {filter.anchor}. */"
                     f"\n{where} crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
                 )
             subs.append(filter.anchor)

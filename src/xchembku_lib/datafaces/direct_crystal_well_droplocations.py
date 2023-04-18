@@ -1,5 +1,6 @@
 import copy
 import logging
+from threading import RLock
 from typing import Dict, List, Optional
 
 from dls_normsql.constants import CommonFieldnames
@@ -11,6 +12,9 @@ from xchembku_api.models.crystal_well_droplocation_model import (
 from xchembku_lib.datafaces.direct_base import DirectBase
 
 logger = logging.getLogger(__name__)
+
+# Module-level lock to keep upsert atomic.
+upsert_lock = RLock()
 
 
 class DirectCrystalWellDroplocations(DirectBase):
@@ -82,57 +86,58 @@ class DirectCrystalWellDroplocations(DirectBase):
 
         # Loop over all the models to be upserted.
         for model in models:
-            # Find any existing record for this model object.
-            records = await self.query(
-                "SELECT * FROM crystal_well_droplocations WHERE crystal_well_uuid = ?",
-                subs=[model.crystal_well_uuid],
-                why=why,
-            )
-
-            if len(records) > 0:
-                logger.debug(
-                    describe(
-                        "crystal_well_droplocation record before update", records[0]
-                    )
-                )
-                # Make a copy of the model record and remove some fields not to update.
-                model_dict = copy.deepcopy(model.dict())
-                model_dict.pop(CommonFieldnames.UUID)
-                model_dict.pop(CommonFieldnames.CREATED_ON)
-                model_dict.pop("crystal_well_uuid")
-                if only_fields is not None:
-                    for field in list(model_dict.keys()):
-                        if field not in only_fields:
-                            model_dict.pop(field)
-
-                result = await self.update(
-                    "crystal_well_droplocations",
-                    model_dict,
-                    "(crystal_well_uuid = ?)",
-                    subs=[model.crystal_well_uuid],
-                    why=why,
-                )
-                updated_count += result.get("count", 0)
-
+            with upsert_lock:
                 # Find any existing record for this model object.
                 records = await self.query(
                     "SELECT * FROM crystal_well_droplocations WHERE crystal_well_uuid = ?",
                     subs=[model.crystal_well_uuid],
                     why=why,
                 )
-                logger.debug(
-                    describe(
-                        "crystal_well_droplocation record after update", records[0]
-                    )
-                )
 
-            else:
-                await self.insert(
-                    "crystal_well_droplocations",
-                    [model.dict()],
-                    why=why,
-                )
-                inserted_count += 1
+                if len(records) > 0:
+                    logger.debug(
+                        describe(
+                            "crystal_well_droplocation record before update", records[0]
+                        )
+                    )
+                    # Make a copy of the model record and remove some fields not to update.
+                    model_dict = copy.deepcopy(model.dict())
+                    model_dict.pop(CommonFieldnames.UUID)
+                    model_dict.pop(CommonFieldnames.CREATED_ON)
+                    model_dict.pop("crystal_well_uuid")
+                    if only_fields is not None:
+                        for field in list(model_dict.keys()):
+                            if field not in only_fields:
+                                model_dict.pop(field)
+
+                    result = await self.update(
+                        "crystal_well_droplocations",
+                        model_dict,
+                        "(crystal_well_uuid = ?)",
+                        subs=[model.crystal_well_uuid],
+                        why=why,
+                    )
+                    updated_count += result.get("count", 0)
+
+                    # Find any existing record for this model object.
+                    records = await self.query(
+                        "SELECT * FROM crystal_well_droplocations WHERE crystal_well_uuid = ?",
+                        subs=[model.crystal_well_uuid],
+                        why=why,
+                    )
+                    logger.debug(
+                        describe(
+                            "crystal_well_droplocation record after update", records[0]
+                        )
+                    )
+
+                else:
+                    await self.insert(
+                        "crystal_well_droplocations",
+                        [model.dict()],
+                        why=why,
+                    )
+                    inserted_count += 1
 
         return {
             "updated_count": updated_count,

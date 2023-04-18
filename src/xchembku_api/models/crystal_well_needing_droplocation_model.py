@@ -32,4 +32,7 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     crystal_well_droplocation_uuid: Optional[str] = None
     confirmed_target_x: Optional[int] = None
     confirmed_target_y: Optional[int] = None
+    echo_coordinate_x: Optional[int] = None
+    echo_coordinate_y: Optional[int] = None
+
     is_usable: Optional[bool] = None
