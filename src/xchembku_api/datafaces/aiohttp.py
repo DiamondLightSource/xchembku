@@ -232,6 +232,7 @@ class Aiohttp:
     async def upsert_crystal_well_droplocations(
         self,
         models: List[CrystalWellDroplocationModel],
+        only_fields: Optional[List[str]]=None,
         why=None,
     ) -> None:
         """"""
@@ -240,6 +241,8 @@ class Aiohttp:
         await self.__send_protocolj(
             "upsert_crystal_well_droplocations_serialized",
             records,
+            only_fields=only_fields,
+            why=why,
         )
 
         return None

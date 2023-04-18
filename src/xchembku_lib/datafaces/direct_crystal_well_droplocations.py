@@ -1,6 +1,6 @@
 import copy
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from dls_normsql.constants import CommonFieldnames
 from dls_utilpack.describe import describe
@@ -45,17 +45,25 @@ class DirectCrystalWellDroplocations(DirectBase):
 
     # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations_serialized(
-        self, records: List[Dict], why=None
+        self,
+        records: List[Dict],
+        only_fields: Optional[List[str]] = None,
+        why=None,
     ) -> Dict:
         # We are being given json, so parse it into models.
         models = [CrystalWellDroplocationModel(**record) for record in records]
         # Return the method doing the work.
-        return await self.upsert_crystal_well_droplocations(models, why=why)
+        return await self.upsert_crystal_well_droplocations(
+            models,
+            only_fields=only_fields,
+            why=why,
+        )
 
     # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations(
         self,
         models: List[CrystalWellDroplocationModel],
+        only_fields: Optional[List[str]] = None,
         why=None,
     ) -> Dict:
         """
@@ -92,6 +100,11 @@ class DirectCrystalWellDroplocations(DirectBase):
                 model_dict.pop(CommonFieldnames.UUID)
                 model_dict.pop(CommonFieldnames.CREATED_ON)
                 model_dict.pop("crystal_well_uuid")
+                if only_fields is not None:
+                    for field in list(model_dict.keys()):
+                        if field not in only_fields:
+                            model_dict.pop(field)
+
                 result = await self.update(
                     "crystal_well_droplocations",
                     model_dict,
