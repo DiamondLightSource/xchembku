@@ -118,7 +118,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
         }
 
     # ----------------------------------------------------------------------------------------
-    async def fetch_crystal_wells_serialized(
+    async def fetch_soakdb3_crystal_wells_serialized(
         self,
         visitid: str,
         why=None,
