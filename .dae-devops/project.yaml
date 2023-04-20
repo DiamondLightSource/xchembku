@@ -18,4 +18,5 @@ primary:
               - dls_mainiac
               - dls_multiconf
               - dls_utilpack
+              - soakdb3
               - pydantic
