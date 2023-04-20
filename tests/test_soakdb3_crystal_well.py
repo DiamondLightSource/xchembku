@@ -1,11 +1,11 @@
 import logging
 from pathlib import Path
-from typing import Optional
 
 # The model which describes the crystal wells to be injected into soakdb3.
 from soakdb3_api.models.crystal_well_model import (
     CrystalWellModel as Soakdb3CrystalWellModel,
 )
+from soakdb3_lib.datafaces.context import Context as Soakdb3DatafaceServerContext
 
 # Base class for the tester.
 from tests.base import Base
@@ -72,26 +72,38 @@ class Soakdb3CrystalWellTester(Base):
         # Load the multiconf into a dict.
         multiconf_dict = await multiconf.load()
 
+        # Reference the dict entry for the soakdb3 dataface.
+        soakdb3_dataface_specification = multiconf_dict[
+            "soakdb3_dataface_specification"
+        ]
+
+        # Make the soakdb3 server context.
+        soakdb3_server_context = Soakdb3DatafaceServerContext(
+            soakdb3_dataface_specification
+        )
+
         # Reference the dict entry for the xchembku dataface.
         xchembku_dataface_specification = multiconf_dict[
             "xchembku_dataface_specification"
         ]
 
-        # Make the server context.
+        # Make the xchembku server context.
         xchembku_server_context = XchembkuDatafaceServerContext(
             xchembku_dataface_specification
         )
 
-        # Make the client context.
+        # Make the xchembku client context.
         xchembku_client_context = XchembkuDatafaceClientContext(
             xchembku_dataface_specification
         )
 
-        # Start the xchembku server context which includes the direct or network-addressable service.
-        async with xchembku_server_context:
-            # Start the matching xchembku client context.
-            async with xchembku_client_context:
-                await self.__run_the_test(constants, output_directory)
+        # Start the soakdb3 server context which includes the direct or network-addressable service.
+        async with soakdb3_server_context:
+            # Start the xchembku server context which includes the direct or network-addressable service.
+            async with xchembku_server_context:
+                # Start the matching xchembku client context.
+                async with xchembku_client_context:
+                    await self.__run_the_test(constants, output_directory)
 
     # ----------------------------------------------------------------------------------------
 

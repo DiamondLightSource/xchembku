@@ -1,6 +1,6 @@
 import copy
 import logging
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from dls_normsql.constants import CommonFieldnames
 from dls_utilpack.describe import describe
@@ -181,7 +181,7 @@ class DirectCrystalWells(DirectBase):
         Wells need a droplocation if they have an autolocation but no droplocation.
         """
 
-        subs = []
+        subs: List[Any] = []
 
         created_on = CommonFieldnames.CREATED_ON
 

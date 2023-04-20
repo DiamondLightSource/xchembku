@@ -24,10 +24,12 @@ logging_settings:
 # The external access bits.
 external_access_bits:
     dataface_port: &DATAFACE_PORT 27821
+    soakdb3_dataface_server: &SOAKDB3_DATAFACE_SERVER http://*:27824
+    soakdb3_dataface_client: &SOAKDB3_DATAFACE_CLIENT http://localhost:27824
 
 # -----------------------------------------------------------------------------
 # The soakdb3 dataface via direct.
-soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION
+soakdb3_dataface_specification_direct: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
     type: "soakdb3_lib.datafaces.aiosqlite"
     type_specific_tbd:
         visitid_mappings:
@@ -42,6 +44,18 @@ soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION
             filename: "set by code"
             backup_directory: "set by code"
             log_level: "WARNING"
+
+soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION
+    type: "soakdb3_lib.datafaces.aiohttp"
+    type_specific_tbd:
+        # The remote dataface server access.
+        aiohttp_specification:
+            server: *SOAKDB3_DATAFACE_SERVER
+            client: *SOAKDB3_DATAFACE_CLIENT
+        # The local implementation of the dataface.
+        actual_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
+    context:
+        start_as: process
 
 # -----------------------------------------------------------------------------
 # The xchembku_dataface direct access.

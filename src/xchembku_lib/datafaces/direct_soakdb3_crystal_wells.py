@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from dls_utilpack.callsign import callsign
 from dls_utilpack.require import require
@@ -60,7 +60,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
         self.__establish_soakdb3_dataface_client()
 
         # Get rows of all existing plate/well pairs in the soakdb3 database.
-        plate_well_rows = await self.soakdb3_dataface_client.query(
+        plate_well_rows = await self.soakdb3_dataface_client.query(  # type: ignore
             visitid,
             f"SELECT CrystalPlate, CrystalWell FROM {Tablenames.BODY}",
         )
@@ -107,7 +107,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
                     }
                 )
 
-        await self.soakdb3_dataface_client.update_body_fields(
+        await self.soakdb3_dataface_client.update_body_fields(  # type: ignore
             visitid,
             fields,
         )
@@ -149,7 +149,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
         self.__establish_soakdb3_dataface_client()
 
         # Get rows of all existing plate/well pairs in the soakdb3 database.
-        records = await self.soakdb3_dataface_client.query_for_dictionary(
+        records = await self.soakdb3_dataface_client.query_for_dictionary(  # type: ignore
             visitid,
             f"SELECT * FROM {Tablenames.BODY} ORDER BY ID ASC",
         )
@@ -170,6 +170,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
         and the same one used as return for subsequent calls.
         """
 
+        # TODO: Solve problem of DirectSoakdb3CrystalWells mixin constructor not getting called, and remove several # type: ignore.
         if not hasattr(self, "soakdb3_dataface_client"):
             self.soakdb3_dataface_client = None
 
