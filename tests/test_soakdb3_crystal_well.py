@@ -128,8 +128,8 @@ class Soakdb3CrystalWellTester(Base):
                 LabVisit=visit,
                 CrystalPlate="98ab_2021-09-14_RI1000-0276-3drop",
                 CrystalWell="01A1",
-                EchoX=100,
-                EchoY=200,
+                EchoX=101,
+                EchoY=201,
             )
         )
 
@@ -139,8 +139,8 @@ class Soakdb3CrystalWellTester(Base):
                 LabVisit=visit,
                 CrystalPlate="98ab_2021-09-14_RI1000-0276-3drop",
                 CrystalWell="01A2",
-                EchoX=100,
-                EchoY=200,
+                EchoX=200,
+                EchoY=300,
             )
         )
 
@@ -151,20 +151,30 @@ class Soakdb3CrystalWellTester(Base):
         queried_models = await dataface.fetch_soakdb3_crystal_wells(visitid)
         assert len(queried_models) == 2
 
+        # Make sure the original location is not overwritten.
+        assert queried_models[0].EchoX == 100
+
         # A new different well.
         models.append(
             Soakdb3CrystalWellModel(
                 LabVisit=visit,
                 CrystalPlate="98ab_2021-09-14_RI1000-0276-3drop",
                 CrystalWell="01A3",
-                EchoX=100,
-                EchoY=200,
+                EchoX=300,
+                EchoY=400,
             )
         )
 
         # Write the full list of crystal well records again
+        models[0].EchoX = 103
         await dataface.append_soakdb3_crystal_wells(visitid, models)
 
         # Check the results, there should be no change to the first ones.
         queried_models = await dataface.fetch_soakdb3_crystal_wells(visitid)
         assert len(queried_models) == 3
+        assert queried_models[0].CrystalWell == "01A1"
+        assert queried_models[1].CrystalWell == "01A2"
+        assert queried_models[2].CrystalWell == "01A3"
+
+        # Make sure the original location is not overwritten.
+        assert queried_models[0].EchoX == 100

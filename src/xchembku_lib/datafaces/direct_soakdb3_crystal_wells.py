@@ -151,7 +151,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
         # Get rows of all existing plate/well pairs in the soakdb3 database.
         records = await self.soakdb3_dataface_client.query_for_dictionary(
             visitid,
-            f"SELECT * FROM {Tablenames.BODY}",
+            f"SELECT * FROM {Tablenames.BODY} ORDER BY ID ASC",
         )
 
         # Dicts are returned, so parse them into models.
