@@ -2,6 +2,9 @@ import logging
 from typing import Dict, List, Optional
 
 from dls_utilpack.callsign import callsign
+from soakdb3_api.models.crystal_well_model import (
+    CrystalWellModel as Soakdb3CrystalWellModel,
+)
 
 # Class for an aiohttp client.
 from xchembku_api.aiohttp_client import AiohttpClient
@@ -82,7 +85,7 @@ class Aiohttp:
     async def upsert_crystal_plates(
         self,
         models: List[CrystalPlateModel],
-        why=None,
+        why: Optional[str] = None,
     ) -> None:
         """"""
 
@@ -232,8 +235,8 @@ class Aiohttp:
     async def upsert_crystal_well_droplocations(
         self,
         models: List[CrystalWellDroplocationModel],
-        only_fields: Optional[List[str]]=None,
-        why=None,
+        only_fields: Optional[List[str]] = None,
+        why: Optional[str] = None,
     ) -> None:
         """"""
 
@@ -246,6 +249,38 @@ class Aiohttp:
         )
 
         return None
+
+    # ----------------------------------------------------------------------------------------
+    async def append_soakdb3_crystal_wells(
+        self,
+        visitid: str,
+        models: List[Soakdb3CrystalWellModel],
+        why: Optional[str] = None,
+    ) -> Dict:
+        """"""
+
+        records: List[Dict] = [model.dict() for model in models]
+        result = await self.__send_protocolj(
+            "append_soakdb3_crystal_wells_serialized", visitid, records, why=why
+        )
+        return result
+
+    # ----------------------------------------------------------------------------------------
+    async def fetch_soakdb3_crystal_wells(
+        self,
+        visitid: str,
+        why: Optional[str] = None,
+    ) -> List[Soakdb3CrystalWellModel]:
+        """"""
+
+        records = await self.__send_protocolj(
+            "fetch_soakdb3_crystal_wells_serialized", visitid, why=why
+        )
+
+        # Dicts are returned, so parse them into models.
+        models = [Soakdb3CrystalWellModel(**record) for record in records]
+
+        return models
 
     # ----------------------------------------------------------------------------------------
     async def report_health(self):

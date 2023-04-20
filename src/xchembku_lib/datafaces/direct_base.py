@@ -37,6 +37,9 @@ class DirectBase(Thing):
             logger.debug(f"{callsign(self)} disconnected")
             self.__database = None
 
+        # TODO: Figure out a better way to disconnect the dataface mixins.
+        await self.disconnect_soakdb3_crystal_wells_mixin()
+
     # ----------------------------------------------------------------------------------------
     async def establish_database_connection(self):
         if self.__database is None:

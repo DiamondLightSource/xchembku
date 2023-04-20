@@ -200,8 +200,8 @@ class DirectCrystalWells(DirectBase):
             "\n  crystal_well_autolocations.number_of_crystals,"
             "\n  crystal_well_droplocations.confirmed_target_x,"
             "\n  crystal_well_droplocations.confirmed_target_y,"
-            "\n  (crystal_well_autolocations.well_centroid_x - crystal_well_droplocations.confirmed_target_x) AS echo_coordinate_x,"
-            "\n  (crystal_well_autolocations.well_centroid_y - crystal_well_droplocations.confirmed_target_y) AS echo_coordinate_y,"
+            "\n  (crystal_well_droplocations.confirmed_target_x - crystal_well_autolocations.well_centroid_x) AS echo_coordinate_x,"
+            "\n  (crystal_well_droplocations.confirmed_target_y - crystal_well_autolocations.well_centroid_y) AS echo_coordinate_y,"
             "\n  crystal_well_droplocations.is_usable,"
             "\n  crystal_plates.visit"
             "\nFROM crystal_wells"
@@ -222,7 +222,7 @@ class DirectCrystalWells(DirectBase):
         # Caller wants specific barcode?
         if filter.barcode is not None:
             query += (
-                "\n/* Just a wells on plates with a certain barcode. */"
+                f"\n/* Just a wells on plates with barcode '{filter.barcode}'. */"
                 f"\n{where} crystal_plates.barcode = ?"
             )
             subs.append(filter.barcode)
@@ -231,7 +231,7 @@ class DirectCrystalWells(DirectBase):
         # Caller wants specific visit?
         if filter.visit is not None:
             query += (
-                "\n/* Just a wells on plates with a certain visit. */"
+                f"\n/* Just a wells on plates with visit '{filter.visit}'. */"
                 f"\n{where} crystal_plates.visit = ?"
             )
             subs.append(filter.visit)

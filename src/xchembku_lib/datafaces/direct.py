@@ -9,6 +9,9 @@ from xchembku_lib.datafaces.direct_crystal_well_droplocations import (
     DirectCrystalWellDroplocations,
 )
 from xchembku_lib.datafaces.direct_crystal_wells import DirectCrystalWells
+from xchembku_lib.datafaces.direct_soakdb3_crystal_wells import (
+    DirectSoakdb3CrystalWells,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,7 @@ class Direct(
     DirectCrystalWells,
     DirectCrystalWellAutolocations,
     DirectCrystalWellDroplocations,
+    DirectSoakdb3CrystalWells,
     DirectBase,
 ):
     """ """
