@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from dls_utilpack.callsign import callsign
 from dls_utilpack.require import require
