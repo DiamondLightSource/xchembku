@@ -45,6 +45,7 @@ soakdb3_dataface_specification_direct: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
             backup_directory: "set by code"
             log_level: "WARNING"
 
+# The soakdb3 dataface via networked service.
 soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION
     type: "soakdb3_lib.datafaces.aiohttp"
     type_specific_tbd:
