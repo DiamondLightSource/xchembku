@@ -251,7 +251,7 @@ class Aiohttp:
         return None
 
     # ----------------------------------------------------------------------------------------
-    async def append_soakdb3_crystal_wells(
+    async def inject_soakdb3_crystal_wells(
         self,
         visitid: str,
         models: List[Soakdb3CrystalWellModel],
@@ -261,7 +261,7 @@ class Aiohttp:
 
         records: List[Dict] = [model.dict() for model in models]
         result = await self.__send_protocolj(
-            "append_soakdb3_crystal_wells_serialized", visitid, records, why=why
+            "inject_soakdb3_crystal_wells_serialized", visitid, records, why=why
         )
         return result
 

@@ -20,7 +20,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
     """ """
 
     # ----------------------------------------------------------------------------------------
-    async def append_soakdb3_crystal_wells_serialized(
+    async def inject_soakdb3_crystal_wells_serialized(
         self,
         visitid: str,
         records: List[Dict],
@@ -29,7 +29,7 @@ class DirectSoakdb3CrystalWells(DirectBase):
         # We are being given json, so parse it into models.
         models = [Soakdb3CrystalWellModel(**record) for record in records]
         # Return the method doing the work.
-        return await self.append_soakdb3_crystal_wells(visitid, models, why=why)
+        return await self.inject_soakdb3_crystal_wells(visitid, models, why=why)
 
     # ----------------------------------------------------------------------------------------
     async def disconnect_soakdb3_crystal_wells_mixin(self):
@@ -44,11 +44,11 @@ class DirectSoakdb3CrystalWells(DirectBase):
             await self.soakdb3_dataface_client.close_client_session()
 
     # ----------------------------------------------------------------------------------------
-    async def append_soakdb3_crystal_wells(
+    async def inject_soakdb3_crystal_wells(
         self,
         visitid,
         models: List[Soakdb3CrystalWellModel],
-        why="append_soakdb3_crystal_wells",
+        why="inject_soakdb3_crystal_wells",
     ) -> Dict:
         """
         Append the crystal wells described by the models
@@ -62,21 +62,28 @@ class DirectSoakdb3CrystalWells(DirectBase):
         # Get rows of all existing plate/well pairs in the soakdb3 database.
         plate_well_rows = await self.soakdb3_dataface_client.query(  # type: ignore
             visitid,
-            f"SELECT CrystalPlate, CrystalWell FROM {Tablenames.BODY}",
+            f"SELECT ID, CrystalPlate, CrystalWell FROM {Tablenames.BODY} ORDER BY ID ASC",
         )
 
         # Flatten the plate_well values into a list of combine plate/well records.
         plate_wells = []
+        blank_row_ids = []
         for plate_well_row in plate_well_rows:
-            plate_wells.append(
-                self.__plate_well(plate_well_row[0], plate_well_row[1]),
-            )
+            # This is a row with empty or blank CrystalPlate?
+            if plate_well_row[1] is None or plate_well_row[1] == "":
+                # Remember the ID of this row so we can update it.
+                blank_row_ids.append(plate_well_row[0])
+            else:
+                plate_wells.append(
+                    self.__plate_well(plate_well_row[1], plate_well_row[2]),
+                )
 
+        updated_count = 0
         inserted_count = 0
         skipped_count = 0
 
         # Loop over all the models to be appended.
-        id = 0
+        id_to_insert = 0
         fields = []
         for model in models:
             # Make combined plate/well name for this model.
@@ -88,15 +95,21 @@ class DirectSoakdb3CrystalWells(DirectBase):
             if plate_well in plate_wells:
                 skipped_count += 1
                 continue
-            inserted_count += 1
             plate_wells.append(plate_well)
 
-            # ID for this row is next negative number, causing insert.
-            id = id - 1
+            if len(blank_row_ids) == 0:
+                # ID for this row is next negative number, causing insert.
+                id_to_insert = id_to_insert - 1
+                id = id_to_insert
+                inserted_count += 1
+            else:
+                # ID for this row is one of the empty rows.
+                id = int(blank_row_ids.pop(0))
+                updated_count += 1
             # Make a row for each field in the model.
             record = model.dict()
             for field in list(record.keys()):
-                # Ignore the ID field since an insert will generate a new one.
+                # Ignore the ID from the model since it is of indeterminate value at this point.
                 if field == "ID":
                     continue
                 fields.append(
@@ -113,8 +126,9 @@ class DirectSoakdb3CrystalWells(DirectBase):
         )
 
         return {
-            "skipped_count": skipped_count,
+            "updated_count": updated_count,
             "inserted_count": inserted_count,
+            "skipped_count": skipped_count,
         }
 
     # ----------------------------------------------------------------------------------------
