@@ -1,6 +1,9 @@
 import logging
 from pathlib import Path
 
+# Soakdb3 database.
+from soakdb3_api.databases.constants import Tablenames
+
 # The model which describes the crystal wells to be injected into soakdb3.
 # Client for direct access to the soakdb3 database for seeding it.
 from soakdb3_api.datafaces.context import Context as Soakdb3DatafaceClientContext
@@ -144,6 +147,24 @@ class Soakdb3CrystalWellTester(Base):
         injected_crystal_plate = "98ab_2021-09-14_RI1000-0276-3drop"
 
         # ----------------------------------------------------------------
+        # Seed the necessary fields in the head table.
+
+        protein = "P1"
+        drop_volume = 3.1
+
+        head_record = {
+            "Protein": protein,
+            "DropVolume": drop_volume,
+        }
+
+        # Insert these fields as the (single) row in the soakdb3 database's head table.
+        await soakdb3_dataface.insert(  # type: ignore
+            visitid,
+            Tablenames.HEAD,
+            [head_record],
+        )
+
+        # ----------------------------------------------------------------
         seed_fields = []
         # Seed row ID 1 with no exising crystal well on it.
         # This row will absorb the first injected well.
@@ -164,11 +185,13 @@ class Soakdb3CrystalWellTester(Base):
             }
         )
 
-        # Send these seeds to the soakdb3 database.
+        # Send these seeds to the soakdb3 database's body table.
         await soakdb3_dataface.update_body_fields(  # type: ignore
             visitid,
             seed_fields,
         )
+
+        # ----------------------------------------------------------------
 
         # Make some wells to insert.
         models.append(
@@ -234,18 +257,27 @@ class Soakdb3CrystalWellTester(Base):
         assert queried_models[0].ID == "1"
         assert queried_models[0].CrystalWell == "01A1"
         assert queried_models[0].CrystalPlate == injected_crystal_plate
+        assert queried_models[0].ProteinName == protein
+        assert queried_models[0].DropVolume == drop_volume
 
         # Row ID 2 was seeded and this don't get the injected crystal well.
         assert queried_models[1].ID == "2"
         assert queried_models[1].CrystalPlate == seeded_crystal_plate
+        assert queried_models[1].ProteinName is None
+        assert queried_models[1].DropVolume is None
 
         # The last two should have been injected.
         assert queried_models[2].ID == "3"
         assert queried_models[2].CrystalWell == "01A2"
         assert queried_models[2].CrystalPlate == injected_crystal_plate
+        assert queried_models[2].ProteinName == protein
+        assert queried_models[2].DropVolume == drop_volume
+
         assert queried_models[3].ID == "4"
         assert queried_models[3].CrystalWell == "01A3"
-        assert queried_models[2].CrystalPlate == injected_crystal_plate
+        assert queried_models[3].CrystalPlate == injected_crystal_plate
+        assert queried_models[3].ProteinName == protein
+        assert queried_models[3].DropVolume == drop_volume
 
         # Make sure the original location is not overwritten.
         assert queried_models[0].EchoX == 100

@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Optional
 
 from dls_utilpack.callsign import callsign
+from dls_utilpack.describe import describe
 from dls_utilpack.require import require
 
 # Soakdb3 dataface/database.
@@ -59,6 +60,17 @@ class DirectSoakdb3CrystalWells(DirectBase):
 
         self.__establish_soakdb3_dataface_client()
 
+        # Get the necessary values from the (single) head table row.
+        head_rows = await self.soakdb3_dataface_client.query_for_dictionary(  # type: ignore
+            visitid,
+            f"SELECT Protein, DropVolume FROM {Tablenames.HEAD}",
+        )
+        protein = head_rows[0]["Protein"]
+        drop_volume = head_rows[0]["DropVolume"]
+
+        logger.debug(describe("head row protein", protein))
+        logger.debug(describe("head row drop_volume", drop_volume))
+
         # Get rows of all existing plate/well pairs in the soakdb3 database.
         plate_well_rows = await self.soakdb3_dataface_client.query(  # type: ignore
             visitid,
@@ -112,11 +124,18 @@ class DirectSoakdb3CrystalWells(DirectBase):
                 # Ignore the ID from the model since it is of indeterminate value at this point.
                 if field == "ID":
                     continue
+                # Certain fields on the row come from the current head row field values.
+                if field == "ProteinName":
+                    value = protein
+                elif field == "DropVolume":
+                    value = drop_volume
+                else:
+                    value = record[field]
                 fields.append(
                     {
                         "id": str(id),
                         "field": field,
-                        "value": record[field],
+                        "value": value,
                     }
                 )
 
