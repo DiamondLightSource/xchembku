@@ -4,12 +4,13 @@ from pathlib import Path
 # Soakdb3 database.
 from soakdb3_api.databases.constants import Tablenames
 
-# The model which describes the crystal wells to be injected into soakdb3.
 # Client for direct access to the soakdb3 database for seeding it.
 from soakdb3_api.datafaces.context import Context as Soakdb3DatafaceClientContext
 from soakdb3_api.datafaces.datafaces import (
     datafaces_get_default as soakdb3_datafaces_get_default,
 )
+
+# The model which describes the crystal wells to be injected into soakdb3.
 from soakdb3_api.models.crystal_well_model import (
     CrystalWellModel as Soakdb3CrystalWellModel,
 )
