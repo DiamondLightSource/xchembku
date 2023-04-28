@@ -4,6 +4,11 @@ from typing import Optional
 # Base class for the tester.
 from tests.base import Base
 
+# Types which the CrystalPlateObjects factory can use to build an instance.
+from xchembku_api.crystal_plate_objects.constants import (
+    ThingTypes as CrystalPlateObjectThingTypes,
+)
+
 # Client context creator.
 from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientContext
 
@@ -11,6 +16,9 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
+
+# Crystal plate objects factory.
+from xchembku_lib.crystal_plate_objects.crystal_plate_objects import CrystalPlateObjects
 
 # Server context creator.
 from xchembku_lib.datafaces.context import Context as XchembkuDatafaceServerContext
@@ -100,13 +108,25 @@ class CrystalPlateTester(Base):
         visit = "cm00001-1"
         models = []
         models.append(
-            CrystalPlateModel(formulatrix__plate__id=10, barcode="xyz1", visit=visit)
+            CrystalPlateModel(
+                formulatrix__plate__id=10,
+                barcode="xyz1",
+                visit=visit,
+            )
         )
         models.append(
-            CrystalPlateModel(formulatrix__plate__id=20, barcode="xyz2", visit=visit)
+            CrystalPlateModel(
+                formulatrix__plate__id=20,
+                barcode="xyz2",
+                visit=visit,
+            )
         )
         models.append(
-            CrystalPlateModel(formulatrix__plate__id=30, barcode="xyz3", visit=visit)
+            CrystalPlateModel(
+                formulatrix__plate__id=30,
+                barcode="xyz3",
+                visit=visit,
+            )
         )
 
         await dataface.upsert_crystal_plates(models)
@@ -165,7 +185,10 @@ class CrystalPlateTester(Base):
         # ------------------------------------------------------------------------------------
         # Create an object to be upserted.
         upserted_model = CrystalPlateModel(
-            formulatrix__plate__id=40, barcode="xyz4", visit=visit
+            formulatrix__plate__id=40,
+            barcode="xyz4",
+            visit=visit,
+            thing_type=CrystalPlateObjectThingTypes.SWISS3,
         )
 
         # First upsert is an insert.
@@ -206,6 +229,11 @@ class CrystalPlateTester(Base):
         assert upserted_models[0].uuid == upserted_model.uuid
         assert upserted_models[0].created_on == created_on
         assert upserted_models[0].visit == upserted_model.visit
+
+        # Make sure that the model which came out of the database can be instantiated.
+        specification = {"type": upserted_models[0].thing_type}
+        o = CrystalPlateObjects().build_object(specification)
+        assert o.get_well_count() == 288
 
     # ----------------------------------------------------------------------------------------
 

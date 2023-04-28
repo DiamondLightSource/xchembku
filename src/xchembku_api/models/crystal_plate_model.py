@@ -21,6 +21,8 @@ class CrystalPlateModel(BaseModel):
     barcode: str
     # The visit gleaned from the Formulatrix database.
     visit: str
+    # A string which allows the CrytsalPlateObjects factory to make an instance.
+    thing_type: Optional[str] = None
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
     created_on: Optional[str] = None
