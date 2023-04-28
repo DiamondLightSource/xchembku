@@ -16,9 +16,6 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
-from xchembku_api.models.crystal_well_needing_droplocation_model import (
-    CrystalWellNeedingDroplocationModel,
-)
 
 # Crystal plate objects factory.
 from xchembku_lib.crystal_plate_objects.crystal_plate_objects import CrystalPlateObjects
