@@ -16,6 +16,9 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
+from xchembku_api.models.crystal_well_needing_droplocation_model import (
+    CrystalWellNeedingDroplocationModel,
+)
 
 # Crystal plate objects factory.
 from xchembku_lib.crystal_plate_objects.crystal_plate_objects import CrystalPlateObjects
@@ -232,8 +235,24 @@ class CrystalPlateTester(Base):
 
         # Make sure that the model which came out of the database can be instantiated.
         specification = {"type": upserted_models[0].thing_type}
-        o = CrystalPlateObjects().build_object(specification)
-        assert o.get_well_count() == 288
+        crystal_plate_model = CrystalPlateObjects().build_object(specification)
+        assert crystal_plate_model.get_well_count() == 288
+
+        # TODO: Move testing of drop location in microns out of test_crystal_plate.py and into its own test file.
+        # Cook up a fake crystal well so we can use the plate to convert drop location to microns.
+        crystal_well_dict = {
+            "well_centroid_x": 100,
+            "well_centroid_y": 101,
+            "confirmed_target_x": 150,
+            "confirmed_target_y": 51,
+        }
+
+        # Let the plate decide how to convert pixels into microns.
+        x_microns, y_microns = crystal_plate_model.compute_drop_location_microns(
+            crystal_well_dict
+        )
+        assert x_microns == int(0.5 + 2.837 * 50)
+        assert y_microns == int(0.5 + 2.837 * -50)
 
     # ----------------------------------------------------------------------------------------
 

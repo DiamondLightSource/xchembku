@@ -12,13 +12,16 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
 
     # Stuff from the original record.
     uuid: str
-    visit: str
     position: str
     filename: str
     width: Optional[int]
     height: Optional[int]
     error: Optional[str]
     created_on: str
+
+    # Stuff from the plate.
+    visit: str
+    crystal_plate_thing_type: str
 
     # Stuff from the autolocation.
     auto_target_x: Optional[int] = None
@@ -32,7 +35,7 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     crystal_well_droplocation_uuid: Optional[str] = None
     confirmed_target_x: Optional[int] = None
     confirmed_target_y: Optional[int] = None
-    echo_coordinate_x: Optional[int] = None
-    echo_coordinate_y: Optional[int] = None
+    confirmed_microns_x: Optional[int] = None
+    confirmed_microns_y: Optional[int] = None
 
     is_usable: Optional[bool] = None

@@ -4,6 +4,11 @@ from typing import Optional
 # Base class for the tester.
 from tests.base import Base
 
+# Types which the CrystalPlateObjects factory can use to build an instance.
+from xchembku_api.crystal_plate_objects.constants import (
+    ThingTypes as CrystalPlateThingTypes,
+)
+
 # Client context creator.
 from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientContext
 
@@ -18,6 +23,7 @@ from xchembku_api.models.crystal_well_droplocation_model import (
 )
 from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
 from xchembku_api.models.crystal_well_model import CrystalWellModel
+from xchembku_lib.crystal_plate_objects.crystal_plate_objects import CrystalPlateObjects
 
 # Server context creator.
 from xchembku_lib.datafaces.context import Context as XchembkuDatafaceServerContext
@@ -115,6 +121,11 @@ class CrystalWellDroplocationTester(Base):
             formulatrix__plate__id=1,
             barcode=self.__barcode,
             visit=self.__visit,
+            thing_type=CrystalPlateThingTypes.SWISS3,
+        )
+
+        self.__crystal_plate_object = CrystalPlateObjects().build_object(
+            {"type": CrystalPlateThingTypes.SWISS3}
         )
 
         # Write plate record.
@@ -303,6 +314,7 @@ class CrystalWellDroplocationTester(Base):
         m = CrystalWellModel(
             position="01A_1",
             crystal_plate_uuid=self.__crystal_plate_model.uuid,
+            crystal_plate_thing_type=self.__crystal_plate_model.thing_type,
             filename=filename,
         )
 
@@ -314,6 +326,8 @@ class CrystalWellDroplocationTester(Base):
             ta = CrystalWellAutolocationModel(
                 crystal_well_uuid=m.uuid,
                 number_of_crystals=10,
+                well_centroid_x=100,
+                well_centroid_y=100,
             )
 
             await dataface.originate_crystal_well_autolocations([ta])
@@ -322,8 +336,8 @@ class CrystalWellDroplocationTester(Base):
             # Add a crystal well droplocation.
             td = CrystalWellDroplocationModel(
                 crystal_well_uuid=m.uuid,
-                confirmed_target_x=10,
-                confirmed_target_y=11,
+                confirmed_target_x=150,
+                confirmed_target_y=50,
                 is_usable=True,
             )
 
@@ -343,15 +357,37 @@ class CrystalWellDroplocationTester(Base):
     ):
         """ """
 
+        # Get the full crystal well with auto and confirmed drop locations.
         crystal_well_models = await dataface.fetch_crystal_wells_needing_droplocation(
             filter
         )
 
+        # Make sure we got enough.
         assert len(crystal_well_models) == expected, note
 
-        # All wells should belong to the visit.
         for crystal_well_model in crystal_well_models:
+            # All wells should belong to the visit.
             assert crystal_well_model.visit == self.__visit, f"{note} visit"
+
+            # All present confirmed drop locations should be consistent.
+            if (
+                crystal_well_model.well_centroid_x is not None
+                and crystal_well_model.confirmed_target_x is not None
+                and crystal_well_model.well_centroid_y is not None
+                and crystal_well_model.confirmed_target_y is not None
+            ):
+
+                # Use the template plate to predict the microns.
+                (
+                    microns_x,
+                    microns_y,
+                ) = self.__crystal_plate_object.compute_drop_location_microns(
+                    crystal_well_model.dict()
+                )
+                assert crystal_well_model.confirmed_target_x == 150
+                assert crystal_well_model.confirmed_microns_x == microns_x
+                assert crystal_well_model.confirmed_target_y == 50
+                assert crystal_well_model.confirmed_microns_y == microns_y
 
         if filename is not None:
             assert crystal_well_models[0].filename == filename, f"{note} filename"

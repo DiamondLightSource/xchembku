@@ -1,7 +1,8 @@
 import logging
-from typing import Tuple
+from typing import Dict, Tuple
 
 # Base class for generic things.
+from dls_utilpack.describe import describe
 from dls_utilpack.thing import Thing
 
 # Types.
@@ -16,6 +17,7 @@ class Swiss3(Thing):
     """ """
 
     __MICRONS_PER_PIXEL_X = 2.837
+    __MICRONS_PER_PIXEL_Y = 2.837
     __WELL_COUNT = 288
 
     # ----------------------------------------------------------------------------------------
@@ -27,8 +29,32 @@ class Swiss3(Thing):
         return self.__WELL_COUNT
 
     # ----------------------------------------------------------------------------------------
-    def convert_pixel_to_micron(self, pixel: Tuple[int, int]) -> Tuple[float, float]:
-        return (
-            pixel[0] * self.__MICRONS_PER_PIXEL_X,
-            pixel[1] * self.__MICRONS_PER_PIXEL_X,
+    def compute_drop_location_microns(
+        self,
+        crystal_well_record: Dict,
+    ) -> Tuple[int, int]:
+
+        logger.debug(describe("crystal_well_record", crystal_well_record))
+        if crystal_well_record.get("confirmed_target_x") is None:
+            return (None, None)
+        if crystal_well_record.get("confirmed_target_y") is None:
+            return (None, None)
+
+        x = int(
+            0.5
+            + self.__MICRONS_PER_PIXEL_X
+            * (
+                crystal_well_record["confirmed_target_x"]
+                - crystal_well_record["well_centroid_x"]
+            )
         )
+        y = int(
+            0.5
+            + self.__MICRONS_PER_PIXEL_Y
+            * (
+                crystal_well_record["confirmed_target_y"]
+                - crystal_well_record["well_centroid_y"]
+            )
+        )
+
+        return (x, y)

@@ -15,6 +15,8 @@ class CrystalWellDroplocationModel(BaseModel):
     crystal_well_uuid: Optional[str] = None
     confirmed_target_x: Optional[int] = None
     confirmed_target_y: Optional[int] = None
+    confirmed_microns_x: Optional[int] = None
+    confirmed_microns_y: Optional[int] = None
     is_usable: Optional[bool] = None
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
