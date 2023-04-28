@@ -1,7 +1,5 @@
 import logging
-from typing import Dict, Tuple
-
-from dls_utilpack.callsign import callsign
+from typing import Tuple
 
 # Base class for generic things.
 from dls_utilpack.thing import Thing
