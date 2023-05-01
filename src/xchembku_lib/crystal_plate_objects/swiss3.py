@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 # Base class for generic things.
 from dls_utilpack.describe import describe
@@ -32,7 +32,7 @@ class Swiss3(Thing):
     def compute_drop_location_microns(
         self,
         crystal_well_record: Dict,
-    ) -> Tuple[int, int]:
+    ) -> Tuple[Optional[int], Optional[int]]:
 
         logger.debug(describe("crystal_well_record", crystal_well_record))
         if crystal_well_record.get("confirmed_target_x") is None:
