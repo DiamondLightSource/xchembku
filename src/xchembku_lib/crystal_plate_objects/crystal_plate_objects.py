@@ -8,6 +8,11 @@ from dls_utilpack.things import Things
 # Types which the CrystalPlateObjects factory can use to build an instance.
 from xchembku_api.crystal_plate_objects.constants import ThingTypes
 
+# Interface fulfilled by all CrystalPlateObject isntances.
+from xchembku_api.crystal_plate_objects.interface import (
+    Interface as CrystalPlateInterface,
+)
+
 # Exceptions.
 from xchembku_api.exceptions import NotFound
 
@@ -35,8 +40,10 @@ class CrystalPlateObjects(Things):
         return list(self.__treenode_names_to_thing_type.keys())
 
     # ----------------------------------------------------------------------------------------
-    def build_object(self, specification):
-        """"""
+    def build_object(self, specification) -> CrystalPlateInterface:
+        """
+        TODO: CrystalPlateObjects build_object method should return an interface.
+        """
 
         object_class = self.lookup_class(specification["type"])
 

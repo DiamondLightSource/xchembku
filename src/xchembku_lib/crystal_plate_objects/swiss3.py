@@ -9,12 +9,15 @@ from dls_utilpack.thing import Thing
 # Types.
 from xchembku_api.crystal_plate_objects.constants import ThingTypes
 
+# Interface.
+from xchembku_api.crystal_plate_objects.interface import Interface
+
 logger = logging.getLogger(__name__)
 
 thing_type = ThingTypes.SWISS3
 
 
-class Swiss3(Thing):
+class Swiss3(Thing, Interface):
     """ """
 
     __MICRONS_PER_PIXEL_X = 2.837
@@ -32,7 +35,7 @@ class Swiss3(Thing):
     # ----------------------------------------------------------------------------------------
     def normalize_subwell_name(self, subwell_name: str) -> str:
         """
-        Converts the name given to the subwell by Luigi into the format expected by the beamline.
+        Converts the name given to the subwell by Luigi into the "position" format shown in soakdb3.
 
         Args:
             subwell_name (str): stem part of the subwell's image filename

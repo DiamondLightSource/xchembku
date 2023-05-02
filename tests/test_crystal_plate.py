@@ -68,8 +68,6 @@ class CrystalPlateTester(Base):
 
     async def _main_coroutine(self, constants, output_directory):
         """ """
-        self.__injected_count = 0
-
         # Get the multiconf from the testing configuration yaml.
         multiconf = self.get_multiconf()
 

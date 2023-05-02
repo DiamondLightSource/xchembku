@@ -30,6 +30,10 @@ class TestSwiss3:
 
         # Check invalid name formats.
         with pytest.raises(ValueError) as excinfo:
+            swiss3.normalize_subwell_name("98ab_273A_1")
+        assert "expected format" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
             swiss3.normalize_subwell_name("98ju_01H_1.jpg")
         assert "expected format" in str(excinfo.value)
 
