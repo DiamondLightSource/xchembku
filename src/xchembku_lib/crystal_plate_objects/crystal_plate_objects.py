@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class CrystalPlateObjects(Things):
     """
-    List of available databases.
+    List of available crystal plate object types.
     """
 
     # ----------------------------------------------------------------------------------------
@@ -41,9 +41,7 @@ class CrystalPlateObjects(Things):
 
     # ----------------------------------------------------------------------------------------
     def build_object(self, specification) -> CrystalPlateInterface:
-        """
-        TODO: CrystalPlateObjects build_object method should return an interface.
-        """
+        """ """
 
         object_class = self.lookup_class(specification["type"])
 
@@ -51,7 +49,7 @@ class CrystalPlateObjects(Things):
             object_instance = object_class(specification)
         except Exception as exception:
             raise RuntimeError(
-                "unable to build database object for type %s" % object_class
+                "unable to build object for type %s" % object_class
             ) from exception
 
         return object_instance
@@ -67,4 +65,4 @@ class CrystalPlateObjects(Things):
 
             return Swiss3
 
-        raise NotFound("unable to get database class for type %s" % (class_type))
+        raise NotFound("unable to get class for type %s" % (class_type))

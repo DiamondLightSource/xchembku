@@ -22,33 +22,6 @@ class DirectCrystalWellDroplocations(DirectBase):
     """ """
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_well_droplocations_serialized(
-        self, records: List[Dict]
-    ) -> None:
-        # We are being given json, so parse it into models.
-        models = [CrystalWellDroplocationModel(**record) for record in records]
-
-        # Return the method doing the work.
-        return await self.originate_crystal_well_droplocations(models)
-
-    # ----------------------------------------------------------------------------------------
-    async def originate_crystal_well_droplocations(
-        self, models: List[CrystalWellDroplocationModel]
-    ) -> None:
-        """
-        Caller provides the records containing fields to be created.
-        """
-
-        # We're being given models, serialize them into dicts for the sql.
-        records = [model.dict() for model in models]
-
-        return await self.insert(
-            "crystal_well_droplocations",
-            records,
-            why="originate_crystal_well_droplocations",
-        )
-
-    # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations_serialized(
         self,
         records: List[Dict],
@@ -131,6 +104,7 @@ class DirectCrystalWellDroplocations(DirectBase):
 
         # Loop over all the models to be upserted.
         for model in models:
+            # TODO: Reconsider the lock granularity in direct_crystal_well_droplocations.py.
             with upsert_lock:
                 model_dict = copy.deepcopy(model.dict())
 

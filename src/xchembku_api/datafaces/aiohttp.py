@@ -218,20 +218,6 @@ class Aiohttp:
         return None
 
     # ----------------------------------------------------------------------------------------
-    async def originate_crystal_well_droplocations(
-        self, models: List[CrystalWellDroplocationModel]
-    ) -> None:
-        """"""
-
-        records: List[Dict] = [model.dict() for model in models]
-        await self.__send_protocolj(
-            "originate_crystal_well_droplocations_serialized",
-            records,
-        )
-
-        return None
-
-    # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations(
         self,
         models: List[CrystalWellDroplocationModel],
