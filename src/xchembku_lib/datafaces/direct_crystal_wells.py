@@ -4,7 +4,10 @@ from typing import Any, Dict, List
 
 from dls_normsql.constants import CommonFieldnames
 
-from xchembku_api.models.crystal_well_filter_model import CrystalWellFilterModel
+from xchembku_api.models.crystal_well_filter_model import (
+    CrystalWellFilterModel,
+    CrystalWellFilterSortbyEnum,
+)
 from xchembku_api.models.crystal_well_model import CrystalWellModel
 from xchembku_api.models.crystal_well_needing_droplocation_model import (
     CrystalWellNeedingDroplocationModel,
@@ -189,8 +192,24 @@ class DirectCrystalWells(DirectBase):
         if why is None:
             why = "API fetch_crystal_wells_needing_droplocation"
 
+        position_direction = "ASC"
+        if filter.direction == -1:
+            position_direction = "DESC"
+
+        # Filter says order by number of crystals?
+        if filter.sortby == CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS:
+            crystals_direction = "DESC"
+            if filter.direction == -1:
+                crystals_direction = "ASC"
+
+            # If duplicate crystals, use position as tie breaker.
+            order_by = f"crystal_well_autolocations.number_of_crystals {crystals_direction}, crystal_wells.position {position_direction}"
+        else:
+            order_by = f"crystal_wells.position {position_direction}"
+
         query = (
-            "\nSELECT crystal_wells.*,"
+            f"\nSELECT ROW_NUMBER() OVER (ORDER BY {order_by}) AS ordered_row_number,"
+            "\n  crystal_wells.*,"
             "\n  crystal_well_autolocations.auto_target_x,"
             "\n  crystal_well_autolocations.auto_target_y,"
             "\n  crystal_well_autolocations.well_centroid_x,"
@@ -263,30 +282,32 @@ class DirectCrystalWells(DirectBase):
             subs.append(filter.is_usable)
             where = "AND"
 
-        # Caller wants results relative to anchor?
-        if filter.anchor is not None:
-            # Caller wants the anchor itself?
-            if filter.direction is None:
-                query += (
-                    "\n/* Get the crystal well at the anchor. */"
-                    f"\n{where} crystal_wells.uuid = ?"
-                )
-            # Not the anchor itself, but either side of the anchor?
-            else:
-                op = ">"
-                if filter.direction == -1:
-                    op = "<"
-                query += (
-                    f"\n/* Get the crystal well(s) starting from the anchor {filter.anchor}. */"
-                    f"\n{where} crystal_wells.created_on {op} (SELECT {created_on} FROM crystal_wells WHERE uuid = ?)"
-                )
+        # Caller wants the anchor row itself?
+        if filter.anchor is not None and filter.direction is None:
+            query += (
+                "\n/* Get the crystal well at the anchor. */"
+                f"\n{where} crystal_wells.uuid = ?"
+            )
             subs.append(filter.anchor)
+            where = "AND"
 
-        sql_direction = "ASC"
-        if filter.direction == -1:
-            sql_direction = "DESC"
+        query += f"\nORDER BY {order_by}"
 
-        query += f"\nORDER BY crystal_wells.{created_on} {sql_direction}"
+        # Not the anchor itself, but either side of the anchor?
+        if filter.anchor is not None and filter.direction is not None:
+            main_query = query
+
+            query = f"\nSELECt * FROM ({main_query})\nAS MAin_query"
+            where = "WHERE"
+            op = ">"
+            if filter.direction == -1:
+                op = "<"
+            query += (
+                f"\n/* Get the crystal well(s) starting from the anchor {filter.anchor}. */"
+                f"\n{where} ordered_row_number {op} (SELECT ordered_row_number FROM MAin_query WHERE uuid = ?)"
+            )
+            subs.append(filter.anchor)
+            where = "AND"
 
         if filter.limit is not None:
             query += f"\nLIMIT {filter.limit}"

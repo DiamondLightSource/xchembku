@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocationDirect:
+class TestCrystalWellDroplocation1Direct:
     """
     Test dataface interface by direct call.
     """
@@ -44,13 +44,13 @@ class TestCrystalWellDroplocationDirect:
         output_directory,
     ):
         configuration_file = "tests/configurations/direct.yaml"
-        CrystalWellDroplocationTester().main(
+        CrystalWellDroplocation1Tester().main(
             constants, configuration_file, output_directory
         )
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocationService:
+class TestCrystalWellDroplocation1Service:
     """
     Test dataface interface through network interface.
     """
@@ -64,13 +64,13 @@ class TestCrystalWellDroplocationService:
         """ """
 
         configuration_file = "tests/configurations/service.yaml"
-        CrystalWellDroplocationTester().main(
+        CrystalWellDroplocation1Tester().main(
             constants, configuration_file, output_directory
         )
 
 
 # ----------------------------------------------------------------------------------------
-class CrystalWellDroplocationTester(Base):
+class CrystalWellDroplocation1Tester(Base):
     """
     Class to test the dataface droplocation-related endpoints.
     """
@@ -325,7 +325,7 @@ class CrystalWellDroplocationTester(Base):
             # Add a crystal well autolocation.
             ta = CrystalWellAutolocationModel(
                 crystal_well_uuid=m.uuid,
-                number_of_crystals=10,
+                number_of_crystals=self.__injected_count,
                 well_centroid_x=100,
                 well_centroid_y=100,
             )

@@ -134,6 +134,7 @@ class CrystalWellAutolocationsTable(TableDefinition):
 
         # Add indexes.
         self.fields["crystal_well_uuid"]["index"] = True
+        self.fields["number_of_crystals"]["index"] = True
         self.fields[CommonFieldnames.CREATED_ON]["index"] = True
 
 
