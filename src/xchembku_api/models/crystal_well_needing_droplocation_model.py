@@ -12,6 +12,7 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
 
     # Stuff from the original record.
     uuid: str
+    crystal_plate_uuid: str
     position: str
     filename: str
     width: Optional[int]

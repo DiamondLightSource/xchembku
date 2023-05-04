@@ -124,6 +124,11 @@ class DirectCrystalPlates(DirectBase):
             subs.append(filter.barcode)
             where = "AND"
 
+        if filter.visit is not None:
+            query += f"\n{where} visit = ?"
+            subs.append(filter.visit)
+            where = "AND"
+
         if filter.from_formulatrix__plate__id is not None:
             if filter.direction == -1:
                 query += f"\n{where} formulatrix__plate__id < ?"

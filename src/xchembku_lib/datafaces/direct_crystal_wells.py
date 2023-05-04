@@ -222,7 +222,7 @@ class DirectCrystalWells(DirectBase):
         # Caller wants specific barcode?
         if filter.barcode is not None:
             query += (
-                f"\n/* Just a wells on plates with barcode '{filter.barcode}'. */"
+                f"\n/* Just wells on plate with barcode '{filter.barcode}'. */"
                 f"\n{where} crystal_plates.barcode = ?"
             )
             subs.append(filter.barcode)
@@ -231,7 +231,7 @@ class DirectCrystalWells(DirectBase):
         # Caller wants specific visit?
         if filter.visit is not None:
             query += (
-                f"\n/* Just a wells on plates with visit '{filter.visit}'. */"
+                f"\n/* Just wells on plates with visit '{filter.visit}'. */"
                 f"\n{where} crystal_plates.visit = ?"
             )
             subs.append(filter.visit)
