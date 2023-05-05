@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Tuple
 
 from dls_normsql.constants import CommonFieldnames
 
-from xchembku_api.exceptions import FilterError
 from xchembku_api.models.crystal_well_filter_model import (
     CrystalWellFilterModel,
     CrystalWellFilterSortbyEnum,
@@ -208,10 +207,10 @@ class DirectCrystalWells(DirectBase):
 
         # Build the individual pieces of the SQL query.
         subs: List[Any] = []
-        orderby = self.__build_orderby(filter, subs)
+        orderby = self.__build_orderby(filter)
         where = self.__build_where(filter, subs)
-        fields = self.__build_fields(filter, orderby, subs)
-        joins = self.__build_joins(filter, subs)
+        fields = self.__build_fields(filter)
+        joins = self.__build_joins(filter)
 
         # Glue them together.
         main_query = "\nSELECT" + fields + joins + where + "\n" + orderby
@@ -239,7 +238,7 @@ class DirectCrystalWells(DirectBase):
         """
 
         if filter.visit is None:
-            raise FilterError(
+            raise RuntimeError(
                 "programming error: no visit supplied with relative crystal well filter"
             )
 
@@ -248,10 +247,10 @@ class DirectCrystalWells(DirectBase):
 
         # Build the individual pieces of the SQL query.
         subs: List[Any] = []
-        orderby = self.__build_orderby(filter, subs)
+        orderby = self.__build_orderby(filter)
         where = self.__build_where(filter, subs)
-        fields = self.__build_fields(filter, orderby, subs)
-        joins = self.__build_joins(filter, subs)
+        fields = self.__build_fields(filter)
+        joins = self.__build_joins(filter)
 
         # We need the row number to be in both the main and sub query.
         row_number = f"\n  ROW_NUMBER() OVER ({orderby}) AS ordered_row_number"
@@ -260,30 +259,27 @@ class DirectCrystalWells(DirectBase):
         # Main query gets the actual results.
         main_query = "SELECT" + fields + joins + where
 
+        # Build another "where" since it may add subs.
+        where = self.__build_where(filter, subs)
+
         # Sub query computes row_numbers under the same filter in the same order as the main query.
         sub_query = "\nSELECT\n  crystal_wells.uuid," + row_number + joins + where
-
-        # We want direction of row_numbers from the subquery.
-        op = ">"
-        dir = "ASC"
-        if filter.direction == -1:
-            op = "<"
-            dir = "DESC"
 
         # Do the main query, but filter the results by the subquery based on matching row numbers.
         full_query = (
             f"\nSELECT * FROM (\n{main_query}\n) AS main_query"
-            f"\nWHERE ordered_row_number {op}"
             f"\n/* Match row_numbers starting from the anchor {filter.anchor}. */"
+            "\nWHERE ordered_row_number >"
             f"\n  (SELECT ordered_row_number FROM ({sub_query}\n) AS sub_query"
-            "\n    WHERE sub_query.uuid = ?)"
-            f"\n    ORDER BY ordered_row_number {dir}"
+            f"\n    WHERE sub_query.uuid = ?)"
+            f"\n    ORDER BY ordered_row_number"
         )
         subs.append(filter.anchor)
 
         if filter.limit is not None:
             full_query += f"\nLIMIT {filter.limit}"
 
+        # Do the actual query.
         records = await self.query(full_query, subs=subs, why=why)
 
         # Parse the records returned by sql into models.
@@ -295,8 +291,6 @@ class DirectCrystalWells(DirectBase):
     def __build_fields(
         self,
         filter: CrystalWellFilterModel,
-        orderby: str,
-        subs: List[Any],
     ) -> str:
         """
         Wells need a droplocation if they have an autolocation.
@@ -325,7 +319,6 @@ class DirectCrystalWells(DirectBase):
     def __build_joins(
         self,
         filter: CrystalWellFilterModel,
-        subs: List[Any],
     ) -> str:
         """
         Wells need a droplocation if they have an autolocation.
@@ -420,7 +413,6 @@ class DirectCrystalWells(DirectBase):
     def __build_orderby(
         self,
         filter: CrystalWellFilterModel,
-        subs: List[Any],
     ) -> str:
 
         sql = ""

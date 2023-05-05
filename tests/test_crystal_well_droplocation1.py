@@ -143,6 +143,25 @@ class CrystalWellDroplocation1Tester(Base):
         models.append(await self.__inject(dataface, True, True))
         models.append(await self.__inject(dataface, True, False))
 
+        # --------------------------------------------------------------------------
+        # Query for list from filename glob.
+        crystal_well_models = await self.__check(
+            dataface,
+            CrystalWellFilterModel(filename_pattern="*A_1.jpg"),
+            3,
+            "filename glob",
+            filename="02A_1.jpg",
+        )
+
+        assert (
+            crystal_well_models[1].filename == "03A_1.jpg"
+        ), "filename glob, second response"
+        assert (
+            crystal_well_models[2].filename == "04A_1.jpg"
+        ), "filename glob, third response"
+
+        # --------------------------------------------------------------------------
+
         # Check the filtered queries.
         await self.__check(dataface, CrystalWellFilterModel(), 5, "no limit, all")
 
@@ -181,16 +200,25 @@ class CrystalWellDroplocation1Tester(Base):
         # Check the anchor query forward.
         await self.__check(
             dataface,
-            CrystalWellFilterModel(anchor=models[3].uuid, direction=1, limit=1),
+            CrystalWellFilterModel(
+                visit=self.__visit,
+                anchor=models[3].uuid,
+                direction=1,
+                limit=1,
+            ),
             1,
             "anchored forward",
-            filename="004b.jpg",
+            filename="05B_1.jpg",
         )
 
         # Check the anchor query forward at the end of the list.
         await self.__check(
             dataface,
-            CrystalWellFilterModel(anchor=models[5].uuid, direction=1),
+            CrystalWellFilterModel(
+                visit=self.__visit,
+                anchor=models[5].uuid,
+                direction=1,
+            ),
             0,
             "anchored forward at the end of the list",
         )
@@ -198,16 +226,25 @@ class CrystalWellDroplocation1Tester(Base):
         # Check the anchor query backward.
         await self.__check(
             dataface,
-            CrystalWellFilterModel(anchor=models[2].uuid, direction=-1),
+            CrystalWellFilterModel(
+                visit=self.__visit,
+                anchor=models[2].uuid,
+                direction=-1,
+                limit=1,
+            ),
             1,
             "anchored backward",
-            filename="001a.jpg",
+            filename="02A_1.jpg",
         )
 
         # Check the anchor query backward at the start of the list.
         await self.__check(
             dataface,
-            CrystalWellFilterModel(anchor=models[1].uuid, direction=-1),
+            CrystalWellFilterModel(
+                visit=self.__visit,
+                anchor=models[1].uuid,
+                direction=-1,
+            ),
             0,
             "anchored at the start of the list",
         )
@@ -216,7 +253,10 @@ class CrystalWellDroplocation1Tester(Base):
         await self.__check(
             dataface,
             CrystalWellFilterModel(
-                is_decided=False, anchor=models[1].uuid, direction=-1
+                is_decided=False,
+                visit=self.__visit,
+                anchor=models[1].uuid,
+                direction=-1,
             ),
             0,
             "anchored at the start of the list, backward, unconfirmed",
@@ -226,23 +266,14 @@ class CrystalWellDroplocation1Tester(Base):
         await self.__check(
             dataface,
             CrystalWellFilterModel(
-                is_decided=False, anchor=models[2].uuid, direction=-1
+                is_decided=False,
+                visit=self.__visit,
+                anchor=models[2].uuid,
+                direction=-1,
             ),
             0,
             "anchored at the start of the list, forward unconfirmed",
         )
-
-        # Query for list from filename glob.
-        crystal_well_models = await self.__check(
-            dataface,
-            CrystalWellFilterModel(filename_pattern="*a.jpg"),
-            3,
-            "filename glob",
-            filename="001a.jpg",
-        )
-
-        assert crystal_well_models[1].filename == "002a.jpg"
-        assert crystal_well_models[2].filename == "003a.jpg"
 
         # --------------------------------------------------------------------------
         # Check the usable queries.
@@ -303,16 +334,17 @@ class CrystalWellDroplocation1Tester(Base):
     async def __inject(self, dataface, autolocation: bool, droplocation: bool):
         """ """
 
-        letter = "a"
+        letter = "A"
         if self.__injected_count > 3:
-            letter = "b"
+            letter = "B"
 
-        filename = "%03d%s.jpg" % (self.__injected_count, letter)
         self.__injected_count += 1
+        filename = "%02d%s_1.jpg" % (self.__injected_count, letter)
+        position = "%s%02da" % (letter, self.__injected_count)
 
         # Create the well object.
         m = CrystalWellModel(
-            position="01A_1",
+            position=position,
             crystal_plate_uuid=self.__crystal_plate_model.uuid,
             crystal_plate_thing_type=self.__crystal_plate_model.thing_type,
             filename=filename,
@@ -365,6 +397,9 @@ class CrystalWellDroplocation1Tester(Base):
         # Make sure we got enough.
         assert len(crystal_well_models) == expected, note
 
+        if filename is not None:
+            assert crystal_well_models[0].filename == filename, f"{note} filename"
+
         for crystal_well_model in crystal_well_models:
             # All wells should belong to the visit.
             assert crystal_well_model.visit == self.__visit, f"{note} visit"
@@ -388,8 +423,5 @@ class CrystalWellDroplocation1Tester(Base):
                 assert crystal_well_model.confirmed_microns_x == microns_x
                 assert crystal_well_model.confirmed_target_y == 50
                 assert crystal_well_model.confirmed_microns_y == microns_y
-
-        if filename is not None:
-            assert crystal_well_models[0].filename == filename, f"{note} filename"
 
         return crystal_well_models

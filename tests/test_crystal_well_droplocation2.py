@@ -16,7 +16,6 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
-from xchembku_api.exceptions import FilterError
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
@@ -177,10 +176,10 @@ class CrystalWellDroplocation2Tester(Base):
                 sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
             ),
             [2],
-            "anchored, reverse",
+            "anchored, single",
         )
 
-        with pytest.raises(FilterError):
+        with pytest.raises(RuntimeError):
             # Does not work without a visit.
             await self.__check(
                 dataface,
@@ -190,9 +189,23 @@ class CrystalWellDroplocation2Tester(Base):
                     direction=-1,
                     limit=1,
                 ),
-                [5],
-                "anchored, reverse",
+                [],
+                "anchored, no visit",
             )
+
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                # Anchor at #2.
+                anchor=models[1].uuid,
+                visit=self.__visit,
+                sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
+                direction=1,
+                limit=1,
+            ),
+            [5],
+            "anchored, forward",
+        )
 
         await self.__check(
             dataface,
@@ -204,8 +217,22 @@ class CrystalWellDroplocation2Tester(Base):
                 direction=-1,
                 limit=1,
             ),
-            [5],
-            "anchored, reverse",
+            [4],
+            "anchored, reverse, single",
+        )
+
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                # Anchor at #2.
+                anchor=models[1].uuid,
+                visit=self.__visit,
+                sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
+                direction=-1,
+                limit=10,
+            ),
+            [4, 3],
+            "anchored, reverse, all",
         )
 
     # ----------------------------------------------------------------------------------------
@@ -242,12 +269,13 @@ class CrystalWellDroplocation2Tester(Base):
     async def __inject(self, dataface, number_of_crystals: int):
         """ """
 
-        filename = "%02dA_1.jpg" % (self.__injected_count)
         self.__injected_count += 1
+        filename = "%02dA_1.jpg" % (self.__injected_count)
+        position = "A%02da" % (self.__injected_count)
 
         # Create the well object.
         m = CrystalWellModel(
-            position="A%02da" % (self.__injected_count),
+            position=position,
             crystal_plate_uuid=self.__crystal_plate_model.uuid,
             crystal_plate_thing_type=self.__crystal_plate_model.thing_type,
             filename=filename,
