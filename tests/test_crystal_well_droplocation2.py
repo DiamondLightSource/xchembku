@@ -170,11 +170,21 @@ class CrystalWellDroplocation2Tester(Base):
             "all, reverse",
         )
 
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                anchor=models[1].uuid,
+                sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
+            ),
+            [2],
+            "anchored, reverse",
+        )
+
         with pytest.raises(FilterError):
+            # Does not work without a visit.
             await self.__check(
                 dataface,
                 CrystalWellFilterModel(
-                    # Anchor at #2.
                     anchor=models[1].uuid,
                     sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
                     direction=-1,
@@ -183,6 +193,20 @@ class CrystalWellDroplocation2Tester(Base):
                 [5],
                 "anchored, reverse",
             )
+
+        await self.__check(
+            dataface,
+            CrystalWellFilterModel(
+                # Anchor at #2.
+                anchor=models[1].uuid,
+                visit=self.__visit,
+                sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
+                direction=-1,
+                limit=1,
+            ),
+            [5],
+            "anchored, reverse",
+        )
 
     # ----------------------------------------------------------------------------------------
 
