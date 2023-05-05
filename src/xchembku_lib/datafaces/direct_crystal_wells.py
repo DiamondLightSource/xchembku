@@ -1,6 +1,6 @@
 import copy
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
 from dls_normsql.constants import CommonFieldnames
 
