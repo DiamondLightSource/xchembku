@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+import pytest
+
 # Base class for the tester.
 from tests.base import Base
 
@@ -14,6 +16,7 @@ from xchembku_api.datafaces.context import Context as XchembkuDatafaceClientCont
 
 # Object managing datafaces.
 from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
+from xchembku_api.exceptions import FilterError
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
@@ -167,17 +170,19 @@ class CrystalWellDroplocation2Tester(Base):
             "all, reverse",
         )
 
-        await self.__check(
-            dataface,
-            CrystalWellFilterModel(
-                anchor=models[1].uuid,
-                sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
-                direction=-1,
-                limit=1,
-            ),
-            [5],
-            "anchored, reverse",
-        )
+        with pytest.raises(FilterError):
+            await self.__check(
+                dataface,
+                CrystalWellFilterModel(
+                    # Anchor at #2.
+                    anchor=models[1].uuid,
+                    sortby=CrystalWellFilterSortbyEnum.NUMBER_OF_CRYSTALS,
+                    direction=-1,
+                    limit=1,
+                ),
+                [5],
+                "anchored, reverse",
+            )
 
     # ----------------------------------------------------------------------------------------
 

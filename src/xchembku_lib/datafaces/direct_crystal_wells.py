@@ -1,9 +1,10 @@
 import copy
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from dls_normsql.constants import CommonFieldnames
 
+from xchembku_api.exceptions import FilterError
 from xchembku_api.models.crystal_well_filter_model import (
     CrystalWellFilterModel,
     CrystalWellFilterSortbyEnum,
@@ -180,17 +181,249 @@ class DirectCrystalWells(DirectBase):
         self, filter: CrystalWellFilterModel, why=None
     ) -> List[CrystalWellNeedingDroplocationModel]:
         """
-        Wells need a droplocation if they have an autolocation but no droplocation.
+        Wells need a droplocation if they have an autolocation.
         """
 
-        subs: List[Any] = []
+        # Caller wants results relative to anchor?
+        if filter.anchor is not None and filter.direction is not None:
+            return await self.__fetch_crystal_wells_needing_droplocation_hard(
+                filter, why=why
+            )
+        # Query can be made easier if there is no anchor with direction involved.
+        else:
+            return await self.__fetch_crystal_wells_needing_droplocation_easy(
+                filter, why=why
+            )
 
-        created_on = CommonFieldnames.CREATED_ON
-
-        where = "WHERE"
+    # ----------------------------------------------------------------------------------------
+    async def __fetch_crystal_wells_needing_droplocation_easy(
+        self, filter: CrystalWellFilterModel, why=None
+    ) -> List[CrystalWellNeedingDroplocationModel]:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
 
         if why is None:
             why = "API fetch_crystal_wells_needing_droplocation"
+
+        # Build the individual pieces of the SQL query.
+        subs: List[Any] = []
+        orderby = self.__build_orderby(filter, subs)
+        where = self.__build_where(filter, subs)
+        fields = self.__build_fields(filter, orderby, subs)
+        joins = self.__build_joins(filter, subs)
+
+        # Glue them together.
+        main_query = "\nSELECT" + fields + joins + where + "\n" + orderby
+
+        if filter.limit is not None:
+            main_query += f"\nLIMIT {filter.limit}"
+
+        # Query the database.
+        records = await self.query(main_query, subs=subs, why=why)
+
+        # Parse the records returned by sql into models.
+        models = [CrystalWellNeedingDroplocationModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
+    async def __fetch_crystal_wells_needing_droplocation_hard(
+        self, filter: CrystalWellFilterModel, why=None
+    ) -> List[CrystalWellNeedingDroplocationModel]:
+        """
+        This is the query when we want records relative from an anchor record.
+
+        Since this involves complex subqueries, we limit use of this
+        to when we're looking only at records in a specific visit or plate.
+        """
+
+        if filter.visit is None:
+            raise FilterError(
+                "programming error: no visit supplied with relative crystal well filter"
+            )
+
+        if why is None:
+            why = "API fetch_crystal_wells_needing_droplocation"
+
+        # Build the individual pieces of the SQL query.
+        subs: List[Any] = []
+        orderby = self.__build_orderby(filter, subs)
+        where = self.__build_where(filter, subs)
+        fields = self.__build_fields(filter, orderby, subs)
+        joins = self.__build_joins(filter, subs)
+
+        # We need the row number to be in both the main and sub query.
+        row_number = f"\n  ROW_NUMBER() OVER ({orderby}) AS ordered_row_number"
+        fields = row_number + "," + fields
+
+        # Main query gets the actual results.
+        main_query = "SELECT" + fields + joins + where
+
+        # Sub query computes row_numbers under the same filter in the same order as the main query.
+        sub_query = "\nSELECT\n  crystal_wells.uuid," + row_number + joins + where
+
+        # We want direction of row_numbers from the subquery.
+        op = ">"
+        dir = "ASC"
+        if filter.direction == -1:
+            op = "<"
+            dir = "DESC"
+
+        # Do the main query, but filter the results by the subquery based on matching row numbers.
+        full_query = (
+            f"\nSELECT * FROM (\n{main_query}\n) AS main_query"
+            f"\nWHERE ordered_row_number {op}"
+            f"\n/* Match row_numbers starting from the anchor {filter.anchor}. */"
+            f"\n  (SELECT ordered_row_number FROM ({sub_query}\n) AS sub_query"
+            "\n    WHERE sub_query.uuid = ?)"
+            f"\n    ORDER BY ordered_row_number {dir}"
+        )
+        subs.append(filter.anchor)
+
+        if filter.limit is not None:
+            full_query += f"\nLIMIT {filter.limit}"
+
+        records = await self.query(full_query, subs=subs, why=why)
+
+        # Parse the records returned by sql into models.
+        models = [CrystalWellNeedingDroplocationModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
+    def __build_fields(
+        self,
+        filter: CrystalWellFilterModel,
+        orderby: str,
+        subs: List[Any],
+    ) -> str:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
+
+        fields = (
+            "\n  crystal_wells.*,"
+            "\n  crystal_well_autolocations.auto_target_x,"
+            "\n  crystal_well_autolocations.auto_target_y,"
+            "\n  crystal_well_autolocations.well_centroid_x,"
+            "\n  crystal_well_autolocations.well_centroid_y,"
+            "\n  crystal_well_autolocations.drop_detected,"
+            "\n  crystal_well_autolocations.number_of_crystals,"
+            "\n  crystal_well_droplocations.confirmed_target_x,"
+            "\n  crystal_well_droplocations.confirmed_target_y,"
+            "\n  crystal_well_droplocations.confirmed_microns_x,"
+            "\n  crystal_well_droplocations.confirmed_microns_y,"
+            "\n  crystal_well_droplocations.is_usable,"
+            "\n  crystal_plates.visit,"
+            "\n  crystal_plates.thing_type AS crystal_plate_thing_type"
+        )
+
+        return fields
+
+    # ----------------------------------------------------------------------------------------
+    def __build_joins(
+        self,
+        filter: CrystalWellFilterModel,
+        subs: List[Any],
+    ) -> str:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
+
+        joins = (
+            "\nFROM crystal_wells"
+            "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
+            "\nLEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
+            "\nLEFT JOIN crystal_plates ON crystal_plates.uuid = crystal_wells.crystal_plate_uuid"
+        )
+
+        return joins
+
+    # ----------------------------------------------------------------------------------------
+    def __build_where(
+        self,
+        filter: CrystalWellFilterModel,
+        subs: List[Any],
+    ) -> str:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
+
+        where = "WHERE"
+        sql = ""
+
+        # Caller wants a glob of file?
+        if filter.filename_pattern is not None:
+            sql += (
+                "\n/* Just certain filenames. */"
+                f"\n{where} crystal_wells.filename GLOB ?"
+            )
+            subs.append(filter.filename_pattern)
+            where = "AND"
+
+        # Caller wants specific barcode?
+        if filter.barcode is not None:
+            sql += (
+                f"\n/* Just wells on plate with barcode '{filter.barcode}'. */"
+                f"\n{where} crystal_plates.barcode = ?"
+            )
+            subs.append(filter.barcode)
+            where = "AND"
+
+        # Caller wants specific visit?
+        if filter.visit is not None:
+            sql += (
+                f"\n/* Just wells on plates with visit '{filter.visit}'. */"
+                f"\n{where} crystal_plates.visit = ?"
+            )
+            subs.append(filter.visit)
+            where = "AND"
+
+        # Caller wants only those not yet decided?
+        if filter.is_decided is False:
+            sql += (
+                "\n/* Include only crystal wells which have not had a decision made. */"
+                f"\n{where} crystal_well_droplocations.is_usable IS NULL"
+            )
+            where = "AND"
+
+        # Caller wants only those which are decided?
+        # Confirmed means a droplocation record has been created at all (though might not have usable coordinates).
+        if filter.is_decided is True:
+            sql += (
+                "\n/* Include only crystal wells which have a decision made. */"
+                f"\n{where} crystal_well_droplocations.is_usable IS NOT NULL"
+            )
+            where = "AND"
+
+        # Caller wants only those which are decided but do or don't have usable coordinates?
+        if filter.is_usable is not None:
+            sql += (
+                f"\n/* Include only crystal wells which have filter.is_usable = {filter.is_usable}. */"
+                f"\n{where} crystal_well_droplocations.is_usable = ?"
+            )
+            subs.append(filter.is_usable)
+            where = "AND"
+
+        # Caller wants just the anchor record?
+        if filter.anchor is not None and filter.direction is None:
+            sql += (
+                "\n/* Get the crystal well at the anchor. */"
+                f"\n{where} crystal_wells.uuid = ?"
+            )
+            subs.append(filter.anchor)
+
+        return sql
+
+    # ----------------------------------------------------------------------------------------
+    def __build_orderby(
+        self,
+        filter: CrystalWellFilterModel,
+        subs: List[Any],
+    ) -> str:
+
+        sql = ""
 
         position_direction = "ASC"
         if filter.direction == -1:
@@ -207,114 +440,6 @@ class DirectCrystalWells(DirectBase):
         else:
             order_by = f"crystal_wells.position {position_direction}"
 
-        query = (
-            f"\nSELECT ROW_NUMBER() OVER (ORDER BY {order_by}) AS ordered_row_number,"
-            "\n  crystal_wells.*,"
-            "\n  crystal_well_autolocations.auto_target_x,"
-            "\n  crystal_well_autolocations.auto_target_y,"
-            "\n  crystal_well_autolocations.well_centroid_x,"
-            "\n  crystal_well_autolocations.well_centroid_y,"
-            "\n  crystal_well_autolocations.drop_detected,"
-            "\n  crystal_well_autolocations.number_of_crystals,"
-            "\n  crystal_well_droplocations.confirmed_target_x,"
-            "\n  crystal_well_droplocations.confirmed_target_y,"
-            "\n  crystal_well_droplocations.confirmed_microns_x,"
-            "\n  crystal_well_droplocations.confirmed_microns_y,"
-            "\n  crystal_well_droplocations.is_usable,"
-            "\n  crystal_plates.visit,"
-            "\n  crystal_plates.thing_type AS crystal_plate_thing_type"
-            "\nFROM crystal_wells"
-            "\nJOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
-            "\nLEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
-            "\nLEFT JOIN crystal_plates ON crystal_plates.uuid = crystal_wells.crystal_plate_uuid"
-        )
+        sql += f"ORDER BY {order_by}"
 
-        # Caller wants a glob of file?
-        if filter.filename_pattern is not None:
-            query += (
-                "\n/* Just certain filenames. */"
-                f"\n{where} crystal_wells.filename GLOB ?"
-            )
-            subs.append(filter.filename_pattern)
-            where = "AND"
-
-        # Caller wants specific barcode?
-        if filter.barcode is not None:
-            query += (
-                f"\n/* Just wells on plate with barcode '{filter.barcode}'. */"
-                f"\n{where} crystal_plates.barcode = ?"
-            )
-            subs.append(filter.barcode)
-            where = "AND"
-
-        # Caller wants specific visit?
-        if filter.visit is not None:
-            query += (
-                f"\n/* Just wells on plates with visit '{filter.visit}'. */"
-                f"\n{where} crystal_plates.visit = ?"
-            )
-            subs.append(filter.visit)
-            where = "AND"
-
-        # Caller wants only those not yet decided?
-        if filter.is_decided is False:
-            query += (
-                "\n/* Include only crystal wells which have not had a decision made. */"
-                f"\n{where} crystal_well_droplocations.is_usable IS NULL"
-            )
-            where = "AND"
-
-        # Caller wants only those which are decided?
-        # Confirmed means a droplocation record has been created at all (though might not have usable coordinates).
-        if filter.is_decided is True:
-            query += (
-                "\n/* Include only crystal wells which have a decision made. */"
-                f"\n{where} crystal_well_droplocations.is_usable IS NOT NULL"
-            )
-            where = "AND"
-
-        # Caller wants only those which are decided but do or don't have usable coordinates?
-        if filter.is_usable is not None:
-            query += (
-                f"\n/* Include only crystal wells which have filter.is_usable = {filter.is_usable}. */"
-                f"\n{where} crystal_well_droplocations.is_usable = ?"
-            )
-            subs.append(filter.is_usable)
-            where = "AND"
-
-        # Caller wants the anchor row itself?
-        if filter.anchor is not None and filter.direction is None:
-            query += (
-                "\n/* Get the crystal well at the anchor. */"
-                f"\n{where} crystal_wells.uuid = ?"
-            )
-            subs.append(filter.anchor)
-            where = "AND"
-
-        query += f"\nORDER BY {order_by}"
-
-        # Not the anchor itself, but either side of the anchor?
-        if filter.anchor is not None and filter.direction is not None:
-            main_query = query
-
-            query = f"\nSELECt * FROM ({main_query})\nAS MAin_query"
-            where = "WHERE"
-            op = ">"
-            if filter.direction == -1:
-                op = "<"
-            query += (
-                f"\n/* Get the crystal well(s) starting from the anchor {filter.anchor}. */"
-                f"\n{where} ordered_row_number {op} (SELECT ordered_row_number FROM MAin_query WHERE uuid = ?)"
-            )
-            subs.append(filter.anchor)
-            where = "AND"
-
-        if filter.limit is not None:
-            query += f"\nLIMIT {filter.limit}"
-
-        records = await self.query(query, subs=subs, why=why)
-
-        # Parse the records returned by sql into models.
-        models = [CrystalWellNeedingDroplocationModel(**record) for record in records]
-
-        return models
+        return sql

@@ -1,3 +1,7 @@
+class FilterError(RuntimeError):
+    pass
+
+
 class NotFound(RuntimeError):
     pass
 
