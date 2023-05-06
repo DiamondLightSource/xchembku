@@ -30,22 +30,31 @@ class DatabaseDefinition:
     async def apply_revision(self, revision):
         pass
 
-        # from xchembku_api.databases.constants import Tablenames
-        # from xchembku_api.databases.constants import CrystalWellFieldnames
-        # if revision == 2:
-        #     await self.execute(
-        #         f"ALTER TABLE {Tablenames.CRYSTAL_WELLS} ADD COLUMN {CrystalWellFieldnames.NEWFIELD} TEXT",
-        #         why=f"revision 2: add {Tablenames.CRYSTAL_WELLS} {CrystalWellFieldnames.NEWFIELD} column",
-        #     )
-        #     await self.execute(
-        #         "CREATE INDEX %s_%s ON %s(%s)"
-        #         % (
-        #             Tablenames.CRYSTAL_WELLS,
-        #             CrystalWellFieldnames.NEWFIELD,
-        #             Tablenames.CRYSTAL_WELLS,
-        #             CrystalWellFieldnames.NEWFIELD,
-        #         )
-        #     )
+        if revision == 1:
+            await self.execute(
+                "ALTER TABLE crystal_plates ADD COLUMN formulatrix__experiment__name TEXT",
+                why="revision 2: add crystal_plates.formulatrix__experiment__name column",
+            )
+            await self.execute(
+                "CREATE INDEX %s_%s ON %s(%s)"
+                % (
+                    "crystal_plates",
+                    "formulatrix__experiment__name",
+                    "crystal_plates",
+                    "formulatrix__experiment__name",
+                )
+            )
+
+            # Crystal wells didn't get indexed in revision 1.
+            await self.execute(
+                "CREATE INDEX %s_%s ON %s(%s)"
+                % (
+                    "crystal_wells",
+                    "position",
+                    "crystal_wells",
+                    "position",
+                )
+            )
 
     # ----------------------------------------------------------------------------------------
     async def add_table_definitions(self):

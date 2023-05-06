@@ -368,9 +368,9 @@ class DirectCrystalWells(DirectBase):
         if filter.visit is not None:
             sql += (
                 f"\n/* Just wells on plates with visit '{filter.visit}'. */"
-                f"\n{where} crystal_plates.visit = ?"
+                f"\n{where} crystal_plates.visit LIKE ?"
             )
-            subs.append(filter.visit)
+            subs.append(filter.visit + "%")
             where = "AND"
 
         # Caller wants only those not yet decided?

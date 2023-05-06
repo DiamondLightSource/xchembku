@@ -52,6 +52,7 @@ class CrystalPlatesTable(TableDefinition):
 
         # Add indexes.
         self.fields["formulatrix__plate__id"]["index"] = True
+        self.fields["formulatrix__experiment__name"]["index"] = True
         self.fields["barcode"]["index"] = True
         self.fields["visit"]["index"] = True
         self.fields["thing_type"]["index"] = True

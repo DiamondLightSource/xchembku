@@ -14,6 +14,8 @@ class CrystalPlateModel(BaseModel):
     uuid: str
     # ID from the Plate table.
     formulatrix__plate__id: int
+    # Name from the formulatrix "experiment" tree node.
+    formulatrix__experiment__name: Optional[str]
     # Directory stem where wells were mined from.
     # Also used by echolocator to format the export csv filename.
     rockminer_collected_stem: Optional[str] = None
