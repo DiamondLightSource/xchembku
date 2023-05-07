@@ -139,6 +139,9 @@ class DirectCrystalPlates(DirectBase):
 
         fields = ["crystal_plates.*"]
 
+        if filter.include_statistics:
+            fields.append("auto_viable.count AS auto_viable_count")
+
         return "\n  " + ",\n  ".join(fields)
 
     # ----------------------------------------------------------------------------------------
@@ -152,9 +155,11 @@ class DirectCrystalPlates(DirectBase):
 
         joins = ["crystal_plates"]
 
-        # drop = "SELECT crystal_plate_uuid AS p, COUNT(*) AS count FROM crystal_wells AS w JOIN crystal_well_droplocations AS d ON d.crystal_well_uuid = w.uuid"
-        # if filter.include_statistics:
-        #     query += "\nLEFT JOIN (SELECT crystal_plate_uuid AS p, COUNT(*) AS count FROM crystal_wells GROUP BY crystal_plate_uuid) AS wells"
+        if filter.include_statistics:
+            drop = "SELECT crystal_plate_uuid, COUNT(*) AS count FROM crystal_wells JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
+            joins.append(
+                f"LEFT JOIN ({drop} GROUP BY crystal_plate_uuid) AS auto_viable_count"
+            )
 
         return "\n  FROM " + ",\n  ".join(joins)
 
