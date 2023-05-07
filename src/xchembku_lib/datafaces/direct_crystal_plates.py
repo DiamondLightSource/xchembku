@@ -105,50 +105,111 @@ class DirectCrystalPlates(DirectBase):
         Plates need a droplocation if they have an autolocation but no droplocation.
         """
 
-        subs: List[Union[str, int]] = []
-
-        where = "WHERE"
-
         if why is None:
             why = "API fetch_crystal_plates"
 
-        query = "\nSELECT crystal_plates.*" "\nFROM crystal_plates"
+        # Build the individual pieces of the SQL query.
+        subs: List[Union[str, int]] = []
+        orderby = self.__build_orderby(filter)
+        where = self.__build_where(filter, subs)
+        fields = self.__build_fields(filter)
+        joins = self.__build_joins(filter)
 
-        if filter.uuid is not None:
-            query += f"\n{where} uuid = ?"
-            subs.append(filter.uuid)
-            where = "AND"
-
-        if filter.barcode is not None:
-            query += f"\n{where} barcode = ?"
-            subs.append(filter.barcode)
-            where = "AND"
-
-        if filter.visit is not None:
-            query += f"\n{where} visit = ?"
-            subs.append(filter.visit)
-            where = "AND"
-
-        if filter.from_formulatrix__plate__id is not None:
-            if filter.direction == -1:
-                query += f"\n{where} formulatrix__plate__id < ?"
-            else:
-                query += f"\n{where} formulatrix__plate__id > ?"
-            subs.append(filter.from_formulatrix__plate__id)
-            where = "AND"
-
-        sql_direction = "ASC"
-        if filter.direction == -1:
-            sql_direction = "DESC"
-
-        query += f"\nORDER BY crystal_plates.formulatrix__plate__id {sql_direction}"
+        # Glue them together.
+        main_query = "\nSELECT" + fields + joins + where + "\n" + orderby
 
         if filter.limit is not None:
-            query += f"\nLIMIT {filter.limit}"
+            main_query += f"\nLIMIT {filter.limit}"
 
-        records = await self.query(query, subs=subs, why=why)
+        records = await self.query(main_query, subs=subs, why=why)
 
         # Parse the records returned by sql into models.
         models = [CrystalPlateModel(**record) for record in records]
 
         return models
+
+    # ----------------------------------------------------------------------------------------
+    def __build_fields(
+        self,
+        filter: CrystalPlateFilterModel,
+    ) -> str:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
+
+        fields = ["crystal_plates.*"]
+
+        return "\n  " + ",\n  ".join(fields)
+
+    # ----------------------------------------------------------------------------------------
+    def __build_joins(
+        self,
+        filter: CrystalPlateFilterModel,
+    ) -> str:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
+
+        joins = ["crystal_plates"]
+
+        # drop = "SELECT crystal_plate_uuid AS p, COUNT(*) AS count FROM crystal_wells AS w JOIN crystal_well_droplocations AS d ON d.crystal_well_uuid = w.uuid"
+        # if filter.include_statistics:
+        #     query += "\nLEFT JOIN (SELECT crystal_plate_uuid AS p, COUNT(*) AS count FROM crystal_wells GROUP BY crystal_plate_uuid) AS wells"
+
+        return "\n  FROM " + ",\n  ".join(joins)
+
+    # ----------------------------------------------------------------------------------------
+    def __build_where(
+        self,
+        filter: CrystalPlateFilterModel,
+        subs: List[Union[str, int]],
+    ) -> str:
+        """
+        Wells need a droplocation if they have an autolocation.
+        """
+
+        where = "WHERE"
+        sql = ""
+
+        if filter.uuid is not None:
+            sql += f"\n{where} uuid = ?"
+            subs.append(filter.uuid)
+            where = "AND"
+
+        if filter.barcode is not None:
+            sql += f"\n{where} barcode = ?"
+            subs.append(filter.barcode)
+            where = "AND"
+
+        if filter.visit is not None:
+            sql += f"\n{where} visit = ?"
+            subs.append(filter.visit)
+            where = "AND"
+
+        if filter.from_formulatrix__plate__id is not None:
+            if filter.direction == -1:
+                sql += f"\n{where} formulatrix__plate__id < ?"
+            else:
+                sql += f"\n{where} formulatrix__plate__id > ?"
+            subs.append(filter.from_formulatrix__plate__id)
+            where = "AND"
+
+        return sql
+
+    # ----------------------------------------------------------------------------------------
+    def __build_orderby(
+        self,
+        filter: CrystalPlateFilterModel,
+    ) -> str:
+
+        sql = ""
+
+        sql_direction = "ASC"
+        if filter.direction == -1:
+            sql_direction = "DESC"
+
+        order_by = f"crystal_plates.formulatrix__plate__id {sql_direction}"
+
+        sql += f"ORDER BY {order_by}"
+
+        return sql
