@@ -26,8 +26,10 @@ class DirectBase(Thing):
     # ----------------------------------------------------------------------------------------
     async def start(self):
         # Connect to the database to create the schemas if they don't exist already.
-        # TODO: Consider if direct dataface needs a start method.
         await self.establish_database_connection()
+
+        # Make sure we are up to date with the latest database schema revision.
+        await self.__database.apply_revisions()
 
     # ----------------------------------------------------------------------------------------
     async def disconnect(self):

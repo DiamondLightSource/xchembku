@@ -1,6 +1,6 @@
 import logging
 
-# Base class for all aiosqlite database objects.
+# All the tables.
 from xchembku_lib.databases.table_definitions import (
     CrystalPlatesTable,
     CrystalWellAutolocationsTable,
@@ -24,13 +24,15 @@ class DatabaseDefinition:
         Construct object.  Do not connect to database.
         """
 
-        self.LATEST_REVISION = 2
+        self.LATEST_REVISION = 3
 
     # ----------------------------------------------------------------------------------------
     async def apply_revision(self, revision):
-        pass
 
-        if revision == 1:
+        if revision == 2:
+            logger.debug(f"applying revision {revision}")
+
+            # Add crytal plate formulatrix__experiment__name field and index.
             await self.execute(
                 "ALTER TABLE crystal_plates ADD COLUMN formulatrix__experiment__name TEXT",
                 why="revision 2: add crystal_plates.formulatrix__experiment__name column",
@@ -42,17 +44,6 @@ class DatabaseDefinition:
                     "formulatrix__experiment__name",
                     "crystal_plates",
                     "formulatrix__experiment__name",
-                )
-            )
-
-            # Crystal wells didn't get indexed in revision 1.
-            await self.execute(
-                "CREATE INDEX %s_%s ON %s(%s)"
-                % (
-                    "crystal_wells",
-                    "position",
-                    "crystal_wells",
-                    "position",
                 )
             )
 
