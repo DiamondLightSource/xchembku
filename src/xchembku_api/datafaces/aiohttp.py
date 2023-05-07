@@ -13,6 +13,7 @@ from xchembku_api.aiohttp_client import AiohttpClient
 from xchembku_api.datafaces.constants import Commands, Keywords
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
+from xchembku_api.models.crystal_plate_report_model import CrystalPlateReportModel
 from xchembku_api.models.crystal_well_autolocation_model import (
     CrystalWellAutolocationModel,
 )
@@ -114,6 +115,25 @@ class Aiohttp:
 
         # Dicts are returned, so parse them into models.
         models = [CrystalPlateModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
+    async def report_crystal_plates(
+        self,
+        filter: CrystalPlateFilterModel,
+        why: Optional[str] = None,
+    ) -> List[CrystalPlateReportModel]:
+        """"""
+
+        records = await self.__send_protocolj(
+            "report_crystal_plates_serialized",
+            filter=filter.dict(),
+            why=why,
+        )
+
+        # Dicts are returned, so parse them into models.
+        models = [CrystalPlateReportModel(**record) for record in records]
 
         return models
 

@@ -12,7 +12,6 @@ class CrystalPlateFilterModel(BaseModel):
     barcode: Optional[str] = None
     visit: Optional[str] = None
     limit: Optional[int] = None
-    include_statistics: Optional[bool] = False
     direction: Optional[int] = None
 
     # Allow searching starting from a particular plate id.

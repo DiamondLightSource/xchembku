@@ -6,6 +6,7 @@ from dls_normsql.constants import CommonFieldnames
 
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
+from xchembku_api.models.crystal_plate_report_model import CrystalPlateReportModel
 from xchembku_lib.datafaces.direct_base import DirectBase
 
 logger = logging.getLogger(__name__)
@@ -129,9 +130,60 @@ class DirectCrystalPlates(DirectBase):
         return models
 
     # ----------------------------------------------------------------------------------------
+    async def report_crystal_plates_serialized(
+        self, filter: Dict, why=None
+    ) -> List[Dict]:
+        """
+        Caller provides the filters for selecting which crystal plates.
+        Returns records from the database.
+        """
+
+        # Get the models from the direct call.
+        models = await self.report_crystal_plates(
+            CrystalPlateFilterModel(**filter), why=why
+        )
+
+        # Serialize models into dicts to give to the response.
+        records = [model.dict() for model in models]
+
+        return records
+
+    # ----------------------------------------------------------------------------------------
+    async def report_crystal_plates(
+        self, filter: CrystalPlateFilterModel, why=None
+    ) -> List[CrystalPlateReportModel]:
+        """
+        Plates need a droplocation if they have an autolocation but no droplocation.
+        """
+
+        if why is None:
+            why = "API report_crystal_plates"
+
+        # Build the individual pieces of the SQL query.
+        subs: List[Union[str, int]] = []
+        orderby = self.__build_orderby(filter, is_for_report=True)
+        where = self.__build_where(filter, subs, is_for_report=True)
+        fields = self.__build_fields(filter, is_for_report=True)
+        joins = self.__build_joins(filter, is_for_report=True)
+
+        # Glue them together.
+        main_query = "\nSELECT" + fields + joins + where + "\n" + orderby
+
+        if filter.limit is not None:
+            main_query += f"\nLIMIT {filter.limit}"
+
+        records = await self.query(main_query, subs=subs, why=why)
+
+        # Parse the records returned by sql into models.
+        models = [CrystalPlateReportModel(**record) for record in records]
+
+        return models
+
+    # ----------------------------------------------------------------------------------------
     def __build_fields(
         self,
         filter: CrystalPlateFilterModel,
+        is_for_report: bool = False,
     ) -> str:
         """
         Wells need a droplocation if they have an autolocation.
@@ -139,7 +191,7 @@ class DirectCrystalPlates(DirectBase):
 
         fields = ["crystal_plates.*"]
 
-        if filter.include_statistics:
+        if is_for_report:
             fields.append("auto_viable.count AS auto_viable_count")
 
         return "\n  " + ",\n  ".join(fields)
@@ -148,6 +200,7 @@ class DirectCrystalPlates(DirectBase):
     def __build_joins(
         self,
         filter: CrystalPlateFilterModel,
+        is_for_report: bool = False,
     ) -> str:
         """
         Wells need a droplocation if they have an autolocation.
@@ -155,19 +208,20 @@ class DirectCrystalPlates(DirectBase):
 
         joins = ["crystal_plates"]
 
-        if filter.include_statistics:
+        if is_for_report:
             drop = "SELECT crystal_plate_uuid, COUNT(*) AS count FROM crystal_wells JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
             joins.append(
-                f"LEFT JOIN ({drop} GROUP BY crystal_plate_uuid) AS auto_viable_count"
+                f"LEFT JOIN ({drop} GROUP BY crystal_plate_uuid) AS auto_viable"
             )
 
-        return "\n  FROM " + ",\n  ".join(joins)
+        return "\nFROM " + "\n  ".join(joins)
 
     # ----------------------------------------------------------------------------------------
     def __build_where(
         self,
         filter: CrystalPlateFilterModel,
         subs: List[Union[str, int]],
+        is_for_report: bool = False,
     ) -> str:
         """
         Wells need a droplocation if they have an autolocation.
@@ -205,6 +259,7 @@ class DirectCrystalPlates(DirectBase):
     def __build_orderby(
         self,
         filter: CrystalPlateFilterModel,
+        is_for_report: bool = False,
     ) -> str:
 
         sql = ""
