@@ -230,18 +230,25 @@ class DirectCrystalPlates(DirectBase):
                 "\n  LEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
                 "\n  WHERE (number_of_crystals > 0) AND (is_usable is NULL) "
             )
-            joins.append(f"LEFT JOIN ({all} GROUP BY crystal_plate_uuid) AS collected")
+            joins.append(
+                f"LEFT JOIN ({all} GROUP BY crystal_plate_uuid) AS collected"
+                f"\n    ON collected.crystal_plate_uuid = crystal_plates.uuid"
+            )
             joins.append(
                 f"LEFT JOIN ({chimped} GROUP BY crystal_plate_uuid) AS chimped"
+                f"\n    ON chimped.crystal_plate_uuid = crystal_plates.uuid"
             )
             joins.append(
                 f"LEFT JOIN ({viewed} WHERE (is_usable IS NOT NULL) GROUP BY crystal_plate_uuid) AS decided"
+                f"\n    ON decided.crystal_plate_uuid = crystal_plates.uuid"
             )
             joins.append(
                 f"LEFT JOIN ({viewed} WHERE (is_usable = True) GROUP BY crystal_plate_uuid) AS decided_usable"
+                f"\n    ON decided_usable.crystal_plate_uuid = crystal_plates.uuid"
             )
             joins.append(
                 f"LEFT JOIN ({both} GROUP BY crystal_plate_uuid) AS undecided_crystals"
+                f"\n    ON undecided_crystals.crystal_plate_uuid = crystal_plates.uuid"
             )
 
         return "\nFROM " + "\n  ".join(joins)
