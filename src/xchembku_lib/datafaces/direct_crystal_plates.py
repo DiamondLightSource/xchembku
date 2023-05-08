@@ -217,8 +217,8 @@ class DirectCrystalPlates(DirectBase):
 
         if is_for_report:
             all = "SELECT crystal_plate_uuid, COUNT(*) AS count FROM crystal_wells"
-            chimped = f"{all} JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
-            viewed = f"{all} JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
+            chimped = f"{all} LEFT JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
+            viewed = f"{all} LEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
             both = (
                 f"{all}"
                 "\n  JOIN crystal_well_autolocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
