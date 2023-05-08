@@ -194,12 +194,17 @@ class DirectCrystalPlates(DirectBase):
         if is_for_report:
             fields.append("COALESCE(collected.count, 0) AS collected_count")
             fields.append("COALESCE(chimped.count, 0) AS chimped_count")
-            fields.append("COALESCE(undecided.count, 0) AS undecided_count")
+            fields.append(
+                "COALESCE(chimped.count, 0) - COALESCE(decided.count, 0) AS undecided_count"
+            )
             fields.append(
                 "COALESCE(undecided_crystals.count, 0) AS undecided_crystals_count"
             )
             fields.append("COALESCE(decided.count, 0) AS decided_count")
             fields.append("COALESCE(decided_usable.count, 0) AS decided_usable_count")
+            fields.append(
+                "COALESCE(decided.count, 0) - COALESCE(decided_usable.count, 0) AS decided_unusable_count"
+            )
 
         return "\n  " + ",\n  ".join(fields)
 
@@ -217,8 +222,8 @@ class DirectCrystalPlates(DirectBase):
 
         if is_for_report:
             all = "SELECT crystal_plate_uuid, COUNT(*) AS count FROM crystal_wells"
-            chimped = f"{all} LEFT JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
-            viewed = f"{all} LEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
+            chimped = f"{all} JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
+            viewed = f"{all} JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
             both = (
                 f"{all}"
                 "\n  JOIN crystal_well_autolocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
@@ -228,9 +233,6 @@ class DirectCrystalPlates(DirectBase):
             joins.append(f"LEFT JOIN ({all} GROUP BY crystal_plate_uuid) AS collected")
             joins.append(
                 f"LEFT JOIN ({chimped} GROUP BY crystal_plate_uuid) AS chimped"
-            )
-            joins.append(
-                f"LEFT JOIN ({viewed} WHERE (is_usable IS NULL) GROUP BY crystal_plate_uuid) AS undecided"
             )
             joins.append(
                 f"LEFT JOIN ({both} GROUP BY crystal_plate_uuid) AS undecided_crystals"

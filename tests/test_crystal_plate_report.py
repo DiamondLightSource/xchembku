@@ -143,6 +143,7 @@ class CrystalPlateReportTester(Base):
         await self.__inject(dataface, True, True, True)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
+        await self.__inject(dataface, True, True, True)  # Decided usable.
 
         # Get the full crystal well with auto and confirmed drop locations.
         crystal_plate_report_models: List[
@@ -152,12 +153,13 @@ class CrystalPlateReportTester(Base):
         crystal_plate_report_model: CrystalPlateReportModel = (
             crystal_plate_report_models[0]
         )
-        assert crystal_plate_report_model.collected_count == 9
-        assert crystal_plate_report_model.chimped_count == 7
-        assert crystal_plate_report_model.undecided_count == 1
+        assert crystal_plate_report_model.collected_count == 10
+        assert crystal_plate_report_model.chimped_count == 8
+        assert crystal_plate_report_model.undecided_count == 3
         # assert crystal_plate_report_model.undecided_crystals_count == 0
-        assert crystal_plate_report_model.decided_count == 4
-        assert crystal_plate_report_model.decided_usable_count == 3
+        assert crystal_plate_report_model.decided_count == 5
+        assert crystal_plate_report_model.decided_usable_count == 4
+        assert crystal_plate_report_model.decided_unusable_count == 1
 
     # ----------------------------------------------------------------------------------------
 

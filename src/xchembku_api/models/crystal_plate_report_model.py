@@ -35,3 +35,4 @@ class CrystalPlateReportModel(BaseModel):
     undecided_crystals_count: int
     decided_count: int
     decided_usable_count: int
+    decided_unusable_count: int
