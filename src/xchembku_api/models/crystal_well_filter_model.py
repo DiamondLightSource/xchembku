@@ -23,3 +23,4 @@ class CrystalWellFilterModel(BaseModel):
     direction: Optional[int] = None
     is_decided: Optional[bool] = None
     is_usable: Optional[bool] = None
+    is_exported_to_soakdb3: Optional[bool] = None

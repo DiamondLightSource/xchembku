@@ -24,13 +24,14 @@ class DatabaseDefinition:
         Construct object.  Do not connect to database.
         """
 
-        self.LATEST_REVISION = 3
+        self.LATEST_REVISION = 4
 
     # ----------------------------------------------------------------------------------------
     async def apply_revision(self, revision):
 
+        logger.debug(f"applying revision {revision}")
+
         if revision == 2:
-            logger.debug(f"applying revision {revision}")
 
             # Add crytal plate formulatrix__experiment__name field and index.
             await self.execute(
@@ -44,6 +45,22 @@ class DatabaseDefinition:
                     "formulatrix__experiment__name",
                     "crystal_plates",
                     "formulatrix__experiment__name",
+                )
+            )
+
+        if revision == 3:
+            # Add crytal plate formulatrix__experiment__name field and index.
+            await self.execute(
+                "ALTER TABLE crystal_well_droplocations ADD COLUMN is_exported_to_soakdb3 BOOLEAN",
+                why="revision 3: add crystal_well_droplocations.is_exported_to_soakdb3 column",
+            )
+            await self.execute(
+                "CREATE INDEX %s_%s ON %s(%s)"
+                % (
+                    "crystal_well_droplocations",
+                    "is_exported_to_soakdb3",
+                    "crystal_well_droplocations",
+                    "is_exported_to_soakdb3",
                 )
             )
 

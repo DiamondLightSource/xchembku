@@ -40,3 +40,4 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     confirmed_microns_y: Optional[int] = None
 
     is_usable: Optional[bool] = None
+    is_exported_to_soakdb3: Optional[bool] = None

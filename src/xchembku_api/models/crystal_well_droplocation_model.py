@@ -19,6 +19,9 @@ class CrystalWellDroplocationModel(BaseModel):
     confirmed_microns_y: Optional[int] = None
     is_usable: Optional[bool] = None
 
+    # True when exported to soakdb3.
+    is_exported_to_soakdb3: Optional[bool] = None
+
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
     created_on: Optional[str] = None
 
