@@ -139,13 +139,13 @@ class CrystalPlateReportTester(Base):
             dataface, True, False, number_of_crystals=0
         )
 
+        await self.__inject(dataface, True, True)  # Viewed but undecided.
         await self.__inject(  # No crystals, viewed, but undecided.
             dataface, True, True, number_of_crystals=0
         )
-        await self.__inject(dataface, True, True)  # Viewed but undecided.
 
         await self.__inject(dataface, True, True, False)  # Decided unusable.
-        await self.__inject(dataface, True, True, True)  # Decided usable.
+        await self.__inject(dataface, True, True, False)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
@@ -163,8 +163,8 @@ class CrystalPlateReportTester(Base):
         assert crystal_plate_report_model.undecided_count == 4
         assert crystal_plate_report_model.undecided_crystals_count == 2
         assert crystal_plate_report_model.decided_count == 5
-        assert crystal_plate_report_model.decided_usable_count == 4
-        assert crystal_plate_report_model.decided_unusable_count == 1
+        assert crystal_plate_report_model.decided_usable_count == 3
+        assert crystal_plate_report_model.decided_unusable_count == 2
 
     # ----------------------------------------------------------------------------------------
 
