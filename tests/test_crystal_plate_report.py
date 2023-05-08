@@ -135,9 +135,14 @@ class CrystalPlateReportTester(Base):
         await self.__inject(dataface, False, False)  # Not chimped.
 
         await self.__inject(dataface, True, False)  # Not viewed, aka undecided.
-        await self.__inject(dataface, True, False)  # Not viewed, aka undecided.
+        await self.__inject(  # No crystals, not viewed, aka undecided.
+            dataface, True, False, number_of_crystals=0
+        )
 
-        await self.__inject(dataface, True, True)  # Chimped but undecided.
+        await self.__inject(  # No crystals, viewed, but undecided.
+            dataface, True, True, number_of_crystals=0
+        )
+        await self.__inject(dataface, True, True)  # Viewed but undecided.
 
         await self.__inject(dataface, True, True, False)  # Decided unusable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
@@ -153,10 +158,10 @@ class CrystalPlateReportTester(Base):
         crystal_plate_report_model: CrystalPlateReportModel = (
             crystal_plate_report_models[0]
         )
-        assert crystal_plate_report_model.collected_count == 10
-        assert crystal_plate_report_model.chimped_count == 8
-        assert crystal_plate_report_model.undecided_count == 3
-        # assert crystal_plate_report_model.undecided_crystals_count == 0
+        assert crystal_plate_report_model.collected_count == 11
+        assert crystal_plate_report_model.chimped_count == 9
+        assert crystal_plate_report_model.undecided_count == 4
+        assert crystal_plate_report_model.undecided_crystals_count == 2
         assert crystal_plate_report_model.decided_count == 5
         assert crystal_plate_report_model.decided_usable_count == 4
         assert crystal_plate_report_model.decided_unusable_count == 1
@@ -169,6 +174,7 @@ class CrystalPlateReportTester(Base):
         autolocation: bool,
         droplocation: bool,
         is_usable: Optional[bool] = None,
+        number_of_crystals: Optional[int] = None,
     ):
         """ """
 
@@ -192,10 +198,12 @@ class CrystalPlateReportTester(Base):
         await dataface.upsert_crystal_wells([m])
 
         if autolocation:
+            if number_of_crystals is None:
+                number_of_crystals = self.__injected_count
             # Add a crystal well autolocation.
             ta = CrystalWellAutolocationModel(
                 crystal_well_uuid=m.uuid,
-                number_of_crystals=self.__injected_count,
+                number_of_crystals=number_of_crystals,
                 well_centroid_x=100,
                 well_centroid_y=100,
             )

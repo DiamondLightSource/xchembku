@@ -227,7 +227,7 @@ class DirectCrystalPlates(DirectBase):
             both = (
                 f"{all}"
                 "\n  JOIN crystal_well_autolocations ON crystal_well_autolocations.crystal_well_uuid = crystal_wells.uuid"
-                "\n  JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
+                "\n  LEFT JOIN crystal_well_droplocations ON crystal_well_droplocations.crystal_well_uuid = crystal_wells.uuid"
                 "\n  WHERE (number_of_crystals > 0) AND (is_usable is NULL) "
             )
             joins.append(f"LEFT JOIN ({all} GROUP BY crystal_plate_uuid) AS collected")
