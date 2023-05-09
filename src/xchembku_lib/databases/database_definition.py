@@ -31,12 +31,12 @@ class DatabaseDefinition:
 
         logger.debug(f"applying revision {revision}")
 
-        if revision == 2:
+        if revision == 3:
 
             # Add crytal plate formulatrix__experiment__name field and index.
             await self.execute(
                 "ALTER TABLE crystal_plates ADD COLUMN formulatrix__experiment__name TEXT",
-                why="revision 2: add crystal_plates.formulatrix__experiment__name column",
+                why=f"revision {revision}: new column",
             )
             await self.execute(
                 "CREATE INDEX %s_%s ON %s(%s)"
@@ -48,11 +48,11 @@ class DatabaseDefinition:
                 )
             )
 
-        if revision == 3:
+        if revision == 4:
             # Add crytal plate formulatrix__experiment__name field and index.
             await self.execute(
                 "ALTER TABLE crystal_well_droplocations ADD COLUMN is_exported_to_soakdb3 BOOLEAN",
-                why="revision 3: add crystal_well_droplocations.is_exported_to_soakdb3 column",
+                why="revision {revision}: new column",
             )
             await self.execute(
                 "CREATE INDEX %s_%s ON %s(%s)"

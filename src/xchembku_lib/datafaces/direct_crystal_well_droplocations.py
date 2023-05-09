@@ -132,7 +132,9 @@ class DirectCrystalWellDroplocations(DirectBase):
                     # Convert confirmed target to microns and store in the dict.
                     await self.__add_confirmed_microns(model_dict, why=why)
 
-                    model_dict.pop("crystal_well_uuid")
+                    # Don't update the crystal_well_uuid since it is used as the key.
+                    if "crystal_well_uuid" in model_dict:
+                        model_dict.pop("crystal_well_uuid")
 
                     result = await self.update(
                         "crystal_well_droplocations",
