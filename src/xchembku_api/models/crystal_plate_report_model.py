@@ -36,3 +36,5 @@ class CrystalPlateReportModel(BaseModel):
     decided_count: int
     decided_usable_count: int
     decided_unusable_count: int
+    exported_count: int
+    usable_unexported_count: int

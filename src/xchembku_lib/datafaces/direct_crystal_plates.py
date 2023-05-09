@@ -202,6 +202,10 @@ class DirectCrystalPlates(DirectBase):
             fields.append(
                 "COALESCE(decided.count, 0) - COALESCE(decided_usable.count, 0) AS decided_unusable_count"
             )
+            fields.append("COALESCE(exported.count, 0) AS exported_count")
+            fields.append(
+                "COALESCE(decided_usable.count, 0) - COALESCE(exported.count, 0) AS usable_unexported_count"
+            )
             fields.append(
                 "COALESCE(undecided_crystals.count, 0) AS undecided_crystals_count"
             )
@@ -245,6 +249,10 @@ class DirectCrystalPlates(DirectBase):
             joins.append(
                 f"LEFT JOIN ({viewed} WHERE (is_usable = True) GROUP BY crystal_plate_uuid) AS decided_usable"
                 f"\n    ON decided_usable.crystal_plate_uuid = crystal_plates.uuid"
+            )
+            joins.append(
+                f"LEFT JOIN ({viewed} WHERE (is_exported_to_soakdb3 = True) GROUP BY crystal_plate_uuid) AS exported"
+                f"\n    ON exported.crystal_plate_uuid = crystal_plates.uuid"
             )
             joins.append(
                 f"LEFT JOIN ({both} GROUP BY crystal_plate_uuid) AS undecided_crystals"

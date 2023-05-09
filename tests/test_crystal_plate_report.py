@@ -148,7 +148,9 @@ class CrystalPlateReportTester(Base):
         await self.__inject(dataface, True, True, False)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
         await self.__inject(dataface, True, True, True)  # Decided usable.
-        await self.__inject(dataface, True, True, True)  # Decided usable.
+        await self.__inject(
+            dataface, True, True, True, is_exported_to_soakdb3=True
+        )  # Decided usable, exported.
 
         # Get the full crystal well with auto and confirmed drop locations.
         crystal_plate_report_models: List[
@@ -165,6 +167,8 @@ class CrystalPlateReportTester(Base):
         assert crystal_plate_report_model.decided_count == 5
         assert crystal_plate_report_model.decided_usable_count == 3
         assert crystal_plate_report_model.decided_unusable_count == 2
+        assert crystal_plate_report_model.exported_count == 1
+        assert crystal_plate_report_model.usable_unexported_count == 2
 
     # ----------------------------------------------------------------------------------------
 
@@ -175,6 +179,7 @@ class CrystalPlateReportTester(Base):
         droplocation: bool,
         is_usable: Optional[bool] = None,
         number_of_crystals: Optional[int] = None,
+        is_exported_to_soakdb3: Optional[bool] = None,
     ):
         """ """
 
@@ -218,6 +223,8 @@ class CrystalPlateReportTester(Base):
                 confirmed_target_y=50,
                 is_usable=is_usable,
             )
+            if is_exported_to_soakdb3 is not None:
+                td.is_exported_to_soakdb3 = is_exported_to_soakdb3
 
             await dataface.upsert_crystal_well_droplocations([td])
 

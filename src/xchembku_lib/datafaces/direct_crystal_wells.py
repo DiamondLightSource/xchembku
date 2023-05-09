@@ -399,6 +399,14 @@ class DirectCrystalWells(DirectBase):
             subs.append(filter.is_usable)
             where = "AND"
 
+        # Caller wants only those which are exported to soakdb3?
+        if filter.is_exported_to_soakdb3 is not None:
+            sql += (
+                f"\n/* Include only crystal wells which have been exported to soakdb3. */"
+                f"\n{where} crystal_well_droplocations.is_usable = True"
+            )
+            where = "AND"
+
         # Caller wants just the anchor record?
         if filter.anchor is not None and filter.direction is None:
             sql += (
