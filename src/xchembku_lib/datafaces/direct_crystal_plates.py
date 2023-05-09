@@ -280,14 +280,14 @@ class DirectCrystalPlates(DirectBase):
             subs.append(filter.uuid)
             where = "AND"
 
-        if filter.barcode is not None:
-            sql += f"\n{where} barcode = ?"
-            subs.append(filter.barcode)
-            where = "AND"
-
         if filter.visit is not None:
             sql += f"\n{where} visit = ?"
             subs.append(filter.visit)
+            where = "AND"
+
+        if filter.barcode is not None:
+            sql += f"\n{where} barcode = ?"
+            subs.append(filter.barcode)
             where = "AND"
 
         if filter.from_formulatrix__plate__id is not None:
@@ -297,6 +297,14 @@ class DirectCrystalPlates(DirectBase):
                 sql += f"\n{where} formulatrix__plate__id > ?"
             subs.append(filter.from_formulatrix__plate__id)
             where = "AND"
+
+        if filter.needing_intervention is not None:
+            if filter.needing_intervention is True:
+                sql += "\n/* Those needing intervention. */"
+                sql += f"\n{where} (undecided_crystals_count > 0 OR usable_unexported_count > 0)"
+            else:
+                sql += "\n/* Those NOT needing intervention. */"
+                sql += f"\n{where} (undecided_crystals_count = 0 AND usable_unexported_count = 0)"
 
         return sql
 

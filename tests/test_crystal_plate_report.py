@@ -111,9 +111,9 @@ class CrystalPlateReportTester(Base):
         # Reference the dataface object which the context has set up as the default.
         dataface = xchembku_datafaces_get_default()
 
-        # Make a plate for the wells we will create.
+        # Make a plate which will put one well, needing no intervention
         self.__visit = "cm00001-1"
-        self.__barcode = "xyzw"
+        self.__barcode = "xyzv"
         self.__crystal_plate_model = CrystalPlateModel(
             formulatrix__plate__id=1,
             barcode=self.__barcode,
@@ -121,15 +121,29 @@ class CrystalPlateReportTester(Base):
             thing_type=CrystalPlateThingTypes.SWISS3,
         )
 
-        self.__crystal_plate_object = CrystalPlateObjects().build_object(
-            {"type": CrystalPlateThingTypes.SWISS3}
+        # Write plate record.
+        await dataface.upsert_crystal_plates(
+            [self.__crystal_plate_model],
+        )
+
+        await self.__inject(
+            dataface, True, True, True, is_exported_to_soakdb3=True
+        )  # Decided usable, exported.
+
+        # Make a plate for the wells we will create.
+        self.__visit = "cm00001-1"
+        self.__barcode = "xyzw"
+        self.__crystal_plate_model = CrystalPlateModel(
+            formulatrix__plate__id=2,
+            barcode=self.__barcode,
+            visit=self.__visit,
+            thing_type=CrystalPlateThingTypes.SWISS3,
         )
 
         # Write plate record.
         await dataface.upsert_crystal_plates(
             [self.__crystal_plate_model],
         )
-
         # Inject some wells, all of which will belong to the plate we just made.
         await self.__inject(dataface, False, False)  # Not chimped.
         await self.__inject(dataface, False, False)  # Not chimped.
@@ -152,10 +166,11 @@ class CrystalPlateReportTester(Base):
             dataface, True, True, True, is_exported_to_soakdb3=True
         )  # Decided usable, exported.
 
-        # Get the full crystal well with auto and confirmed drop locations.
+        # Get the full list.
         crystal_plate_report_models: List[
             CrystalPlateReportModel
-        ] = await dataface.report_crystal_plates(CrystalPlateFilterModel())
+        ] = await dataface.report_crystal_plates(CrystalPlateFilterModel(direction=-1))
+        assert len(crystal_plate_report_models) == 2
 
         crystal_plate_report_model: CrystalPlateReportModel = (
             crystal_plate_report_models[0]
@@ -169,6 +184,28 @@ class CrystalPlateReportTester(Base):
         assert crystal_plate_report_model.decided_unusable_count == 2
         assert crystal_plate_report_model.exported_count == 1
         assert crystal_plate_report_model.usable_unexported_count == 2
+
+        # ----------------------------------------------------------------------
+        # Get those which have no undecided crystals and no unexported wells, aka need no intervention.
+        crystal_plate_report_models: List[
+            CrystalPlateReportModel
+        ] = await dataface.report_crystal_plates(
+            CrystalPlateFilterModel(needing_intervention=False)
+        )
+
+        assert len(crystal_plate_report_models) == 1
+        assert crystal_plate_report_models[0].formulatrix__plate__id == 1
+
+        # ----------------------------------------------------------------------
+        # Get those which have either undecided crystals or unexported wells, aka need intervention.
+        crystal_plate_report_models: List[
+            CrystalPlateReportModel
+        ] = await dataface.report_crystal_plates(
+            CrystalPlateFilterModel(needing_intervention=True)
+        )
+
+        assert len(crystal_plate_report_models) == 1
+        assert crystal_plate_report_models[0].formulatrix__plate__id == 2
 
     # ----------------------------------------------------------------------------------------
 
