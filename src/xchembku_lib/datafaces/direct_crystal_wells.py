@@ -370,7 +370,7 @@ class DirectCrystalWells(DirectBase):
                 f"\n/* Just wells on plates with visit '{filter.visit}'. */"
                 f"\n{where} crystal_plates.visit = ?"
             )
-            subs.append(filter.visit + "%")
+            subs.append(filter.visit)
             where = "AND"
 
         # Caller wants only those not yet decided?
