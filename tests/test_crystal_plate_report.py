@@ -24,7 +24,6 @@ from xchembku_api.models.crystal_well_droplocation_model import (
     CrystalWellDroplocationModel,
 )
 from xchembku_api.models.crystal_well_model import CrystalWellModel
-from xchembku_lib.crystal_plate_objects.crystal_plate_objects import CrystalPlateObjects
 
 # Server context creator.
 from xchembku_lib.datafaces.context import Context as XchembkuDatafaceServerContext
