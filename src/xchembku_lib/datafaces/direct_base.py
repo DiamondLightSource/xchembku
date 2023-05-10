@@ -34,9 +34,9 @@ class DirectBase(Thing):
     # ----------------------------------------------------------------------------------------
     async def disconnect(self):
         if self.__database is not None:
-            logger.debug(f"{callsign(self)} disconnecting")
+            logger.debug(f"[DISSHU] {callsign(self)} disconnecting")
             await self.__database.disconnect()
-            logger.debug(f"{callsign(self)} disconnected")
+            logger.debug(f"[DISSHU] {callsign(self)} disconnected")
             self.__database = None
 
         # TODO: Figure out a better way to disconnect the dataface mixins.
@@ -130,8 +130,8 @@ class DirectBase(Thing):
     # ----------------------------------------------------------------------------------------
     async def close_client_session(self):
         """"""
-        logger.debug(f"[ECHDON] {callsign(self)} in aexit, calling disconnect")
+        logger.debug(f"[DISSHU] {callsign(self)} in aexit, calling disconnect")
 
         await self.disconnect()
 
-        logger.debug(f"[ECHDON] {callsign(self)} in aexit, disconnected")
+        logger.debug(f"[DISSHU] {callsign(self)} in aexit, disconnected")

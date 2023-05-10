@@ -12,6 +12,9 @@ logging_settings:
     console:
         enabled: True
         verbose: True
+        filters:
+            markers:
+                - "[DISSHU]"
     logfile:
         enabled: True
         directory: ${output_directory}/logfile.log

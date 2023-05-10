@@ -57,7 +57,7 @@ class DirectCrystalWellDroplocations(DirectBase):
         # Get the well record.
         crystal_well_models = await self.fetch_crystal_wells_needing_droplocation(
             filter,
-            why=f"(crystal well for) {why}",
+            why=f"(crystal well for adding confirmed microns) {why}",
         )
 
         if len(crystal_well_models) == 0:

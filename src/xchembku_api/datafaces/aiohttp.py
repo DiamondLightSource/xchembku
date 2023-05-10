@@ -336,15 +336,15 @@ class Aiohttp:
     # ----------------------------------------------------------------------------------------
     async def close_client_session(self):
         """"""
-        logger.debug(f"[ECHDON] {callsign(self)} in aexit")
+        logger.debug(f"[DISSHU] {callsign(self)} in aexit")
 
         if self.__aiohttp_client is not None:
             logger.debug(
-                f"[ECHDON] {callsign(self)} calling __aiohttp_client.close_client_session"
+                f"[DISSHU] {callsign(self)} calling __aiohttp_client.close_client_session"
             )
             await self.__aiohttp_client.close_client_session()
             logger.debug(
-                f"[ECHDON] {callsign(self)} called __aiohttp_client.close_client_session"
+                f"[DISSHU] {callsign(self)} called __aiohttp_client.close_client_session"
             )
 
     # ----------------------------------------------------------------------------------------

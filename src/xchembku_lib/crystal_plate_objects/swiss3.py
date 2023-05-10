@@ -65,7 +65,6 @@ class Swiss3(Thing, Interface):
         crystal_well_record: Dict,
     ) -> Tuple[Optional[int], Optional[int]]:
 
-        logger.debug(describe("crystal_well_record", crystal_well_record))
         if crystal_well_record.get("confirmed_target_x") is None:
             return (None, None)
         if crystal_well_record.get("confirmed_target_y") is None:
