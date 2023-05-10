@@ -3,7 +3,6 @@ import re
 from typing import Dict, Optional, Tuple
 
 # Base class for generic things.
-from dls_utilpack.describe import describe
 from dls_utilpack.thing import Thing
 
 # Types.
