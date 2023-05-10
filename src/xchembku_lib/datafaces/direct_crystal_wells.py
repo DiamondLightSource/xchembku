@@ -414,6 +414,23 @@ class DirectCrystalWells(DirectBase):
                 f"\n{where} crystal_wells.uuid = ?"
             )
             subs.append(filter.anchor)
+            where = "AND"
+
+        # Caller wants those in direction from the anchor record?
+        # This means we ne need the anchor to be in the rows,
+        # no matter if it would have been excluded by other filters.
+        if filter.anchor is not None and filter.direction is not None:
+            # We presume that all previous conjunctions were AND
+            # which have higher operator precedence than OR,
+            # so we can stick an OR on here at the end
+            if where == "AND":
+                where = "OR"
+            sql += (
+                "\n/* Always include the crystal well at the anchor. */"
+                f"\n{where} crystal_wells.uuid = ?"
+            )
+            subs.append(filter.anchor)
+            where = "AND"
 
         return sql
 
