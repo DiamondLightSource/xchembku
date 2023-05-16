@@ -311,7 +311,8 @@ class DirectCrystalWells(DirectBase):
             "\n  crystal_well_droplocations.is_usable,"
             "\n  crystal_well_droplocations.is_exported_to_soakdb3,"
             "\n  crystal_plates.visit,"
-            "\n  crystal_plates.thing_type AS crystal_plate_thing_type"
+            "\n  crystal_plates.thing_type AS crystal_plate_thing_type,"
+            "\n  crystal_plates.rockminer_collected_stem"
         )
 
         return fields

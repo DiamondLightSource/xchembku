@@ -23,6 +23,7 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
     # Stuff from the plate.
     visit: str
     crystal_plate_thing_type: str
+    rockminer_collected_stem: Optional[str] = None
 
     # Stuff from the autolocation.
     auto_target_x: Optional[int] = None
