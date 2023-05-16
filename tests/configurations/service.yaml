@@ -29,11 +29,13 @@ external_access_bits:
     dataface_port: &DATAFACE_PORT 27821
     soakdb3_dataface_server: &SOAKDB3_DATAFACE_SERVER http://*:27824
     soakdb3_dataface_client: &SOAKDB3_DATAFACE_CLIENT http://localhost:27824
+    soakdb3_puck_barcodes_filename: &SOAKDB3_PUCK_BARCODES_FILENAME /dls/science/groups/i04-1/software/barcode-store/store/store.csv
 
 # -----------------------------------------------------------------------------
 # The soakdb3 dataface via direct.
 soakdb3_dataface_specification_direct: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
     type: "soakdb3_lib.datafaces.aiosqlite"
+    puck_barcodes_filename: *SOAKDB3_PUCK_BARCODES_FILENAME
     type_specific_tbd:
         visitid_mappings:
             - action: "regex_replace"
