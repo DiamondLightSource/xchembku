@@ -1,6 +1,6 @@
+import asyncio
 import copy
 import logging
-from threading import RLock
 from typing import Dict, List, Optional
 
 from dls_normsql.constants import CommonFieldnames
@@ -14,12 +14,15 @@ from xchembku_lib.datafaces.direct_base import DirectBase
 
 logger = logging.getLogger(__name__)
 
-# Module-level lock to keep upsert atomic.
-upsert_lock = RLock()
-
 
 class DirectCrystalWellDroplocations(DirectBase):
     """ """
+
+    # ----------------------------------------------------------------------------------------
+    def __init__(self, specification=None):
+
+        # Lock allows only one coroutine to acquire it at a time.
+        self.__upsert_lock = asyncio.Lock()
 
     # ----------------------------------------------------------------------------------------
     async def upsert_crystal_well_droplocations_serialized(
@@ -104,8 +107,10 @@ class DirectCrystalWellDroplocations(DirectBase):
 
         # Loop over all the models to be upserted.
         for model in models:
-            # TODO: Reconsider the lock granularity in direct_crystal_well_droplocations.py.
-            with upsert_lock:
+            # Need to lock because of possible long time between query and eventual insert, user might double-click to send two droplocations quite quickly.
+            # TODO: Reconsider direct_crystal_well_droplocations upsert logic to be tolerant of multiple processes possibly doing concurrent insert.
+            # TODO: Add unit test for concurrent direct_crystal_well_droplocations upsert.
+            async with self.__upsert_lock:
                 model_dict = copy.deepcopy(model.dict())
 
                 # Find any existing record for this model object.

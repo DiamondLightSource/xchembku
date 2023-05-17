@@ -29,3 +29,4 @@ class Direct(
     # ----------------------------------------------------------------------------------------
     def __init__(self, specification=None):
         DirectBase.__init__(self, specification)
+        DirectCrystalWellDroplocations.__init__(self, specification)
