@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalPlateReportDirect:
+class TestCrystalPlateReportDirectSqlite:
     """
     Test dataface interface by direct call.
     """
@@ -48,7 +48,23 @@ class TestCrystalPlateReportDirect:
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalPlateReportService:
+class TestCrystalPlateReportDirectMysql:
+    """
+    Test dataface interface by direct call.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        configuration_file = "tests/configurations/direct_mysql.yaml"
+        CrystalPlateReportTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalPlateReportServiceSqlite:
     """
     Test dataface interface through network interface.
     """
@@ -62,6 +78,24 @@ class TestCrystalPlateReportService:
         """ """
 
         configuration_file = "tests/configurations/service_sqlite.yaml"
+        CrystalPlateReportTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalPlateReportServiceMysql:
+    """
+    Test dataface interface through network interface.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        """ """
+
+        configuration_file = "tests/configurations/service_mysql.yaml"
         CrystalPlateReportTester().main(constants, configuration_file, output_directory)
 
 

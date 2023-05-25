@@ -27,8 +27,13 @@ soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
 # The xchembku_dataface direct access.
 xchembku_dataface_specification:
     type: "xchembku_lib.xchembku_datafaces.direct"
+    should_drop_database: True
     database:
-        type: "dls_normsql.aiosqlite"
-        filename: "${output_directory}/xchembku_dataface.sqlite"
-        log_level: "WARNING"
+        type: "dls_normsql.aiomysql"
+        type_specific_tbd:
+            database_name: "xchembku_pytest"
+            host: "docker-mysql"
+            port: 3306
+            username: "root"
+            password: "root"
     soakdb3_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION_DIRECT

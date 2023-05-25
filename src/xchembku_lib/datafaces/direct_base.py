@@ -22,6 +22,9 @@ class DirectBase(Thing):
     def __init__(self, specification=None):
         Thing.__init__(self, thing_type, specification)
 
+        # For testing, caller might want to drop the database on connection.
+        self.__should_drop_database = specification.get("should_drop_database")
+
         self.__database_definition_object = DatabaseDefinition()
 
         self.__database = None
@@ -52,7 +55,11 @@ class DirectBase(Thing):
                 self.specification()["database"],
                 self.__database_definition_object,
             )
-            await self.__database.connect()
+
+            # For testing, caller might want to drop the database on connection.
+            await self.__database.connect(
+                should_drop_database=self.__should_drop_database
+            )
 
     # ----------------------------------------------------------------------------------------
     async def reinstance(self):
