@@ -1,13 +1,14 @@
 import logging
 from typing import Dict
 
+# Database manager.
+from dls_normsql.databases import Databases
 from dls_utilpack.callsign import callsign
 
 # Base class for generic things.
 from dls_utilpack.thing import Thing
 
-# Database manager.
-from xchembku_lib.databases.databases import Databases
+from xchembku_api.databases.database_definition import DatabaseDefinition
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,8 @@ class DirectBase(Thing):
     # ----------------------------------------------------------------------------------------
     def __init__(self, specification=None):
         Thing.__init__(self, thing_type, specification)
+
+        self.__database_definition_object = DatabaseDefinition()
 
         self.__database = None
 
@@ -45,7 +48,10 @@ class DirectBase(Thing):
     # ----------------------------------------------------------------------------------------
     async def establish_database_connection(self):
         if self.__database is None:
-            self.__database = Databases().build_object(self.specification()["database"])
+            self.__database = Databases().build_object(
+                self.specification()["database"],
+                self.__database_definition_object,
+            )
             await self.__database.connect()
 
     # ----------------------------------------------------------------------------------------

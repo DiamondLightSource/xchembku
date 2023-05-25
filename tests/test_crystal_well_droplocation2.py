@@ -48,7 +48,7 @@ class TestCrystalWellDroplocation2Direct:
         logging_setup,
         output_directory,
     ):
-        configuration_file = "tests/configurations/direct.yaml"
+        configuration_file = "tests/configurations/direct_sqlite.yaml"
         CrystalWellDroplocation2Tester().main(
             constants, configuration_file, output_directory
         )
@@ -68,7 +68,7 @@ class TestCrystalWellDroplocation2Service:
     ):
         """ """
 
-        configuration_file = "tests/configurations/service.yaml"
+        configuration_file = "tests/configurations/service_sqlite.yaml"
         CrystalWellDroplocation2Tester().main(
             constants, configuration_file, output_directory
         )

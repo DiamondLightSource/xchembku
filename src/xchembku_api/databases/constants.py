@@ -1,2 +1,2 @@
 class Types:
-    NORMSQL = "xchembku_lib.xchembku_databases.normsql"
+    NORMSQL = "dls_normsql.aiosqlite"

@@ -45,7 +45,7 @@ soakdb3_dataface_specification_direct: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
               pattern: "^[Yy][:]"
               replace: "/dls/labxchem/"
         database:
-            type: "soakdb3_lib.databases.aiosqlite"
+            type: "dls_normsql.aiosqlite"
             filename: "set by code"
             backup_directory: "set by code"
             log_level: "WARNING"
@@ -69,7 +69,7 @@ xchembku_dataface_specification_direct: &XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
     type: "xchembku_lib.xchembku_datafaces.direct"
     soakdb3_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION
     database:
-        type: "xchembku_lib.xchembku_databases.normsql"
+        type: "dls_normsql.aiosqlite"
         filename: "${output_directory}/xchembku_dataface.sqlite"
         log_level: "WARNING"
 

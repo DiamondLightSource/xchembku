@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.2.
+.. # ********** It has been generated automatically by dae_devops version 0.5.3.dev1+g36e9e1c.d20230523.
 .. # ********** For repository_name xchembku
 
 Installing
@@ -26,7 +26,6 @@ installation will not interfere with any existing Python software::
 
 You can now use ``pip`` to install the library and its dependencies::
 
-    $ export PIP_FIND_LINKS=/dls_sw/apps/bxflow/artifacts
     $ python3 -m pip install xchembku
 
 If you require a feature that is not currently released you can also install
@@ -34,10 +33,10 @@ from git::
 
     $ python3 -m pip install git+https://github.com/diamondlightsource/xchembku/xchembku.git
 
-The library should now be installed and the commandline interface on your path.
+The library should now be installed and the commandline should be available.
 You can check the version that has been installed by typing::
 
     $ xchembku --version
     $ xchembku --version-json
 
-.. # dae_devops_fingerprint e0afdddf0067db56b8f017a8b41f6d5e
+.. # dae_devops_fingerprint ab5df2cdbbfd6dc0b711fed060a6020a

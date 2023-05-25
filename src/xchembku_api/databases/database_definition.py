@@ -1,7 +1,7 @@
 import logging
 
 # All the tables.
-from xchembku_lib.databases.table_definitions import (
+from xchembku_api.databases.table_definitions import (
     CrystalPlatesTable,
     CrystalWellAutolocationsTable,
     CrystalWellDroplocationsTable,
@@ -27,18 +27,18 @@ class DatabaseDefinition:
         self.LATEST_REVISION = 4
 
     # ----------------------------------------------------------------------------------------
-    async def apply_revision(self, revision):
+    async def apply_revision(self, database, revision):
 
         logger.debug(f"applying revision {revision}")
 
         if revision == 3:
 
             # Add crytal plate formulatrix__experiment__name field and index.
-            await self.execute(
+            await database.execute(
                 "ALTER TABLE crystal_plates ADD COLUMN formulatrix__experiment__name TEXT",
                 why=f"revision {revision}: new column",
             )
-            await self.execute(
+            await database.execute(
                 "CREATE INDEX %s_%s ON %s(%s)"
                 % (
                     "crystal_plates",
@@ -50,11 +50,11 @@ class DatabaseDefinition:
 
         if revision == 4:
             # Add crytal plate formulatrix__experiment__name field and index.
-            await self.execute(
+            await database.execute(
                 "ALTER TABLE crystal_well_droplocations ADD COLUMN is_exported_to_soakdb3 BOOLEAN",
                 why="revision {revision}: new column",
             )
-            await self.execute(
+            await database.execute(
                 "CREATE INDEX %s_%s ON %s(%s)"
                 % (
                     "crystal_well_droplocations",
@@ -65,13 +65,13 @@ class DatabaseDefinition:
             )
 
     # ----------------------------------------------------------------------------------------
-    async def add_table_definitions(self):
+    async def add_table_definitions(self, database):
         """
         Make all the table definitions.
         """
 
         # Table schemas in our database.
-        self.add_table_definition(CrystalPlatesTable())
-        self.add_table_definition(CrystalWellsTable())
-        self.add_table_definition(CrystalWellAutolocationsTable())
-        self.add_table_definition(CrystalWellDroplocationsTable())
+        database.add_table_definition(CrystalPlatesTable())
+        database.add_table_definition(CrystalWellsTable())
+        database.add_table_definition(CrystalWellAutolocationsTable())
+        database.add_table_definition(CrystalWellDroplocationsTable())

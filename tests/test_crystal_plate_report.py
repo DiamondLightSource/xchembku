@@ -43,7 +43,7 @@ class TestCrystalPlateReportDirect:
         logging_setup,
         output_directory,
     ):
-        configuration_file = "tests/configurations/direct.yaml"
+        configuration_file = "tests/configurations/direct_sqlite.yaml"
         CrystalPlateReportTester().main(constants, configuration_file, output_directory)
 
 
@@ -61,7 +61,7 @@ class TestCrystalPlateReportService:
     ):
         """ """
 
-        configuration_file = "tests/configurations/service.yaml"
+        configuration_file = "tests/configurations/service_sqlite.yaml"
         CrystalPlateReportTester().main(constants, configuration_file, output_directory)
 
 
