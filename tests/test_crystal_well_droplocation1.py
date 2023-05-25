@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocation1Direct:
+class TestCrystalWellDroplocation1DirectSqlite:
     """
     Test dataface interface by direct call.
     """
@@ -50,7 +50,25 @@ class TestCrystalWellDroplocation1Direct:
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocation1Service:
+class TestCrystalWellDroplocation1DirectMysql:
+    """
+    Test dataface interface by direct call.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        configuration_file = "tests/configurations/direct_mysql.yaml"
+        CrystalWellDroplocation1Tester().main(
+            constants, configuration_file, output_directory
+        )
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalWellDroplocation1ServiceSqlite:
     """
     Test dataface interface through network interface.
     """
@@ -64,6 +82,26 @@ class TestCrystalWellDroplocation1Service:
         """ """
 
         configuration_file = "tests/configurations/service_sqlite.yaml"
+        CrystalWellDroplocation1Tester().main(
+            constants, configuration_file, output_directory
+        )
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalWellDroplocation1ServiceMysql:
+    """
+    Test dataface interface through network interface.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        """ """
+
+        configuration_file = "tests/configurations/service_mysql.yaml"
         CrystalWellDroplocation1Tester().main(
             constants, configuration_file, output_directory
         )
@@ -147,7 +185,7 @@ class CrystalWellDroplocation1Tester(Base):
         # Query for list from filename glob.
         crystal_well_models = await self.__check(
             dataface,
-            CrystalWellFilterModel(filename_pattern="*A_1.jpg"),
+            CrystalWellFilterModel(filename_pattern=".*A_1.jpg"),
             3,
             "filename glob",
             filename="02A_1.jpg",

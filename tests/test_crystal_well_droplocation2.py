@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocation2Direct:
+class TestCrystalWellDroplocation2DirectSqlite:
     """
     Test dataface interface by direct call.
     """
@@ -55,7 +55,25 @@ class TestCrystalWellDroplocation2Direct:
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellDroplocation2Service:
+class TestCrystalWellDroplocation2DirectMysql:
+    """
+    Test dataface interface by direct call.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        configuration_file = "tests/configurations/direct_mysql.yaml"
+        CrystalWellDroplocation2Tester().main(
+            constants, configuration_file, output_directory
+        )
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalWellDroplocation2ServiceSqlite:
     """
     Test dataface interface through network interface.
     """
@@ -69,6 +87,26 @@ class TestCrystalWellDroplocation2Service:
         """ """
 
         configuration_file = "tests/configurations/service_sqlite.yaml"
+        CrystalWellDroplocation2Tester().main(
+            constants, configuration_file, output_directory
+        )
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalWellDroplocation2ServiceMysql:
+    """
+    Test dataface interface through network interface.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        """ """
+
+        configuration_file = "tests/configurations/service_mysql.yaml"
         CrystalWellDroplocation2Tester().main(
             constants, configuration_file, output_directory
         )

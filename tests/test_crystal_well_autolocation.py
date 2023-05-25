@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellAutolocationDirectPoll:
+class TestCrystalWellAutolocationDirectSqlite:
     """
     Test dataface interface by direct call.
     """
@@ -39,7 +39,25 @@ class TestCrystalWellAutolocationDirectPoll:
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalWellAutolocationService:
+class TestCrystalWellAutolocationDirectMysql:
+    """
+    Test dataface interface by direct call.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        configuration_file = "tests/configurations/direct_mysql.yaml"
+        CrystalWellAutolocationTester().main(
+            constants, configuration_file, output_directory
+        )
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalWellAutolocationServiceSqlite:
     """
     Test dataface interface through network interface.
     """
@@ -53,6 +71,26 @@ class TestCrystalWellAutolocationService:
         """ """
 
         configuration_file = "tests/configurations/service_sqlite.yaml"
+        CrystalWellAutolocationTester().main(
+            constants, configuration_file, output_directory
+        )
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalWellAutolocationServiceMysql:
+    """
+    Test dataface interface through network interface.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        """ """
+
+        configuration_file = "tests/configurations/service_mysql.yaml"
         CrystalWellAutolocationTester().main(
             constants, configuration_file, output_directory
         )
