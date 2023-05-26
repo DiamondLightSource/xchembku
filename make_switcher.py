@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.2.
+# ********** It has been generated automatically by dae_devops version 0.5.3.
 # ********** For repository_name xchembku
 
 import json
@@ -102,4 +102,4 @@ def main(args=None):
 if __name__ == "__main__":
     main()
 
-# dae_devops_fingerprint 6617b998da1ca2e997a558711603f920
+# dae_devops_fingerprint 6d3e04401582f9d0c731b00a656299ab
