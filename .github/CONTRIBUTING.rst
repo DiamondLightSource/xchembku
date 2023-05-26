@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.3.dev1+g36e9e1c.d20230523.
+.. # ********** It has been generated automatically by dae_devops version 0.5.3.
 .. # ********** For repository_name xchembku
 
 Contributing to the project
@@ -38,4 +38,4 @@ should follow.
 
 .. _Developer Guide: https://diamondlightsource.github.io/xchembku/main/developer/how-to/contribute.html
 
-.. # dae_devops_fingerprint 8285e74c1df9177847297f3a9cba16a5
+.. # dae_devops_fingerprint 4d117034a5fff6afaa2d35bb72fc9eac
