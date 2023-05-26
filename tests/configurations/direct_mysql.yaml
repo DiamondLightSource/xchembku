@@ -32,8 +32,8 @@ xchembku_dataface_specification:
         type: "dls_normsql.aiomysql"
         type_specific_tbd:
             database_name: "xchembku_pytest"
-            host: "docker-mysql"
-            port: 3306
+            host: $MYSQL_HOST
+            port: $MYSQL_PORT
             username: "root"
             password: "root"
     soakdb3_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION_DIRECT

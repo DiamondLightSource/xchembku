@@ -73,8 +73,8 @@ xchembku_dataface_specification_direct: &XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
         type: "dls_normsql.aiomysql"
         type_specific_tbd:
             database_name: "xchembku_pytest"
-            host: "docker-mysql"
-            port: 3306
+            host: $MYSQL_HOST
+            port: $MYSQL_PORT
             username: "root"
             password: "root"
 
