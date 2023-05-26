@@ -23,7 +23,7 @@ external_access_bits:
 xchembku_dataface_specification_direct: &XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
     type: "xchembku_lib.xchembku_datafaces.direct"
     database:
-        type: "xchembku_lib.xchembku_databases.normsql"
+        type: "dls_normsql.aiosqlite"
         filename: *DATABASE_FILENAME
         log_level: "WARNING"
 

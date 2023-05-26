@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.2.
+.. # ********** It has been generated automatically by dae_devops version 0.5.3.dev1+g36e9e1c.d20230523.
 .. # ********** For repository_name xchembku
 
 Naming conventions
@@ -31,4 +31,4 @@ repository
     lowercase, hyphens
 
 
-.. # dae_devops_fingerprint 62f9350a2bf32c116db81f845c721f6f
+.. # dae_devops_fingerprint 61ff8794aaf620fd538ce82a508c2a00

@@ -45,7 +45,7 @@ soakdb3_dataface_specification_direct: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
               pattern: "^[Yy][:]"
               replace: "/dls/labxchem/"
         database:
-            type: "soakdb3_lib.databases.aiosqlite"
+            type: "dls_normsql.aiosqlite"
             filename: "set by code"
             backup_directory: "set by code"
             log_level: "WARNING"
@@ -68,10 +68,15 @@ soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION
 xchembku_dataface_specification_direct: &XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
     type: "xchembku_lib.xchembku_datafaces.direct"
     soakdb3_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION
+    should_drop_database: True
     database:
-        type: "xchembku_lib.xchembku_databases.normsql"
-        filename: "${output_directory}/xchembku_dataface.sqlite"
-        log_level: "WARNING"
+        type: "dls_normsql.aiomysql"
+        type_specific_tbd:
+            database_name: "xchembku_pytest"
+            host: $MYSQL_HOST
+            port: $MYSQL_PORT
+            username: "root"
+            password: "root"
 
 # The xchembku_dataface client/server composite.
 xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION

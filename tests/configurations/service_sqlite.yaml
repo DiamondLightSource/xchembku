@@ -1,0 +1,88 @@
+type: xchembku_lib.xchembku_contexts.classic
+
+visit:
+    beamline: b29
+    year: 2022
+    visit: cy29757-3
+    directory: /dls/b29/data/2022/cy29757-3
+    # Format to make actual data_filename using data_label as token.
+    data_path_pattern: "/dls/b29/data/2022/cy29757-3/Merlin/{data_label}_data.mib"
+
+logging_settings:
+    console:
+        enabled: True
+        verbose: True
+        filters:
+            markers:
+                - "[DISSHU]"
+    logfile:
+        enabled: True
+        directory: ${output_directory}/logfile.log
+    graypy:
+        enabled: False
+        host: 172.23.7.128
+        port: 12201
+        protocol: UDP
+
+# The external access bits.
+external_access_bits:
+    dataface_port: &DATAFACE_PORT 27821
+    soakdb3_dataface_server: &SOAKDB3_DATAFACE_SERVER http://*:27824
+    soakdb3_dataface_client: &SOAKDB3_DATAFACE_CLIENT http://localhost:27824
+    soakdb3_puck_barcodes_filename: &SOAKDB3_PUCK_BARCODES_FILENAME /dls/science/groups/i04-1/software/barcode-store/store/store.csv
+
+# -----------------------------------------------------------------------------
+# The soakdb3 dataface via direct.
+soakdb3_dataface_specification_direct: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
+    type: "soakdb3_lib.datafaces.aiosqlite"
+    puck_barcodes_filename: *SOAKDB3_PUCK_BARCODES_FILENAME
+    type_specific_tbd:
+        visitid_mappings:
+            - action: "regex_replace"
+              pattern: "^[Cc][:]"
+              replace: ""
+            - action: "regex_replace"
+              pattern: "^[Yy][:]"
+              replace: "/dls/labxchem/"
+        database:
+            type: "dls_normsql.aiosqlite"
+            filename: "set by code"
+            backup_directory: "set by code"
+            log_level: "WARNING"
+
+# The soakdb3 dataface via networked service.
+soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION
+    type: "soakdb3_lib.datafaces.aiohttp"
+    type_specific_tbd:
+        # The remote dataface server access.
+        aiohttp_specification:
+            server: *SOAKDB3_DATAFACE_SERVER
+            client: *SOAKDB3_DATAFACE_CLIENT
+        # The local implementation of the dataface.
+        actual_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
+    context:
+        start_as: process
+
+# -----------------------------------------------------------------------------
+# The xchembku_dataface direct access.
+xchembku_dataface_specification_direct: &XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
+    type: "xchembku_lib.xchembku_datafaces.direct"
+    soakdb3_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION
+    database:
+        type: "dls_normsql.aiosqlite"
+        filename: "${output_directory}/xchembku_dataface.sqlite"
+        log_level: "WARNING"
+
+# The xchembku_dataface client/server composite.
+xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
+    type: "xchembku_lib.xchembku_datafaces.aiohttp"
+    type_specific_tbd:
+        # The remote xchembku_dataface server access.
+        aiohttp_specification:
+            server_host: "*"
+            client_host: "127.0.0.1"
+            port: *DATAFACE_PORT
+        # The local implementation of the xchembku_dataface.
+        actual_xchembku_dataface_specification: *XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
+    context:
+        start_as: process

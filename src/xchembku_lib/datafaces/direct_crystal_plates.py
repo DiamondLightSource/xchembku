@@ -191,6 +191,11 @@ class DirectCrystalPlates(DirectBase):
 
         fields = ["crystal_plates.*"]
 
+        self.__usable_unexported_count = (
+            "(COALESCE(decided_usable.count, 0) - COALESCE(exported.count, 0))"
+        )
+        self.__undecided_crystals_count = "COALESCE(undecided_crystals.count, 0)"
+
         if is_for_report:
             fields.append("COALESCE(collected.count, 0) AS collected_count")
             fields.append("COALESCE(chimped.count, 0) AS chimped_count")
@@ -204,10 +209,10 @@ class DirectCrystalPlates(DirectBase):
             )
             fields.append("COALESCE(exported.count, 0) AS exported_count")
             fields.append(
-                "COALESCE(decided_usable.count, 0) - COALESCE(exported.count, 0) AS usable_unexported_count"
+                f"{self.__usable_unexported_count} AS usable_unexported_count"
             )
             fields.append(
-                "COALESCE(undecided_crystals.count, 0) AS undecided_crystals_count"
+                f"{self.__undecided_crystals_count} AS undecided_crystals_count"
             )
 
         return "\n  " + ",\n  ".join(fields)
@@ -301,10 +306,10 @@ class DirectCrystalPlates(DirectBase):
         if filter.needing_intervention is not None:
             if filter.needing_intervention is True:
                 sql += "\n/* Those needing intervention. */"
-                sql += f"\n{where} (undecided_crystals_count > 0 OR usable_unexported_count > 0)"
+                sql += f"\n{where} ({self.__undecided_crystals_count} > 0 OR {self.__usable_unexported_count} > 0)"
             else:
                 sql += "\n/* Those NOT needing intervention. */"
-                sql += f"\n{where} (undecided_crystals_count = 0 AND usable_unexported_count = 0)"
+                sql += f"\n{where} ({self.__undecided_crystals_count} = 0 AND {self.__usable_unexported_count} = 0)"
 
         return sql
 

@@ -1,5 +1,5 @@
 .. # ********** Please don't edit this file!
-.. # ********** It has been generated automatically by dae_devops version 0.5.2.
+.. # ********** It has been generated automatically by dae_devops version 0.5.3.dev1+g36e9e1c.d20230523.
 .. # ********** For repository_name xchembku
 
 Developing
@@ -22,7 +22,6 @@ Make sure to have at least python version 3.9 then::
 Install the package in edit mode which will also install all its dependencies::
 
     $ cd xchembku
-    $ export PIP_FIND_LINKS=/dls_sw/apps/bxflow/artifacts
     $ pip install -e .[dev]
 
 Now you may begin modifying the code.
@@ -36,4 +35,4 @@ If you plan to modify the docs, you will need to::
     
 
 
-.. # dae_devops_fingerprint e7e76b1a5311ccf929167c787da25eca
+.. # dae_devops_fingerprint d4f601d3c2e19339eb17e18158851a5f

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestSoakdb3CrystalWellDirect:
+class TestSoakdb3CrystalWellDirectSqlite:
     """
     Test dataface interface by direct call.
     """
@@ -45,12 +45,28 @@ class TestSoakdb3CrystalWellDirect:
         logging_setup,
         output_directory,
     ):
-        configuration_file = "tests/configurations/direct.yaml"
+        configuration_file = "tests/configurations/direct_sqlite.yaml"
         Soakdb3CrystalWellTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class TestSoakdb3CrystalWellService:
+class TestSoakdb3CrystalWellDirectMysql:
+    """
+    Test dataface interface by direct call.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        configuration_file = "tests/configurations/direct_mysql.yaml"
+        Soakdb3CrystalWellTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestSoakdb3CrystalWellServiceSqlite:
     """
     Test dataface interface through network interface.
     """
@@ -63,7 +79,25 @@ class TestSoakdb3CrystalWellService:
     ):
         """ """
 
-        configuration_file = "tests/configurations/service.yaml"
+        configuration_file = "tests/configurations/service_sqlite.yaml"
+        Soakdb3CrystalWellTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestSoakdb3CrystalWellServiceMysql:
+    """
+    Test dataface interface through network interface.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        """ """
+
+        configuration_file = "tests/configurations/service_mysql.yaml"
         Soakdb3CrystalWellTester().main(constants, configuration_file, output_directory)
 
 

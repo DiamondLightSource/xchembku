@@ -1,0 +1,34 @@
+type: xchembku_lib.xchembku_contexts.classic
+
+# The external access bits.
+external_access_bits:
+    soakdb3_puck_barcodes_filename: &SOAKDB3_PUCK_BARCODES_FILENAME /dls/science/groups/i04-1/software/barcode-store/store/store.csv
+
+# -----------------------------------------------------------------------------
+# The soakdb3 dataface via direct.
+soakdb3_dataface_specification: &SOAKDB3_DATAFACE_SPECIFICATION_DIRECT
+    type: "soakdb3_lib.datafaces.aiosqlite"
+    puck_barcodes_filename: *SOAKDB3_PUCK_BARCODES_FILENAME
+    type_specific_tbd:
+        visitid_mappings:
+            - action: "regex_replace"
+              pattern: "^[Cc][:]"
+              replace: ""
+            - action: "regex_replace"
+              pattern: "^[Yy][:]"
+              replace: "/dls/labxchem/"
+        database:
+            type: "dls_normsql.aiosqlite"
+            filename: "set by code"
+            backup_directory: "set by code"
+            log_level: "WARNING"
+
+# -----------------------------------------------------------------------------
+# The xchembku_dataface direct access.
+xchembku_dataface_specification:
+    type: "xchembku_lib.xchembku_datafaces.direct"
+    database:
+        type: "dls_normsql.aiosqlite"
+        filename: "${output_directory}/xchembku_dataface.sqlite"
+        log_level: "WARNING"
+    soakdb3_dataface_specification: *SOAKDB3_DATAFACE_SPECIFICATION_DIRECT

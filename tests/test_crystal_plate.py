@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalPlateDirect:
+class TestCrystalPlateDirectSqlite:
     """
     Test dataface interface by direct call.
     """
@@ -38,12 +38,28 @@ class TestCrystalPlateDirect:
         logging_setup,
         output_directory,
     ):
-        configuration_file = "tests/configurations/direct.yaml"
+        configuration_file = "tests/configurations/direct_sqlite.yaml"
         CrystalPlateTester().main(constants, configuration_file, output_directory)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCrystalPlateService:
+class TestCrystalPlateDirectMysql:
+    """
+    Test dataface interface by direct call.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        configuration_file = "tests/configurations/direct_mysql.yaml"
+        CrystalPlateTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalPlateServiceSqlite:
     """
     Test dataface interface through network interface.
     """
@@ -56,7 +72,25 @@ class TestCrystalPlateService:
     ):
         """ """
 
-        configuration_file = "tests/configurations/service.yaml"
+        configuration_file = "tests/configurations/service_sqlite.yaml"
+        CrystalPlateTester().main(constants, configuration_file, output_directory)
+
+
+# ----------------------------------------------------------------------------------------
+class TestCrystalPlateServiceMysql:
+    """
+    Test dataface interface through network interface.
+    """
+
+    def test(
+        self,
+        constants,
+        logging_setup,
+        output_directory,
+    ):
+        """ """
+
+        configuration_file = "tests/configurations/service_mysql.yaml"
         CrystalPlateTester().main(constants, configuration_file, output_directory)
 
 

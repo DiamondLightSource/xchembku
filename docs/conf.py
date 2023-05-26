@@ -1,5 +1,5 @@
 # ********** Please don't edit this file!
-# ********** It has been generated automatically by dae_devops version 0.5.2.
+# ********** It has been generated automatically by dae_devops version 0.5.3.dev1+g36e9e1c.d20230523.
 # ********** For repository_name xchembku
 
 from pathlib import Path
@@ -197,4 +197,4 @@ def setup(app):
     app.connect("source-read", ultimateReplace)
 
 
-# dae_devops_fingerprint 84c433c63efba1181dae7d798737f15d
+# dae_devops_fingerprint d15a2a52a301b1d3d629837be20585be

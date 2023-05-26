@@ -352,7 +352,7 @@ class DirectCrystalWells(DirectBase):
         if filter.filename_pattern is not None:
             sql += (
                 "\n/* Just certain filenames. */"
-                f"\n{where} crystal_wells.filename GLOB ?"
+                f"\n{where} crystal_wells.filename REGEXP ?"
             )
             subs.append(filter.filename_pattern)
             where = "AND"
