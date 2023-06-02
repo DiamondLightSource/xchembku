@@ -1,7 +1,7 @@
 import logging
 
 # Base class for an asyncio context
-from xchembku_lib.contexts.base import Base as ContextBase
+from dls_utilpack.server_context_base import ServerContextBase
 
 # Things created in the context.
 from xchembku_lib.datafaces.datafaces import Datafaces
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 thing_type = "xchembku_lib.xchembku_datafaces.context"
 
 
-class Context(ContextBase):
+class Context(ServerContextBase):
     """
     Asyncio context for a xchembku_dataface server object.
     On entering, it creates the object according to the specification (a dict).
@@ -24,7 +24,7 @@ class Context(ContextBase):
 
     # ----------------------------------------------------------------------------------------
     def __init__(self, specification):
-        ContextBase.__init__(self, thing_type, specification)
+        ServerContextBase.__init__(self, thing_type, specification)
 
     # ----------------------------------------------------------------------------------------
     async def aenter(self):
@@ -46,7 +46,7 @@ class Context(ContextBase):
             await self.server.start_process()
 
     # ----------------------------------------------------------------------------------------
-    async def aexit(self):
+    async def aexit(self, type, value, traceback):
         """ """
 
         if self.server is not None:
