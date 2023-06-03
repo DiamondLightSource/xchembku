@@ -88,6 +88,20 @@ class DirectCrystalWells(DirectBase):
         }
 
     # ----------------------------------------------------------------------------------------
+    async def fetch_crystal_wells_filenames_serialized(
+        self, limit: int = 1, why=None
+    ) -> List[Dict]:
+        """ """
+
+        # Get the models from the direct call.
+        models = await self.fetch_crystal_wells_filenames(limit=limit, why=why)
+
+        # Serialize models into dicts to give to the response.
+        records = [model.dict() for model in models]
+
+        return records
+
+    # ----------------------------------------------------------------------------------------
     async def fetch_crystal_wells_filenames(
         self, limit: int = 1, why=None
     ) -> List[CrystalWellModel]:
@@ -412,7 +426,7 @@ class DirectCrystalWells(DirectBase):
         # Caller wants just the anchor record?
         if filter.anchor is not None and filter.direction is None:
             sql += (
-                "\n/* Get the crystal well at the anchor. */"
+                f"\n/* Get the crystal well at the anchor {filter.anchor}. */"
                 f"\n{where} crystal_wells.uuid = ?"
             )
             subs.append(filter.anchor)
