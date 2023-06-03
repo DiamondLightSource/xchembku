@@ -1,6 +1,6 @@
 import logging
 
-# Base class for an asyncio context
+# Base class for an asyncio server context.
 from dls_utilpack.server_context_base import ServerContextBase
 
 # Things created in the context.
