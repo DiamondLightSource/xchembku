@@ -83,6 +83,16 @@ class Aiohttp:
         )
 
     # ----------------------------------------------------------------------------------------
+    async def commit(self, why: Optional[str] = None):
+        """
+        Commit is exposed on the API for use in testing when database states must be deterministic.
+        """
+        return await self.__send_protocolj(
+            "commit",
+            why=why,
+        )
+
+    # ----------------------------------------------------------------------------------------
     async def upsert_crystal_plates(
         self,
         models: List[CrystalPlateModel],

@@ -125,6 +125,24 @@ class DirectBase(Thing):
         }
 
     # ----------------------------------------------------------------------------------------
+    async def commit_serialized(
+        self,
+        why=None,
+    ) -> None:
+        """
+        Commit is exposed on the API for use in testing when database states must be deterministic.
+        """
+        # Return the method doing the work.
+        return await self.commit(why=why)
+
+    # ----------------------------------------------------------------------------------------
+    async def commit(self, why=None) -> None:
+        """"""
+        await self.establish_database_connection()
+
+        return await self.__database.commit()
+
+    # ----------------------------------------------------------------------------------------
     async def report_health(self):
         """"""
 
