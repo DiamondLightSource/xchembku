@@ -20,14 +20,14 @@ class Context(ClientContextBase):
 
     # ----------------------------------------------------------------------------------------
     def __init__(self, specification):
-        self.__specification = specification
+        ClientContextBase.__init__(self, specification)
 
     # ----------------------------------------------------------------------------------------
     async def aenter(self):
         """ """
 
         # Build the object according to the specification.
-        self.interface = Datafaces().build_object(self.__specification)
+        self.interface = Datafaces().build_object(self.specification)
 
         # If there is more than one dataface, the last one defined will be the default.
         xchembku_datafaces_set_default(self.interface)
