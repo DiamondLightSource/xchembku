@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Developing &#8212; xchembku 1.8.1.dev6+g95debea documentation</title>
+    <title>Developing &#8212; xchembku 1.8.1.dev7+gfa5b070 documentation</title>
   
   
   
@@ -370,12 +370,13 @@ document.write(`
 <h1>Developing<a class="headerlink" href="#developing" title="Permalink to this heading">#</a></h1>
 <p>If you plan to make change to the code in this repository, you can use the steps below.</p>
 <p>Clone the repository:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/diamondlightsource/xchembku/xchembku.git
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd &lt;your development area&gt;
+$ git clone https://github.com/diamondlightsource/xchembku/xchembku.git
 </pre></div>
 </div>
 <p>It is recommended that you install into a virtual environment so this
 installation will not interfere with any existing Python software.
-Make sure to have at least python version 3.9 then:</p>
+Make sure to have at least python version 3.10 then:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m venv /scratch/$USER/myvenv
 $ source /scratch/$USER/myvenv/bin/activate
 $ pip install --upgrade pip
@@ -383,17 +384,10 @@ $ pip install --upgrade pip
 </div>
 <p>Install the package in edit mode which will also install all its dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd xchembku
-$ pip install -e .[dev]
+$ pip install -e .[dev,docs]
 </pre></div>
 </div>
 <p>Now you may begin modifying the code.</p>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-<p>If you plan to modify the docs, you will need to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e .[docs]
-</pre></div>
-</div>
 </section>
 
 

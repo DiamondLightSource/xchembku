@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Installing &#8212; xchembku 1.8.1.dev6+g95debea documentation</title>
+    <title>Installing &#8212; xchembku 1.8.1.dev7+gfa5b070 documentation</title>
   
   
   
@@ -368,9 +368,9 @@ document.write(`
                   
   <section id="installing">
 <h1>Installing<a class="headerlink" href="#installing" title="Permalink to this heading">#</a></h1>
-<p>You will need python 3.9 or later.</p>
-<p>On a Diamond Light Source internal computer, you can achieve Python 3.9 by:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ module load python/3.9
+<p>You will need python 3.10 or later.</p>
+<p>On a Diamond Light Source internal computer, you can achieve Python 3.10 by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ module load python/3.10
 </pre></div>
 </div>
 <p>You can check your version of python by typing into a terminal:</p>
@@ -384,16 +384,16 @@ $ source /scratch/$USER/myvenv/bin/activate
 $ pip install --upgrade pip
 </pre></div>
 </div>
-<p>You can now use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install the library and its dependencies:</p>
+<p>You can now use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install the package and its dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install xchembku
 </pre></div>
 </div>
-<p>If you require a feature that is not currently released you can also install
+<p>If you require a feature that is not currently released, you can also install
 from git:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install git+https://github.com/diamondlightsource/xchembku/xchembku.git
 </pre></div>
 </div>
-<p>The library should now be installed and the commandline should be available.
+<p>The package should now be installed and the command line should be available.
 You can check the version that has been installed by typing:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ xchembku --version
 $ xchembku --version-json
