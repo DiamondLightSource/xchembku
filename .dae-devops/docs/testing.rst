@@ -23,12 +23,12 @@ If you want to see more output of the test while it's running you can do::
 
 Each test will write files into its own directory::
 
-    /tmp/xchembku/tests/....
+    /tmp/xchembku/tests/*
 
 The tests clear their directory when they start, but not when they finish.
-This allows peeking in there to see what's been written by the test.
+This allows you to examine what's been written by the test.
 
     
 
 
-.. # dae_devops_fingerprint a8eba26c733cc75e40ad8560dd959093
+.. # dae_devops_fingerprint e60d69a5aa7ae4acb6ba6e90dcff15cb

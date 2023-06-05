@@ -188,7 +188,7 @@ ultimate_replacements = {
     "$" + "{repository_name}": "xchembku",
     "$" + "{package_name}": "xchembku_lib",
     "$" + "{git_url}": "https://github.com/diamondlightsource/xchembku",
-    "$" + "{python_version_at_least}": "3.9",
+    "$" + "{python_version_at_least}": "3.10",
 }
 
 
@@ -197,4 +197,4 @@ def setup(app):
     app.connect("source-read", ultimateReplace)
 
 
-# dae_devops_fingerprint 3e5f08df87ebb37ddf17572d476185a2
+# dae_devops_fingerprint c1c571c112da8688ea81070cffde5401

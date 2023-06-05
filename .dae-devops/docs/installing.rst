@@ -6,11 +6,11 @@ Installing
 =======================================================================
 
 
-You will need python 3.9 or later. 
+You will need python 3.10 or later. 
 
-On a Diamond Light Source internal computer, you can achieve Python 3.9 by::
+On a Diamond Light Source internal computer, you can achieve Python 3.10 by::
 
-    $ module load python/3.9
+    $ module load python/3.10
 
 You can check your version of python by typing into a terminal::
 
@@ -24,19 +24,19 @@ installation will not interfere with any existing Python software::
     $ pip install --upgrade pip
 
 
-You can now use ``pip`` to install the library and its dependencies::
+You can now use ``pip`` to install the package and its dependencies::
 
     $ python3 -m pip install xchembku
 
-If you require a feature that is not currently released you can also install
+If you require a feature that is not currently released, you can also install
 from git::
 
     $ python3 -m pip install git+https://github.com/diamondlightsource/xchembku/xchembku.git
 
-The library should now be installed and the commandline should be available.
+The package should now be installed and the command line should be available.
 You can check the version that has been installed by typing::
 
     $ xchembku --version
     $ xchembku --version-json
 
-.. # dae_devops_fingerprint b0dd26d8e2897f65f63f81a16b0a8e29
+.. # dae_devops_fingerprint e17b07ee438d265975080254e6435145
