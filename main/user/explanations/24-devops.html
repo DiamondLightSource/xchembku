@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Devops &#8212; xchembku 1.7.3.dev1+gc5f3b05 documentation</title>
+    <title>Devops &#8212; xchembku 1.8.1.dev6+g95debea documentation</title>
   
   
   
@@ -372,11 +372,12 @@ document.write(`
                   
   <section id="devops">
 <h1>Devops<a class="headerlink" href="#devops" title="Permalink to this heading">#</a></h1>
-<p>There exists a a configuration file called <code class="docutils literal notranslate"><span class="pre">.dae-devops/project.yaml</span></code>.</p>
+<p>In the top level of the repository there exists a configuration file called <code class="docutils literal notranslate"><span class="pre">.dae-devops/project.yaml</span></code>.</p>
 <p>This file defines the project information needed for CI/CD.</p>
 <p>It is parsed by the <code class="docutils literal notranslate"><span class="pre">dae_devops.force</span></code> command which creates these files:</p>
 <ul class="simple">
 <li><p>pyproject.toml</p></li>
+<li><p>.githib/*</p></li>
 <li><p>.gitlab-ci.yml</p></li>
 <li><p>.dae-devops/Makefile</p></li>
 <li><p>.dae-devops/docs/*</p></li>
@@ -393,15 +394,16 @@ $ make -f .dae-devops/Makefile validate_pytest
 $ make -f .dae-devops/Makefile validate_docs
 </pre></div>
 </div>
-<p>Packaging:</p>
+<p>Packaging (for the Diamond intranet):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ make -f .dae-devops/Makefile package_pip
 </pre></div>
 </div>
-<p>Publishing:</p>
+<p>Publishing (for the Diamond intranet):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ make -f .dae-devops/Makefile publish_pip
 $ make -f .dae-devops/Makefile publish_docs
 </pre></div>
 </div>
+<p>The Diamond intranet commands are not used for production. The production packaging and publishing are handled in the GitHub Actions workflows mechanism.</p>
 </section>
 </section>
 
