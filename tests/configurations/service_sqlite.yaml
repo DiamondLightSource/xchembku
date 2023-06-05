@@ -26,7 +26,8 @@ logging_settings:
 
 # The external access bits.
 external_access_bits:
-    dataface_port: &DATAFACE_PORT 27821
+    xchembku_dataface_server: &XCHEMBKU_DATAFACE_SERVER http://*:27821
+    xchembku_dataface_client: &XCHEMBKU_DATAFACE_CLIENT http://localhost:27821
     soakdb3_dataface_server: &SOAKDB3_DATAFACE_SERVER http://*:27824
     soakdb3_dataface_client: &SOAKDB3_DATAFACE_CLIENT http://localhost:27824
     soakdb3_puck_barcodes_filename: &SOAKDB3_PUCK_BARCODES_FILENAME /dls/science/groups/i04-1/software/barcode-store/store/store.csv
@@ -79,9 +80,8 @@ xchembku_dataface_specification: &XCHEMBKU_DATAFACE_SPECIFICATION
     type_specific_tbd:
         # The remote xchembku_dataface server access.
         aiohttp_specification:
-            server_host: "*"
-            client_host: "127.0.0.1"
-            port: *DATAFACE_PORT
+            server: *XCHEMBKU_DATAFACE_SERVER
+            client: *XCHEMBKU_DATAFACE_CLIENT
         # The local implementation of the xchembku_dataface.
         actual_xchembku_dataface_specification: *XCHEMBKU_DATAFACE_SPECIFICATION_DIRECT
     context:

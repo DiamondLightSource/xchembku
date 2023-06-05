@@ -13,7 +13,7 @@ class CrystalPlateModel(BaseModel):
 
     uuid: str
     # ID from the Plate table.
-    formulatrix__plate__id: int
+    formulatrix__plate__id: Optional[int]
     # Name from the formulatrix "experiment" tree node.
     formulatrix__experiment__name: Optional[str]
     # Directory stem where wells were mined from.
@@ -22,9 +22,11 @@ class CrystalPlateModel(BaseModel):
     # The 4-letter barcode.
     barcode: str
     # The visit gleaned from the Formulatrix database.
-    visit: str
+    visit: Optional[str]
     # A string which allows the CrytsalPlateObjects factory to make an instance.
     thing_type: Optional[str] = None
+    # Error string.
+    error: Optional[str] = None
 
     # TODO: Add proper pydantic date parsing/valiation to CREATED_ON fields.
     created_on: Optional[str] = None

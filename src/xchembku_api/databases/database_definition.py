@@ -24,7 +24,7 @@ class DatabaseDefinition:
         Construct object.  Do not connect to database.
         """
 
-        self.LATEST_REVISION = 4
+        self.LATEST_REVISION = 5
 
     # ----------------------------------------------------------------------------------------
     async def apply_revision(self, database, revision):
@@ -62,6 +62,13 @@ class DatabaseDefinition:
                     "crystal_well_droplocations",
                     "is_exported_to_soakdb3",
                 )
+            )
+
+        if revision == 5:
+            # Add crytal plate error field.
+            await database.execute(
+                "ALTER TABLE crystal_plates ADD COLUMN error TEXT",
+                why="revision {revision}: new column",
             )
 
     # ----------------------------------------------------------------------------------------

@@ -295,6 +295,12 @@ class DirectCrystalPlates(DirectBase):
             subs.append(filter.barcode)
             where = "AND"
 
+        if filter.barcode is None:
+            # Default, if not specified, is to exclude plates with errors.
+            if filter.include_errors is None or filter.include_errors is False:
+                sql += f"\n{where} error IS NULL"
+                where = "AND"
+
         if filter.from_formulatrix__plate__id is not None:
             if filter.direction == -1:
                 sql += f"\n{where} formulatrix__plate__id < ?"

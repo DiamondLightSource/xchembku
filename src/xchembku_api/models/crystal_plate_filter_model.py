@@ -11,6 +11,7 @@ class CrystalPlateFilterModel(BaseModel):
     uuid: Optional[str] = None
     visit: Optional[str] = None
     barcode: Optional[str] = None
+    include_errors: Optional[bool] = None
     limit: Optional[int] = None
     direction: Optional[int] = None
 
