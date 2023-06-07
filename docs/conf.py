@@ -55,7 +55,7 @@ extensions = [
 
 # If true, Sphinx will warn about all references where the target cannot
 # be found.
-nitpicky = True
+nitpicky = False
 
 # A list of (type, target) tuples (by default empty) that should be ignored when
 # generating warnings in "nitpicky mode". Note that type should include the
@@ -197,4 +197,4 @@ def setup(app):
     app.connect("source-read", ultimateReplace)
 
 
-# dae_devops_fingerprint c1c571c112da8688ea81070cffde5401
+# dae_devops_fingerprint 555976e9a952e0d19b731360f4d76fc4

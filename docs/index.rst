@@ -1,23 +1,14 @@
-.. include:: ../README.rst
-    :end-before: when included in index.rst
+xchembku
+=======================================================================
 
-Source repository
------------------------------------------------------------------------
+XChem Business Knowledge Unit.  Service, Client, API, persistent store.
 
-${git_url}/${repository_name}
-
-Documentation
------------------------------------------------------------------------
-
-.. grid:: 2
-
-    .. grid-item-card:: :material-regular:`person;4em`
-        :link: user/index
-        :link-type: doc
-
-        The User Guide contains documentation on how to install and use the software.
+Database service for other XChem Lifesupport services.
 
 .. toctree::
-    :hidden:
+    :titlesonly:
 
-    user/index
+    tutorials/index
+    how-to/index
+    explanations/index
+    reference/index

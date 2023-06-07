@@ -1,9 +1,7 @@
-Command Line
+Classes
 =======================================================================
 
-dls-multiconf
+DirectPoll Collector
 -----------------------------------------------------------------------
-.. argparse:: 
-    :module: dls_multiconf_lib.__main__
-    :func: get_parser
-    :prog: dls-multiconf
+.. autoclass:: xchembku_lib.datafaces.direct.Direct
+    :members:
