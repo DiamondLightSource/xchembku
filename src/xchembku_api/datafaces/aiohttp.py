@@ -1,7 +1,6 @@
 import logging
 from typing import Dict, List, Optional
 
-from dls_utilpack.callsign import callsign
 from soakdb3_api.models.crystal_well_model import (
     CrystalWellModel as Soakdb3CrystalWellModel,
 )
