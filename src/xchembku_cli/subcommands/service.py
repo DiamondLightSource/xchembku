@@ -1,13 +1,16 @@
+import argparse
 import asyncio
 
 # Use standard logging in this module.
 import logging
 
+from dls_utilpack.require import require
+
 # Base class for cli subcommands.
 from xchembku_cli.subcommands.base import ArgKeywords, Base
 
-# Context creator.
-from xchembku_lib.datafaces.context import Context
+# Servbase context creator.
+from xchembku_lib.datafaces.context import Context as XchembkuDatafaceContext
 
 logger = logging.getLogger()
 
@@ -15,7 +18,7 @@ logger = logging.getLogger()
 # --------------------------------------------------------------
 class Service(Base):
     """
-    Start single service and keep running until ^C or remotely requested shutdown.
+    Start single service and block until ^C or remotely requested shutdown.
     """
 
     def __init__(self, args, mainiac):
@@ -30,29 +33,54 @@ class Service(Base):
 
     # ----------------------------------------------------------
     async def __run_coro(self):
-        """"""
+        """
+        Run the service as an asyncio coro.
+        """
 
         # Load the configuration.
-        multiconf = self.get_multiconf(vars(self._args))
-        configuration = await multiconf.load()
+        multiconf_object = self.get_multiconf(vars(self._args))
+        # Resolve the symbols and give configuration as a dict.
+        multiconf_dict = await multiconf_object.load()
 
-        # Make a client context for the xchembku service.
-        xchembku_context = Context(configuration["xchembku_dataface_specification"])
+        # Get the specfication we want by keyword in the full configuration.
+        specification = require(
+            "configuration",
+            multiconf_dict,
+            "xchembku_dataface_specification",
+        )
 
-        # Open the context which starts the service process.
-        async with xchembku_context:
-            # Wait for it to finish.
-            await xchembku_context.server.wait_for_shutdown()
+        # We need the context to always start the service as a coro.
+        if "context" not in specification:
+            specification["context"] = {}
+        specification["context"]["start_as"] = "coro"
+
+        # Make the xchembku service context from the specification in the configuration.
+        context = XchembkuDatafaceContext(specification)
+
+        # Open the xchembku context which starts the service process.
+        async with context:
+            # Wait for the coro to finish.
+            await context.server.wait_for_shutdown()
 
     # ----------------------------------------------------------
-    def add_arguments(parser):
+    @staticmethod
+    def add_arguments(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+        """
+        Add arguments for this subcommand.
+
+        This is a static method called from the main program.
+
+        Args:
+            parser (argparse.ArgumentParser): Parser object which has been created already.
+
+        """
 
         parser.add_argument(
             "--configuration",
             "-c",
             help="Configuration file.",
             type=str,
-            metavar="yaml filename",
+            metavar="filename.yaml",
             default=None,
             dest=ArgKeywords.CONFIGURATION,
         )

@@ -129,15 +129,22 @@ class Aiohttp(Thing, BaseAiohttp):
         # logger.info(describe("args", args))
         # logger.info(describe("kwargs", kwargs))
 
+        # Get the function which the caller wants executed.
         function = getattr(self.__actual_xchembku_dataface, function)
+
+        # Caller wants the function wrapped in a transaction?
         if "as_transaction" in kwargs:
             as_transaction = kwargs["as_transaction"]
+            # Take the keyword out of the kwargs because the functions don't have it.
             kwargs.pop("as_transaction")
         else:
             as_transaction = False
 
         if as_transaction:
+            # Make sure we have an actual connection.
             await self.__actual_xchembku_dataface.establish_database_connection()
+
+            # Lock out all other requests from running their own transaction.
             async with self.__transaction_lock:
                 try:
                     await self.__actual_xchembku_dataface.begin()

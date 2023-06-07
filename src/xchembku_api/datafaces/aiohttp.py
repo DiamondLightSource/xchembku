@@ -30,23 +30,20 @@ logger = logging.getLogger(__name__)
 
 
 # ------------------------------------------------------------------------------------------
-class Aiohttp:
+class Aiohttp(AiohttpClient):
     """
     Object implementing client side API for talking to the xchembku_dataface server.
     Please see doctopic [A01].
     """
 
     # ----------------------------------------------------------------------------------------
-    def __init__(self, specification=None):
-        self.__specification = specification
+    def __init__(self, specification):
 
-        self.__aiohttp_client = AiohttpClient(
+        # We will get an umbrella specification which must contain an aiohttp_specification within it.
+        AiohttpClient.__init__(
+            self,
             specification["type_specific_tbd"]["aiohttp_specification"],
         )
-
-    # ----------------------------------------------------------------------------------------
-    def specification(self):
-        return self.__specification
 
     # ----------------------------------------------------------------------------------------
     async def query(self, sql, subs=None, why: Optional[str] = None):
@@ -313,15 +310,10 @@ class Aiohttp:
         return models
 
     # ----------------------------------------------------------------------------------------
-    async def report_health(self):
-        """"""
-        return await self.__send_protocolj("report_health")
-
-    # ----------------------------------------------------------------------------------------
     async def __send_protocolj(self, function, *args, **kwargs):
         """"""
 
-        return await self.__aiohttp_client.client_protocolj(
+        return await self.client_protocolj(
             {
                 Keywords.COMMAND: Commands.EXECUTE,
                 Keywords.PAYLOAD: {
@@ -331,30 +323,3 @@ class Aiohttp:
                 },
             },
         )
-
-    # ----------------------------------------------------------------------------------------
-    async def open_client_session(self):
-        """"""
-
-        if self.__aiohttp_client is not None:
-            await self.__aiohttp_client.open_client_session()
-
-    # ----------------------------------------------------------------------------------------
-    async def close_client_session(self):
-        """"""
-        logger.debug(f"[DISSHU] {callsign(self)} in aexit")
-
-        if self.__aiohttp_client is not None:
-            logger.debug(
-                f"[DISSHU] {callsign(self)} calling __aiohttp_client.close_client_session"
-            )
-            await self.__aiohttp_client.close_client_session()
-            logger.debug(
-                f"[DISSHU] {callsign(self)} called __aiohttp_client.close_client_session"
-            )
-
-    # ----------------------------------------------------------------------------------------
-    async def client_report_health(self):
-        """"""
-
-        return await self.__aiohttp_client.client_report_health()
