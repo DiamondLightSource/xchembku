@@ -12,7 +12,6 @@ from tests.base import Base
 from xchembku_api.datafaces.context import Context as ClientContext
 
 # Object managing datafaces.
-from xchembku_api.datafaces.datafaces import xchembku_datafaces_get_default
 from xchembku_api.models.crystal_plate_filter_model import CrystalPlateFilterModel
 from xchembku_api.models.crystal_plate_model import CrystalPlateModel
 
@@ -20,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------------------
-class TestCliSqlite:
+class TestCli1Sqlite:
     """
     Test that we can start the service (which uses sqlite) via the command line and talk to it.
     """
@@ -28,7 +27,7 @@ class TestCliSqlite:
     def test(self, constants, logging_setup, output_directory):
 
         configuration_file = "tests/configurations/service_sqlite.yaml"
-        CliTester(configuration_file).main(
+        Cli1Tester(configuration_file).main(
             constants,
             configuration_file,
             output_directory,
@@ -36,7 +35,7 @@ class TestCliSqlite:
 
 
 # ----------------------------------------------------------------------------------------
-class TestCliMysql:
+class TestCli1Mysql:
     """
     Test that we can start the service (which uses mysql) via the command line and talk to it.
     """
@@ -44,7 +43,7 @@ class TestCliMysql:
     def test(self, constants, logging_setup, output_directory):
 
         configuration_file = "tests/configurations/service_mysql.yaml"
-        CliTester(configuration_file).main(
+        Cli1Tester(configuration_file).main(
             constants,
             configuration_file,
             output_directory,
@@ -52,7 +51,7 @@ class TestCliMysql:
 
 
 # ----------------------------------------------------------------------------------------
-class CliTester(Base):
+class Cli1Tester(Base):
     """
     Class to test the dataface.
     """
@@ -64,7 +63,6 @@ class CliTester(Base):
 
     async def _main_coroutine(self, constants, output_directory):
         """ """
-        logger.debug("in CliTester")
 
         # Command to run the service.
         xchembku_server_cli = [
@@ -81,7 +79,7 @@ class CliTester(Base):
         os.environ["output_directory"] = output_directory
 
         # Launch the service as a process.
-        logger.debug(f"launching {' '.join(xchembku_server_cli)}")
+        logger.debug(f"launching subprocess {' '.join(xchembku_server_cli)}")
         process = subprocess.Popen(
             xchembku_server_cli,
             stdout=subprocess.PIPE,
@@ -89,22 +87,20 @@ class CliTester(Base):
         )
 
         try:
-            # Read the configuration.
+            # Read the same configuration which the service process reads.
             multiconf_object = self.get_multiconf()
             multiconf_dict = await multiconf_object.load()
 
             # Get a client context to the server in the process we just started.
             xchembku_specification = multiconf_dict["xchembku_dataface_specification"]
             xchembku_client_context = ClientContext(xchembku_specification)
-            async with xchembku_client_context:
-                # Client to the dataface.
-                dataface = xchembku_datafaces_get_default()
-
-                # Wait for process is able to give a health report.
+            async with xchembku_client_context as xchembku_client:
+                # Wait until process is able to give a non-exceptional health report.
                 start_time = time.time()
                 max_seconds = 5.0
                 while True:
-                    health = await dataface.client_report_health()
+                    # Try to check the health.
+                    health = await xchembku_client.client_report_health()
 
                     # Check if health report contains an exception.
                     exception = health.get("exception")
@@ -153,17 +149,17 @@ class CliTester(Base):
                     )
                 )
 
-                await dataface.upsert_crystal_plates(models)
+                await xchembku_client.upsert_crystal_plates(models)
 
                 # Check the filtered queries.
                 await self.__check(
-                    dataface,
+                    xchembku_client,
                     CrystalPlateFilterModel(),
                     3,
                     "all",
                 )
 
-                await dataface.client_shutdown()
+                await xchembku_client.client_shutdown()
         finally:
             try:
                 # Wait for the process to finish and get the output.
@@ -177,13 +173,16 @@ class CliTester(Base):
             return_code = process.returncode
             logger.debug(f"server return_code is {return_code}")
 
-            logger.debug(
-                f"================================== server stderr is:\n{stderr_bytes.decode()}"
-            )
-            logger.debug(
-                f"================================== server stdout is:\n{stdout_bytes.decode()}"
-            )
-            logger.debug("==================================")
+            if len(stderr_bytes) > 0:
+                logger.debug(
+                    f"================================== server stderr is:\n{stderr_bytes.decode()}"
+                )
+            if len(stdout_bytes) > 0:
+                logger.debug(
+                    f"================================== server stdout is:\n{stdout_bytes.decode()}"
+                )
+            if len(stderr_bytes) > 0 or len(stdout_bytes) > 0:
+                logger.debug("================================== end of server output")
 
         assert return_code == 0
 

@@ -35,6 +35,9 @@ class Context(ClientContextBase):
         # Open client session to the service or direct connection.
         await self.interface.open_client_session()
 
+        # For convenience, return the object which is the client interface.
+        return self.interface
+
     # ----------------------------------------------------------------------------------------
     async def aexit(self):
         """ """

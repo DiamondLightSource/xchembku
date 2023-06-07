@@ -49,6 +49,7 @@ class Base:
             "USER": os.environ.get("USER", "USER"),
             "PATH": os.environ.get("PATH", "PATH"),
             "PYTHONPATH": os.environ.get("PYTHONPATH", "PYTHONPATH"),
+            "output_directory": os.environ.get("output_directory", "output_directory"),
         }
 
         if hasattr(self._args, "visit") and self._args.visit != "VISIT":

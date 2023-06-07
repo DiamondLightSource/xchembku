@@ -40,7 +40,7 @@ class Aiohttp(Thing, BaseAiohttp):
             specification["type_specific_tbd"]["aiohttp_specification"],
         )
 
-        self.__actual_xchembku_dataface = None
+        self.__actual_dataface = None
 
     # ----------------------------------------------------------------------------------------
     def callsign(self):
@@ -85,7 +85,7 @@ class Aiohttp(Thing, BaseAiohttp):
             route_tuples = []
 
             # Build a local xchembku_dataface for our back-end.
-            self.__actual_xchembku_dataface = Datafaces().build_object(
+            self.__actual_dataface = Datafaces().build_object(
                 self.specification()["type_specific_tbd"][
                     "actual_xchembku_dataface_specification"
                 ]
@@ -96,7 +96,7 @@ class Aiohttp(Thing, BaseAiohttp):
             self.__transaction_lock = asyncio.Lock()
 
             # Get the local implementation started.
-            await self.__actual_xchembku_dataface.start()
+            await self.__actual_dataface.start()
 
             await self.activate_coro_base(route_tuples)
 
@@ -108,7 +108,7 @@ class Aiohttp(Thing, BaseAiohttp):
         """"""
         try:
             # Disconnect our local dataface connection, i.e. the one which holds the database connection.
-            await self.__actual_xchembku_dataface.disconnect()
+            await self.__actual_dataface.disconnect()
 
         except Exception as exception:
             raise RuntimeError(
@@ -130,7 +130,7 @@ class Aiohttp(Thing, BaseAiohttp):
         # logger.info(describe("kwargs", kwargs))
 
         # Get the function which the caller wants executed.
-        function = getattr(self.__actual_xchembku_dataface, function)
+        function = getattr(self.__actual_dataface, function)
 
         # Caller wants the function wrapped in a transaction?
         if "as_transaction" in kwargs:
@@ -142,16 +142,16 @@ class Aiohttp(Thing, BaseAiohttp):
 
         if as_transaction:
             # Make sure we have an actual connection.
-            await self.__actual_xchembku_dataface.establish_database_connection()
+            await self.__actual_dataface.establish_database_connection()
 
             # Lock out all other requests from running their own transaction.
             async with self.__transaction_lock:
                 try:
-                    await self.__actual_xchembku_dataface.begin()
+                    await self.__actual_dataface.begin()
                     response = await function(*args, **kwargs)
-                    await self.__actual_xchembku_dataface.commit()
+                    await self.__actual_dataface.commit()
                 except Exception:
-                    await self.__actual_xchembku_dataface.rollback()
+                    await self.__actual_dataface.rollback()
                     raise
         else:
             response = await function(*args, **kwargs)
