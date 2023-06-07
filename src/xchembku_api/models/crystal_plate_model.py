@@ -8,7 +8,7 @@ class CrystalPlateModel(BaseModel):
     """
     Model containing plate information.
 
-    Typically this structure is populated and transmitted by the rockminer package.
+    Typically this structure is populated and transmitted by the rockingester package.
     """
 
     uuid: str

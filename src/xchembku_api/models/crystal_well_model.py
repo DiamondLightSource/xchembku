@@ -8,7 +8,7 @@ class CrystalWellModel(BaseModel):
     """
     Model containing well information.
 
-    Typically this structure is populated and transmitted by the rockingest package.
+    Typically this structure is populated and transmitted by the rockingester package.
     """
 
     uuid: str
@@ -36,6 +36,9 @@ class CrystalWellModel(BaseModel):
     created_on: Optional[str] = None
 
     def __init__(self, **kwargs):
+        """
+        Constructor, takes keyword arguments which it assigns to model properties.
+        """
         # Automatically cook up a uuid if it's not provided to the constructor.
         if "uuid" not in kwargs:
             kwargs["uuid"] = str(uuid.uuid4())
