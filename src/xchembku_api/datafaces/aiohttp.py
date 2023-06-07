@@ -51,12 +51,23 @@ class Aiohttp:
     # ----------------------------------------------------------------------------------------
     async def query(self, sql, subs=None, why: Optional[str] = None):
         """"""
-        return await self.__send_protocolj("query", sql, subs=subs, why=why)
+        return await self.__send_protocolj(
+            "query",
+            sql,
+            subs=subs,
+            why=why,
+        )
 
     # ----------------------------------------------------------------------------------------
     async def execute(self, sql, subs=None, why: Optional[str] = None):
         """"""
-        return await self.__send_protocolj("execute", sql, subs=subs, why=why)
+        return await self.__send_protocolj(
+            "execute",
+            sql,
+            subs=subs,
+            why=why,
+            as_transaction=True,
+        )
 
     # ----------------------------------------------------------------------------------------
     async def insert(self, table_name, records, why: Optional[str] = None):
@@ -66,6 +77,7 @@ class Aiohttp:
             table_name,
             records,
             why=why,
+            as_transaction=True,
         )
 
     # ----------------------------------------------------------------------------------------
@@ -80,16 +92,7 @@ class Aiohttp:
             where,
             subs=subs,
             why=why,
-        )
-
-    # ----------------------------------------------------------------------------------------
-    async def commit(self, why: Optional[str] = None):
-        """
-        Commit is exposed on the API for use in testing when database states must be deterministic.
-        """
-        return await self.__send_protocolj(
-            "commit",
-            why=why,
+            as_transaction=True,
         )
 
     # ----------------------------------------------------------------------------------------
@@ -105,6 +108,7 @@ class Aiohttp:
             "upsert_crystal_plates_serialized",
             records,
             why=why,
+            as_transaction=True,
         )
 
         return None
@@ -177,6 +181,7 @@ class Aiohttp:
         await self.__send_protocolj(
             "upsert_crystal_wells_serialized",
             records,
+            as_transaction=True,
         )
 
         return None
@@ -186,6 +191,7 @@ class Aiohttp:
         self,
         records,
         why: Optional[str] = None,
+        as_transaction=True,
     ) -> Dict:
         """"""
 
@@ -243,6 +249,7 @@ class Aiohttp:
         await self.__send_protocolj(
             "originate_crystal_well_autolocations_serialized",
             records,
+            as_transaction=True,
         )
 
         return None
@@ -262,6 +269,7 @@ class Aiohttp:
             records,
             only_fields=only_fields,
             why=why,
+            as_transaction=True,
         )
 
         return None
@@ -277,7 +285,11 @@ class Aiohttp:
 
         records: List[Dict] = [model.dict() for model in models]
         result = await self.__send_protocolj(
-            "inject_soakdb3_crystal_wells_serialized", visitid, records, why=why
+            "inject_soakdb3_crystal_wells_serialized",
+            visitid,
+            records,
+            why=why,
+            as_transaction=True,
         )
         return result
 
@@ -290,7 +302,9 @@ class Aiohttp:
         """"""
 
         records = await self.__send_protocolj(
-            "fetch_soakdb3_crystal_wells_serialized", visitid, why=why
+            "fetch_soakdb3_crystal_wells_serialized",
+            visitid,
+            why=why,
         )
 
         # Dicts are returned, so parse them into models.
@@ -302,24 +316,6 @@ class Aiohttp:
     async def report_health(self):
         """"""
         return await self.__send_protocolj("report_health")
-
-    # ----------------------------------------------------------------------------------------
-    async def set_cookie(self, cookie_dict):
-        """ """
-        return await self.__send_protocolj("set_cookie", cookie_dict)
-
-    # ----------------------------------------------------------------------------------------
-    async def get_cookie(self, cookie_uuid):
-        """
-        Get single cookie from its uuid.
-        Returns database record format.
-        """
-        return await self.__send_protocolj("get_cookie", cookie_uuid)
-
-    # ----------------------------------------------------------------------------------------
-    async def update_cookie(self, row):
-        """"""
-        return await self.__send_protocolj("update_cookie", row)
 
     # ----------------------------------------------------------------------------------------
     async def __send_protocolj(self, function, *args, **kwargs):

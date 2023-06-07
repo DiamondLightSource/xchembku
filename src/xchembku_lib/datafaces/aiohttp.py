@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import multiprocessing
 import threading
@@ -90,6 +91,10 @@ class Aiohttp(Thing, BaseAiohttp):
                 ]
             )
 
+            # Use a lock around all transaction-based requests.
+            # TODO: Remove aiohttp transaction lock and instead use connection pool.
+            self.__transaction_lock = asyncio.Lock()
+
             # Get the local implementation started.
             await self.__actual_xchembku_dataface.start()
 
@@ -125,8 +130,24 @@ class Aiohttp(Thing, BaseAiohttp):
         # logger.info(describe("kwargs", kwargs))
 
         function = getattr(self.__actual_xchembku_dataface, function)
+        if "as_transaction" in kwargs:
+            as_transaction = kwargs["as_transaction"]
+            kwargs.pop("as_transaction")
+        else:
+            as_transaction = False
 
-        response = await function(*args, **kwargs)
+        if as_transaction:
+            await self.__actual_xchembku_dataface.establish_database_connection()
+            async with self.__transaction_lock:
+                try:
+                    await self.__actual_xchembku_dataface.begin()
+                    response = await function(*args, **kwargs)
+                    await self.__actual_xchembku_dataface.commit()
+                except Exception:
+                    await self.__actual_xchembku_dataface.rollback()
+                    raise
+        else:
+            response = await function(*args, **kwargs)
 
         return response
 
