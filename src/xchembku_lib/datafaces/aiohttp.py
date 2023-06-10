@@ -93,7 +93,7 @@ class Aiohttp(Thing, BaseAiohttp):
 
             # Use a lock around all transaction-based requests.
             # TODO: Remove aiohttp transaction lock and instead use connection pool.
-            self.__transaction_lock = asyncio.Lock()
+            self.__request_lock = asyncio.Lock()
 
             # Get the local implementation started.
             await self.__actual_dataface.start()
@@ -111,10 +111,9 @@ class Aiohttp(Thing, BaseAiohttp):
             await self.__actual_dataface.disconnect()
 
         except Exception as exception:
-            raise RuntimeError(
+            logger.warning(
                 callsign(
-                    self,
-                    explain(exception, "disconnecting local xchembku_dataface"),
+                    self, explain(exception, "disconnecting actual xchembku_dataface")
                 )
             )
 
@@ -132,20 +131,21 @@ class Aiohttp(Thing, BaseAiohttp):
         # Get the function which the caller wants executed.
         function = getattr(self.__actual_dataface, function)
 
-        # Caller wants the function wrapped in a transaction?
-        if "as_transaction" in kwargs:
-            as_transaction = kwargs["as_transaction"]
-            # Take the keyword out of the kwargs because the functions don't have it.
-            kwargs.pop("as_transaction")
-        else:
-            as_transaction = False
+        # Lock out all other requests from running at the same time.
+        async with self.__request_lock:
 
-        if as_transaction:
-            # Make sure we have an actual connection.
-            await self.__actual_dataface.establish_database_connection()
+            # Caller wants the function wrapped in a transaction?
+            if "as_transaction" in kwargs:
+                as_transaction = kwargs["as_transaction"]
+                # Take the keyword out of the kwargs because the functions don't have it.
+                kwargs.pop("as_transaction")
+            else:
+                as_transaction = False
 
-            # Lock out all other requests from running their own transaction.
-            async with self.__transaction_lock:
+            if as_transaction:
+                # Make sure we have an actual connection.
+                await self.__actual_dataface.establish_database_connection()
+
                 try:
                     await self.__actual_dataface.begin()
                     response = await function(*args, **kwargs)
@@ -153,8 +153,8 @@ class Aiohttp(Thing, BaseAiohttp):
                 except Exception:
                     await self.__actual_dataface.rollback()
                     raise
-        else:
-            response = await function(*args, **kwargs)
+            else:
+                response = await function(*args, **kwargs)
 
         return response
 
