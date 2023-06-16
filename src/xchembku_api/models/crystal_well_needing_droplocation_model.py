@@ -42,3 +42,13 @@ class CrystalWellNeedingDroplocationModel(BaseModel):
 
     is_usable: Optional[bool] = None
     is_exported_to_soakdb3: Optional[bool] = None
+
+    def row_first_position(self):
+        # A01a becomes 01Aa for purposes of sorting such that we get all letters in row 01 before any letters in row 02.
+        # Within the same plate.
+        return (
+            self.rockminer_collected_stem
+            + self.position[1:3]
+            + self.position[0]
+            + self.position[-1]
+        )
